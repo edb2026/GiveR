@@ -1,0 +1,350 @@
+import { useState, useEffect, useRef } from “react”;
+
+const SCREENS = { HOME: “home”, POST: “post”, LIST: “list”, DETAIL: “detail” };
+
+const TIERS = [
+{ icon: “🥇”, name: “Gold”, color: “#d97706”, bg: “#fef3c7”, pct: “20%”, range: “1–3 items” },
+{ icon: “💎”, name: “Diamond”, color: “#7c3aed”, bg: “#ede9fe”, pct: “30%”, range: “4–7 items” },
+{ icon: “🏆”, name: “Champion”, color: “#059669”, bg: “#d1fae5”, pct: “50%”, range: “7+ items” },
+];
+
+function getTier(count) {
+if (count >= 7) return TIERS[2];
+if (count >= 4) return TIERS[1];
+if (count >= 1) return TIERS[0];
+return null;
+}
+
+const MOCK_RESPONSES = [
+{ from: “GivyTeam”, time: “Just now”, msg: “✅ Your request has been received! We’ll confirm pickup within 24h.” },
+];
+
+export default function App() {
+const [screen, setScreen] = useState(SCREENS.HOME);
+const [orders, setOrders] = useState(() => {
+try { return JSON.parse(localStorage.getItem(“givy_orders”) || “[]”); } catch { return []; }
+});
+const [selected, setSelected] = useState(null);
+const [form, setForm] = useState({ title: “”, desc: “”, address: “”, date: “”, t1: “”, t2: “”, email: “”, phone: “” });
+const [photos, setPhotos] = useState([]);
+const [submitting, setSubmitting] = useState(false);
+const [errors, setErrors] = useState({});
+const fileRef = useRef();
+
+useEffect(() => {
+try { localStorage.setItem(“givy_orders”, JSON.stringify(orders)); } catch {}
+}, [orders]);
+
+const go = (s) => { setScreen(s); setErrors({}); };
+
+const handlePhoto = (e) => {
+const files = Array.from(e.target.files);
+const remaining = 10 - photos.length;
+const toAdd = files.slice(0, remaining);
+toAdd.forEach(file => {
+const reader = new FileReader();
+reader.onload = (ev) => setPhotos(p => […p, { url: ev.target.result, name: file.name }]);
+reader.readAsDataURL(file);
+});
+e.target.value = “”;
+};
+
+const removePhoto = (i) => setPhotos(p => p.filter((_, idx) => idx !== i));
+
+const validate = () => {
+const e = {};
+if (!form.title.trim()) e.title = “Required”;
+if (!form.address.trim()) e.address = “Required”;
+if (!form.date) e.date = “Required”;
+if (!form.email.trim()) e.email = “Required”;
+return e;
+};
+
+const submit = () => {
+const e = validate();
+if (Object.keys(e).length) { setErrors(e); return; }
+setSubmitting(true);
+setTimeout(() => {
+const order = {
+id: Date.now(),
+…form,
+photos: photos.map(p => p.url),
+status: “Pending”,
+created: new Date().toLocaleString(),
+responses: […MOCK_RESPONSES],
+};
+setOrders(prev => [order, …prev]);
+setForm({ title: “”, desc: “”, address: “”, date: “”, t1: “”, t2: “”, email: “”, phone: “” });
+setPhotos([]);
+setSubmitting(false);
+go(SCREENS.LIST);
+}, 800);
+};
+
+const tier = getTier(orders.length);
+
+const styles = {
+root: { fontFamily: “‘Nunito’, system-ui, sans-serif”, background: “#0f172a”, minHeight: “100vh”, color: “#fff”, paddingBottom: 80, maxWidth: 480, margin: “0 auto” },
+header: { background: “linear-gradient(135deg,#059669,#047857)”, padding: “18px 16px 14px”, textAlign: “center” },
+brand1: { fontSize: 36, fontWeight: 900, color: “#fff”, letterSpacing: 1 },
+brand2: { fontSize: 34, fontWeight: 900, color: “#FFD700”, letterSpacing: 3, textShadow: “0 2px 8px rgba(0,0,0,0.4)” },
+badge: { fontSize: 12, fontWeight: 800, color: “#fff”, background: “rgba(0,0,0,0.25)”, display: “inline-block”, padding: “3px 14px”, borderRadius: 20, marginTop: 5 },
+page: { padding: 16 },
+card: { background: “#fff”, color: “#111”, borderRadius: 22, padding: 20, marginBottom: 16, boxShadow: “0 8px 32px rgba(0,0,0,0.4)” },
+btn: { background: “#059669”, color: “#fff”, padding: “15px 0”, width: “100%”, borderRadius: 18, fontWeight: 900, fontSize: 16, border: “none”, cursor: “pointer”, boxShadow: “0 6px 20px rgba(5,150,105,0.4)”, marginBottom: 14, display: “block” },
+btnOutline: { background: “#fff”, color: “#059669”, border: “2.5px solid #059669” },
+inp: { background: “#f9fafb”, border: “2px solid #e5e7eb”, borderRadius: 12, padding: “12px 14px”, fontSize: 15, fontWeight: 700, width: “100%”, color: “#111827”, marginBottom: 10, boxSizing: “border-box”, fontFamily: “inherit” },
+inpErr: { borderColor: “#ef4444”, background: “#fff5f5” },
+label: { fontSize: 11, textTransform: “uppercase”, letterSpacing: “0.1em”, color: “#64748b”, fontWeight: 900, marginBottom: 6, display: “block”, marginTop: 16 },
+backRow: { display: “flex”, alignItems: “center”, gap: 12, marginBottom: 20 },
+backBtn: { background: “rgba(255,255,255,0.15)”, border: “none”, color: “#fff”, borderRadius: 12, padding: “8px 16px”, fontWeight: 900, fontSize: 15, cursor: “pointer” },
+nav: { position: “fixed”, bottom: 0, left: “50%”, transform: “translateX(-50%)”, width: “100%”, maxWidth: 480, background: “#111827”, borderTop: “1px solid #1f2937”, display: “flex”, padding: “8px 0”, zIndex: 50 },
+navItem: { flex: 1, textAlign: “center”, color: “#6b7280”, fontSize: 11, fontWeight: 800, padding: “4px 0”, cursor: “pointer”, userSelect: “none” },
+navActive: { color: “#10b981” },
+statusPill: (s) => ({ display: “inline-block”, padding: “3px 12px”, borderRadius: 20, fontSize: 12, fontWeight: 900, background: s === “Pending” ? “#fef3c7” : s === “Confirmed” ? “#d1fae5” : “#fee2e2”, color: s === “Pending” ? “#92400e” : s === “Confirmed” ? “#065f46” : “#991b1b” }),
+photoBox: { display: “grid”, gridTemplateColumns: “repeat(3,1fr)”, gap: 6, marginTop: 10 },
+photoThumb: { position: “relative”, aspectRatio: “1”, borderRadius: 10, overflow: “hidden”, background: “#f1f5f9” },
+photoImg: { width: “100%”, height: “100%”, objectFit: “cover” },
+photoRemove: { position: “absolute”, top: 2, right: 2, background: “rgba(0,0,0,0.6)”, color: “#fff”, border: “none”, borderRadius: “50%”, width: 20, height: 20, cursor: “pointer”, fontSize: 12, lineHeight: “20px”, textAlign: “center”, padding: 0 },
+addPhotoBtn: { aspectRatio: “1”, borderRadius: 10, border: “2px dashed #d1d5db”, background: “#f9fafb”, display: “flex”, alignItems: “center”, justifyContent: “center”, cursor: “pointer”, flexDirection: “column”, color: “#6b7280”, fontSize: 11, fontWeight: 800 },
+bubble: { background: “#f0fdf4”, borderRadius: “16px 16px 16px 4px”, padding: “10px 14px”, marginBottom: 8, fontSize: 13, color: “#065f46”, maxWidth: “85%” },
+bubbleMeta: { fontSize: 10, color: “#64748b”, marginBottom: 4, fontWeight: 700 },
+};
+
+return (
+<div style={styles.root}>
+{/* HEADER */}
+<div style={styles.header}>
+<div style={styles.brand1}>Givy</div>
+<div style={styles.brand2}>REWARDS</div>
+<div style={styles.badge}>✨ Give away your stuff · Get Rewards ✨</div>
+</div>
+
+```
+  {/* HOME */}
+  {screen === SCREENS.HOME && (
+    <div style={styles.page}>
+      <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 4 }}>Give away your stuff</div>
+      <div style={{ color: "#94a3b8", fontSize: 14, marginBottom: 20 }}>Furniture, household items, office equipment.<br />We pick up for free.</div>
+
+      {/* Rewards card */}
+      <div style={styles.card}>
+        <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 2 }}>🔥 Rewards System</div>
+        <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 14 }}>The more you give — the more you save</div>
+        <div style={{ height: 8, background: "#e5e7eb", borderRadius: 8, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ height: "100%", width: `${Math.min(100, (orders.length / 7) * 100)}%`, background: "linear-gradient(90deg,#f59e0b,#7c3aed,#059669)", borderRadius: 8, transition: "width 0.6s" }} />
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", textAlign: "center", gap: 4 }}>
+          {TIERS.map(t => (
+            <div key={t.name} style={{ padding: "8px 4px", borderRadius: 12, background: tier?.name === t.name ? t.bg : "transparent" }}>
+              <div style={{ fontSize: 28 }}>{t.icon}</div>
+              <div style={{ fontWeight: 900, color: t.color, fontSize: 13 }}>{t.name}</div>
+              <div style={{ background: t.color, color: "#fff", borderRadius: 20, padding: "1px 8px", fontSize: 12, fontWeight: 900, display: "inline-block" }}>{t.pct}</div>
+              <div style={{ fontSize: 10, color: "#9ca3af", marginTop: 2 }}>{t.range}</div>
+            </div>
+          ))}
+        </div>
+        {tier && <div style={{ marginTop: 12, background: "#f0fdf4", borderRadius: 12, padding: "8px 12px", fontSize: 13, fontWeight: 800, color: "#065f46" }}>🎉 You're at <strong>{tier.name}</strong> tier — {orders.length} item{orders.length !== 1 ? "s" : ""} given!</div>}
+      </div>
+
+      <button style={styles.btn} onClick={() => go(SCREENS.POST)}>📦 Post an Item</button>
+      <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => go(SCREENS.LIST)}>📋 My Requests ({orders.length})</button>
+
+      <div style={styles.card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ fontSize: 36 }}>🚚</div>
+          <div><div style={{ fontWeight: 900 }}>Free Pickup</div><div style={{ fontSize: 13, color: "#6b7280" }}>We collect your items at your chosen time</div></div>
+        </div>
+      </div>
+      <div style={styles.card}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ fontSize: 36 }}>📸</div>
+          <div><div style={{ fontWeight: 900 }}>Upload up to 10 Photos</div><div style={{ fontSize: 13, color: "#6b7280" }}>Show us what you're giving away</div></div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* POST */}
+  {screen === SCREENS.POST && (
+    <div style={styles.page}>
+      <div style={styles.backRow}>
+        <button style={styles.backBtn} onClick={() => go(SCREENS.HOME)}>← Back</button>
+        <span style={{ fontSize: 22, fontWeight: 900 }}>Post an Item</span>
+      </div>
+      <div style={styles.card}>
+        <span style={styles.label}>Item Details</span>
+        <input
+          placeholder="Item title (e.g. IKEA Sofa)" style={{ ...styles.inp, ...(errors.title ? styles.inpErr : {}) }}
+          value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+        />
+        {errors.title && <div style={{ color: "#ef4444", fontSize: 12, marginTop: -8, marginBottom: 8 }}>⚠ {errors.title}</div>}
+        <textarea
+          placeholder="Description (condition, size, color…)" style={{ ...styles.inp, resize: "vertical", minHeight: 80 }} rows={3}
+          value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
+        />
+
+        <span style={styles.label}>Pickup Address</span>
+        <input
+          placeholder="Street address, city" style={{ ...styles.inp, ...(errors.address ? styles.inpErr : {}) }}
+          value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+        />
+        {errors.address && <div style={{ color: "#ef4444", fontSize: 12, marginTop: -8, marginBottom: 8 }}>⚠ {errors.address}</div>}
+
+        <span style={styles.label}>Pickup Date & Time Window</span>
+        <input
+          type="date" style={{ ...styles.inp, ...(errors.date ? styles.inpErr : {}) }}
+          value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+        />
+        {errors.date && <div style={{ color: "#ef4444", fontSize: 12, marginTop: -8, marginBottom: 8 }}>⚠ {errors.date}</div>}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <input type="time" style={styles.inp} value={form.t1} onChange={e => setForm(f => ({ ...f, t1: e.target.value }))} />
+          <input type="time" style={styles.inp} value={form.t2} onChange={e => setForm(f => ({ ...f, t2: e.target.value }))} />
+        </div>
+
+        <span style={styles.label}>Contact Info</span>
+        <input
+          placeholder="Email" style={{ ...styles.inp, ...(errors.email ? styles.inpErr : {}) }} type="email"
+          value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+        />
+        {errors.email && <div style={{ color: "#ef4444", fontSize: 12, marginTop: -8, marginBottom: 8 }}>⚠ {errors.email}</div>}
+        <input
+          placeholder="Phone number" style={styles.inp} type="tel"
+          value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+        />
+
+        <span style={styles.label}>Photos ({photos.length}/10)</span>
+        <div style={styles.photoBox}>
+          {photos.map((p, i) => (
+            <div key={i} style={styles.photoThumb}>
+              <img src={p.url} alt={p.name} style={styles.photoImg} />
+              <button style={styles.photoRemove} onClick={() => removePhoto(i)}>✕</button>
+            </div>
+          ))}
+          {photos.length < 10 && (
+            <div style={styles.addPhotoBtn} onClick={() => fileRef.current.click()}>
+              <div style={{ fontSize: 24 }}>📷</div>
+              <div>Add Photo</div>
+            </div>
+          )}
+        </div>
+        <input ref={fileRef} type="file" multiple accept="image/*" style={{ display: "none" }} onChange={handlePhoto} />
+
+        <button style={{ ...styles.btn, marginTop: 20, opacity: submitting ? 0.7 : 1 }} onClick={submit} disabled={submitting}>
+          {submitting ? "⏳ Submitting…" : "✅ Submit Request"}
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* LIST */}
+  {screen === SCREENS.LIST && (
+    <div style={styles.page}>
+      <div style={styles.backRow}>
+        <button style={styles.backBtn} onClick={() => go(SCREENS.HOME)}>← Back</button>
+        <span style={{ fontSize: 22, fontWeight: 900 }}>My Requests</span>
+      </div>
+      {orders.length === 0 ? (
+        <div style={{ ...styles.card, textAlign: "center", padding: "40px 20px" }}>
+          <div style={{ fontSize: 60, marginBottom: 12 }}>📭</div>
+          <div style={{ fontWeight: 900, fontSize: 18 }}>No requests yet</div>
+          <div style={{ fontSize: 13, color: "#6b7280", marginTop: 6 }}>Post your first item to get started</div>
+          <button style={{ ...styles.btn, marginTop: 16 }} onClick={() => go(SCREENS.POST)}>📦 Post an Item</button>
+        </div>
+      ) : orders.map(o => (
+        <div key={o.id} style={{ ...styles.card, cursor: "pointer" }} onClick={() => { setSelected(o); go(SCREENS.DETAIL); }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ fontWeight: 900, fontSize: 16, flex: 1, paddingRight: 8 }}>{o.title}</div>
+            <span style={styles.statusPill(o.status)}>{o.status}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "#6b7280", margin: "6px 0" }}>{o.desc || "No description"}</div>
+          {o.photos.length > 0 && (
+            <div style={{ display: "flex", gap: 6, marginBottom: 8, overflow: "hidden" }}>
+              {o.photos.slice(0, 4).map((ph, i) => (
+                <img key={i} src={ph} alt="" style={{ width: 52, height: 52, borderRadius: 8, objectFit: "cover", border: "2px solid #e5e7eb" }} />
+              ))}
+              {o.photos.length > 4 && <div style={{ width: 52, height: 52, borderRadius: 8, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: "#64748b" }}>+{o.photos.length - 4}</div>}
+            </div>
+          )}
+          <div style={{ fontSize: 12, color: "#9ca3af" }}>
+            <span>📍 {o.address}</span> · <span>📅 {o.date}</span>
+          </div>
+          <div style={{ fontSize: 12, color: "#10b981", fontWeight: 800, marginTop: 4 }}>
+            💬 {o.responses.length} response{o.responses.length !== 1 ? "s" : ""} · Tap to view →
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* DETAIL */}
+  {screen === SCREENS.DETAIL && selected && (
+    <div style={styles.page}>
+      <div style={styles.backRow}>
+        <button style={styles.backBtn} onClick={() => go(SCREENS.LIST)}>← Back</button>
+        <span style={{ fontSize: 20, fontWeight: 900, flex: 1 }}>{selected.title}</span>
+        <span style={styles.statusPill(selected.status)}>{selected.status}</span>
+      </div>
+
+      <div style={styles.card}>
+        <div style={{ fontWeight: 900, fontSize: 16, marginBottom: 8 }}>📋 Order Details</div>
+        {selected.desc && <div style={{ fontSize: 14, color: "#374151", marginBottom: 10 }}>{selected.desc}</div>}
+        <div style={{ fontSize: 13, color: "#6b7280", lineHeight: 2 }}>
+          <div>📍 <strong>{selected.address}</strong></div>
+          <div>📅 {selected.date} {selected.t1 && `· ${selected.t1} – ${selected.t2}`}</div>
+          {selected.email && <div>✉️ {selected.email}</div>}
+          {selected.phone && <div>📱 {selected.phone}</div>}
+          <div style={{ color: "#9ca3af", fontSize: 11 }}>Created: {selected.created}</div>
+        </div>
+      </div>
+
+      {selected.photos.length > 0 && (
+        <div style={styles.card}>
+          <div style={{ fontWeight: 900, marginBottom: 10 }}>📸 Photos ({selected.photos.length})</div>
+          <div style={styles.photoBox}>
+            {selected.photos.map((ph, i) => (
+              <div key={i} style={{ ...styles.photoThumb, borderRadius: 12 }}>
+                <img src={ph} alt="" style={styles.photoImg} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={styles.card}>
+        <div style={{ fontWeight: 900, marginBottom: 12 }}>💬 Responses ({selected.responses.length})</div>
+        {selected.responses.map((r, i) => (
+          <div key={i}>
+            <div style={styles.bubbleMeta}>{r.from} · {r.time}</div>
+            <div style={styles.bubble}>{r.msg}</div>
+          </div>
+        ))}
+        <div style={{ marginTop: 12, padding: "10px 12px", background: "#f8fafc", borderRadius: 12, fontSize: 13, color: "#94a3b8", fontWeight: 700 }}>
+          📩 Additional responses will appear here once our team reviews your request.
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* BOTTOM NAV */}
+  <div style={styles.nav}>
+    {[
+      { id: SCREENS.HOME, icon: "🏠", label: "Home" },
+      { id: SCREENS.POST, icon: "📦", label: "Post" },
+      { id: SCREENS.LIST, icon: "📋", label: `Requests${orders.length ? ` (${orders.length})` : ""}` },
+    ].map(n => (
+      <div
+        key={n.id}
+        style={{ ...styles.navItem, ...(screen === n.id || (screen === SCREENS.DETAIL && n.id === SCREENS.LIST) ? styles.navActive : {}) }}
+        onClick={() => go(n.id)}
+      >
+        <div style={{ fontSize: 22, marginBottom: 2 }}>{n.icon}</div>
+        {n.label}
+      </div>
+    ))}
+  </div>
+</div>
+```
+
+);
+}
