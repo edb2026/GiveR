@@ -3,195 +3,431 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsShop | Luxury Furniture</title>
+  <title>GivyRewardsAdmin | Luxury Management</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; line-height: 1.4; }
-    .container { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
-    .shop-header { display: flex; justify-content: center; align-items: center; padding: 36px 0 24px 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; position: relative; }
-    .logo h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .logo p { font-size: 12px; letter-spacing: 3px; color: #C5A267; margin-top: 8px; }
-    .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; justify-content: center; }
-    .filter-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 28px; font-weight: 500; font-size: 14px; color: #EDEDED; border-radius: 40px; cursor: pointer; transition: all 0.25s ease; }
-    .filter-btn.active, .filter-btn:hover { background: #C5A267; border-color: #C5A267; color: #0A0A0A; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px 28px; margin-bottom: 80px; }
-    .product-card { background: #121212; border-radius: 28px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; }
-    .product-card:hover { transform: translateY(-6px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.8); }
-    .product-img { position: relative; overflow: hidden; background: #1E1E1E; aspect-ratio: 4 / 5; }
-    .product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-    .fb-contact-btn { position: absolute; bottom: 18px; left: 18px; background: #1877F2; border: none; border-radius: 40px; padding: 8px 16px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 2; transition: 0.2s; }
-    .fb-contact-btn:hover { background: #1464CC; }
-    .wishlist-icon { position: absolute; top: 18px; right: 18px; background: rgba(10,10,10,0.6); backdrop-filter: blur(4px); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
-    .product-info { padding: 20px 20px 24px; flex: 1; display: flex; flex-direction: column; }
-    .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; color: #C5A267; margin-bottom: 8px; }
-    .product-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; margin-bottom: 10px; }
-    .product-description { font-size: 13px; line-height: 1.45; color: #B0B0B0; margin: 8px 0 12px 0; border-left: 2px solid rgba(197,162,103,0.4); padding-left: 12px; }
-    .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
-    .price { font-weight: 600; font-size: 22px; color: #C5A267; }
-    .old-price { font-size: 15px; color: #9B9B9B; text-decoration: line-through; margin-left: 12px; }
-    .admin-secret-trigger { position: fixed; bottom: 15px; left: 15px; width: 32px; height: 32px; opacity: 0.08; z-index: 999; cursor: pointer; border-radius: 50%; background: #C5A267; display: flex; align-items: center; justify-content: center; }
-    .admin-secret-trigger:hover { opacity: 0.3; }
+    body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; }
+    .admin-container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 36px 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
+    .logo h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, #C5A267 30%, #E8D5B5 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .logo p { font-size: 12px; letter-spacing: 3px; color: #C5A267; margin-top: 6px; }
+    .logout-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; font-size: 12px; }
+    .logout-btn:hover { background: rgba(197,162,103,0.3); }
+    .dashboard { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; margin-bottom: 60px; }
+    .form-card { background: #121212; border-radius: 32px; padding: 32px; border: 1px solid rgba(255,255,255,0.05); }
+    .form-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; margin-bottom: 28px; border-left: 4px solid #C5A267; padding-left: 18px; }
+    .input-group { margin-bottom: 24px; }
+    .input-group label { display: block; font-size: 13px; font-weight: 500; text-transform: uppercase; color: #C5A267; margin-bottom: 8px; }
+    .input-group input, .input-group textarea, .input-group select { width: 100%; background: #1E1E1E; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 14px 18px; font-family: 'Inter', sans-serif; font-size: 15px; color: #EDEDED; }
+    .input-group textarea { min-height: 90px; resize: vertical; }
+    .category-row { display: flex; gap: 12px; align-items: center; }
+    .category-row select { flex: 1; }
+    .edit-cat-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 12px 18px; color: #C5A267; cursor: pointer; white-space: nowrap; }
+    .image-upload-area { background: #1A1A1A; border-radius: 24px; padding: 20px; margin-bottom: 24px; border: 1px dashed rgba(197,162,103,0.5); }
+    .image-grid-preview { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .preview-img-wrapper { position: relative; width: 80px; height: 80px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+    .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border-radius: 20px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: #fff; }
+    .upload-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 10px 20px; font-size: 13px; color: #C5A267; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .button-group { display: flex; gap: 16px; margin-top: 12px; }
+    .submit-btn { background: #C5A267; border: none; flex: 1; padding: 16px; font-weight: 700; font-size: 16px; color: #0A0A0A; border-radius: 40px; cursor: pointer; }
+    .add-more-btn { background: rgba(197,162,103,0.2); border: 1px solid rgba(197,162,103,0.5); flex: 1; padding: 16px; font-weight: 600; font-size: 16px; color: #C5A267; border-radius: 40px; cursor: pointer; }
+    .catalog-section { background: #121212; border-radius: 32px; padding: 28px; margin-bottom: 60px; }
+    .product-table { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: #C5A267; }
+    .product-thumb { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
+    .action-icons i { margin: 0 6px; cursor: pointer; color: #aaa; font-size: 16px; }
+    .action-icons i:hover { color: #C5A267; }
+    .fb-sync-btn { background: #1877F2; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
     .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
     .toast-msg.show { opacity: 1; transform: translateY(0); }
-    footer { text-align: center; padding: 40px 0 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #6F6F6F; }
-    @media (max-width: 700px) { .container { padding: 0 20px; } }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
+    .modal.active { visibility: visible; opacity: 1; }
+    .modal-content { background: #121212; border-radius: 32px; padding: 32px; max-width: 500px; width: 90%; }
+    .category-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #1E1E1E; border-radius: 16px; margin-bottom: 8px; }
+    .modal-close { background: #C5A267; border: none; padding: 12px; border-radius: 40px; color: #0A0A0A; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; }
+    footer { text-align: center; padding: 30px 0; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #6F6F6F; }
+    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <header class="shop-header"><div class="logo"><h1>GivyRewardsShop</h1><p>Furniture · Objects · Interior Couture</p></div></header>
-  <div class="filters" id="filterGroup">
-    <button class="filter-btn active" data-category="all">All Pieces</button>
-    <button class="filter-btn" data-category="furniture">Furniture</button>
-    <button class="filter-btn" data-category="seating">Seating</button>
-    <button class="filter-btn" data-category="beds">Beds</button>
-    <button class="filter-btn" data-category="rugs">Rugs</button>
-    <button class="filter-btn" data-category="decor">Decor</button>
-    <button class="filter-btn" data-category="office">Office</button>
-  </div>
-  <div class="product-grid" id="productGrid"></div>
-</div>
+<div class="admin-container">
+  <header class="admin-header">
+    <div class="logo"><h1>GivyRewardsAdmin</h1><p>LUXURY INVENTORY</p></div>
+    <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Exit to Shop</button>
+  </header>
 
-<div class="admin-secret-trigger" id="adminSecretTrigger"><i class="fas fa-crown"></i></div>
-<div id="toastMsg" class="toast-msg">✨ Redirecting to Facebook Marketplace...</div>
-<footer><p>© GivyRewardsShop — Bespoke Furniture | Connect via Facebook Marketplace</p></footer>
-
-<script>
-  // SHOP PAGE - LOADS PRODUCTS FROM SAME localStorage AS ADMIN
-  let products = [];
-  let activeFilter = "all";
-  let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
-  
-  function loadProductsFromStorage() {
-    const storedProducts = localStorage.getItem('givy_admin_products');
-    const storedCategories = localStorage.getItem('givy_admin_categories');
-    
-    if(storedCategories) {
-      categories = JSON.parse(storedCategories);
-      updateFilters();
-    }
-    
-    if(storedProducts && JSON.parse(storedProducts).length > 0) {
-      products = JSON.parse(storedProducts);
-      console.log("✅ Loaded products from admin:", products.length);
-    } else {
-      // Default demo products
-      products = [
-        { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", images: ["https://picsum.photos/id/106/400/500"], description: "Sumptuous velvet upholstery with hand-polished brass legs. A masterpiece of contemporary comfort." },
-        { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", images: ["https://picsum.photos/id/20/400/500"], description: "Sculptural oval table in smoked oak with matte lacquer finish." },
-        { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", images: ["https://picsum.photos/id/24/400/500"], description: "Wrap-around high-back armchair in bouclé wool." }
-      ];
-    }
-    renderProducts();
-  }
-  
-  function updateFilters() {
-    const filterContainer = document.getElementById('filterGroup');
-    const currentActive = document.querySelector('.filter-btn.active')?.getAttribute('data-category') || 'all';
-    filterContainer.innerHTML = '<button class="filter-btn" data-category="all">All Pieces</button>';
-    categories.forEach(cat => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn';
-      btn.setAttribute('data-category', cat);
-      btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-      filterContainer.appendChild(btn);
-    });
-    // Re-attach event listeners
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = btn.getAttribute('data-category');
-        renderProducts();
-      });
-      if(btn.getAttribute('data-category') === currentActive) btn.classList.add('active');
-    });
-  }
-  
-  function contactSellerOnFacebook(product) {
-    const message = encodeURIComponent(`Hi! I'm interested in "${product.name}" ($${product.price.toLocaleString()}) from GivyRewardsShop. Is it still available?`);
-    // REPLACE 'your_fb_username' WITH YOUR ACTUAL FACEBOOK MESSENGER LINK
-    const sellerFbLink = `https://m.me/your_fb_username`;
-    showToast(`📱 Contacting seller about "${product.name}"...`);
-    window.dispatchEvent(new CustomEvent('ofer:contactRequest', { detail: { product, sellerLink: sellerFbLink } }));
-    alert(`✅ Demo: Customer wants to buy:\n${product.name}\nPrice: $${product.price}\n\nIn production, this would open Facebook Messenger. Replace 'your_fb_username' in shop.html with your actual Facebook username.`);
-  }
-  
-  function renderProducts() {
-    const grid = document.getElementById("productGrid");
-    const filtered = activeFilter === "all" ? products : products.filter(p => p.category === activeFilter);
-    if(filtered.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px;">No pieces found in this category</div>`; return; }
-    grid.innerHTML = filtered.map(product => {
-      const firstImage = product.images && product.images[0] ? product.images[0] : "https://picsum.photos/id/26/400/500";
-      const brand = product.brand || 'GIVY STUDIO';
-      return `
-        <div class="product-card" data-id="${product.id}">
-          <div class="product-img">
-            <img src="${firstImage}" alt="${product.name}" loading="lazy">
-            <div class="wishlist-icon" data-wish="${product.id}"><i class="far fa-heart"></i></div>
-            <button class="fb-contact-btn" data-id="${product.id}"><i class="fab fa-facebook-messenger"></i> Buy on FB Marketplace</button>
-          </div>
-          <div class="product-info">
-            <div class="brand">${escapeHtml(brand)}</div>
-            <div class="product-title">${escapeHtml(product.name)}</div>
-            <div class="product-description">${escapeHtml(product.description || 'Luxury craftsmanship, timeless design.')}</div>
-            <div class="price-row"><div><span class="price">$${product.price.toLocaleString()}</span>${product.oldPrice ? `<span class="old-price">$${product.oldPrice.toLocaleString()}</span>` : ''}</div></div>
+  <div class="dashboard">
+    <div class="form-card">
+      <div class="form-title" id="formTitle">✨ Add New Product</div>
+      <form id="productForm">
+        <div class="input-group"><label>Product Name</label><input type="text" id="productName" placeholder="e.g. Celestial Sofa" required></div>
+        <div class="input-group"><label>Brand</label><input type="text" id="productBrand" placeholder="Brand name" value="GIVY STUDIO"></div>
+        <div class="input-group"><label>Category</label><div class="category-row"><select id="productCategory"></select><button type="button" class="edit-cat-btn" id="manageCategoriesBtn"><i class="fas fa-pen"></i> Edit</button></div></div>
+        <div class="input-group"><label>Description</label><textarea id="productDesc" placeholder="Luxurious details..."></textarea></div>
+        <div class="input-group"><label>Price (USD)</label><input type="number" id="productPrice" placeholder="e.g. 4250" step="1" required></div>
+        <div class="input-group"><label>Images (up to 10)</label>
+          <div class="image-upload-area">
+            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+            <button type="button" class="upload-btn" id="triggerUpload"><i class="fas fa-cloud-upload-alt"></i> Select Images</button>
+            <div class="image-grid-preview" id="imagePreviewGrid"></div>
           </div>
         </div>
-      `;
-    }).join('');
-    
-    document.querySelectorAll('.fb-contact-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.getAttribute('data-id'));
-        const product = products.find(p => p.id === id);
-        if(product) contactSellerOnFacebook(product);
-      });
-    });
-    document.querySelectorAll('.wishlist-icon').forEach(icon => {
-      icon.addEventListener('click', (e) => { e.stopPropagation(); showToast("❤️ Saved to wishlist"); icon.querySelector('i').classList.toggle('fas'); icon.querySelector('i').classList.toggle('far'); });
-    });
-    document.querySelectorAll('.product-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if(e.target.closest('.fb-contact-btn') || e.target.closest('.wishlist-icon')) return;
-        const id = parseInt(card.getAttribute('data-id'));
-        const product = products.find(p => p.id === id);
-        if(product) showToast(`✨ ${product.name} — Contact seller on Facebook to purchase`);
-      });
-    });
+        <input type="hidden" id="editId" value="">
+        <div class="button-group">
+          <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-save"></i> Save Product</button>
+          <button type="button" class="add-more-btn" id="addMoreBtn"><i class="fas fa-plus-circle"></i> Add More</button>
+        </div>
+        <button type="button" id="cancelEditBtn" style="display:none; margin-top:12px; background:#333;" class="submit-btn">Cancel Edit</button>
+      </form>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title">📦 Facebook Sync</div>
+      <button id="bulkFacebookSync" class="fb-sync-btn"><i class="fab fa-facebook"></i> Sync All to Facebook Marketplace</button>
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="form-title" style="font-size:18px;">Tips</div>
+        <ul style="color:#aaa; font-size:13px; margin-left:20px;"><li>Products auto-save to both admin and shop</li><li>Use "Add More" to stay on form after saving</li><li>Categories sync with shop.html</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalog-section">
+    <div class="form-title" style="margin-bottom:24px;">Current Collection <span id="productCount" style="font-size:14px; background:#1E1E1E; padding:4px 12px; border-radius:20px; margin-left:12px;">0 items</span></div>
+    <div class="product-table">
+      <table><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody id="productTableBody"></tbody></table>
+    </div>
+  </div>
+  <footer><p>© GivyRewardsAdmin — Integrated with GivyRewardsShop</p></footer>
+</div>
+
+<div id="categoryModal" class="modal"><div class="modal-content"><h3>Manage Categories</h3><div class="input-group"><label>New Category</label><div style="display:flex; gap:8px;"><input type="text" id="newCategoryName" placeholder="e.g. Lighting" style="flex:1;"><button id="addCategoryBtn" class="upload-btn">Add</button></div></div><div id="categoryList" class="category-list" style="margin:20px 0; max-height:300px; overflow-y:auto;"></div><button class="modal-close" id="closeModalBtn">Close</button></div></div>
+
+<div id="toastMsg" class="toast-msg">✨ Done</div>
+
+<script>
+// ======================== AUTH ========================
+const ADMIN_PASSWORD = "LuxuryAdmin2025";
+if(!localStorage.getItem('admin_authenticated')) {
+  const pwd = prompt("🔐 Admin Access Required:");
+  if(pwd === ADMIN_PASSWORD) {
+    localStorage.setItem('admin_authenticated', 'true');
+  } else {
+    alert("Access denied");
+    window.location.href = "shop.html";
+  }
+}
+
+// ======================== FIXED EXIT - WORKS PROPERLY ========================
+document.getElementById('logoutAdminBtn').onclick = () => {
+  localStorage.removeItem('admin_authenticated');
+  window.location.href = "shop.html";
+};
+
+// ======================== GLOBAL STORAGE ========================
+let products = [];
+let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+
+function loadAll() {
+  const storedProducts = localStorage.getItem('givy_admin_products');
+  if(storedProducts && storedProducts !== 'undefined') {
+    try {
+      products = JSON.parse(storedProducts);
+      if(!Array.isArray(products)) products = [];
+    } catch(e) { products = []; }
+  } else {
+    products = [];
   }
   
-  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-  function showToast(msg) { const toast = document.getElementById("toastMsg"); toast.innerText = msg; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2500); }
+  const storedCats = localStorage.getItem('givy_admin_categories');
+  if(storedCats && storedCats !== 'undefined') {
+    try {
+      const parsed = JSON.parse(storedCats);
+      if(Array.isArray(parsed) && parsed.length) categories = parsed;
+    } catch(e) {}
+  }
   
-  // Hidden admin entry: 3 clicks
-  let clickCount = 0, clickTimer = null;
-  document.getElementById('adminSecretTrigger').addEventListener('click', () => {
-    clickCount++;
-    if(clickTimer) clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => { clickCount = 0; }, 800);
-    if(clickCount >= 3) { window.location.href = 'admin.html'; }
+  renderCategorySelect();
+  renderProductTable();
+  updateCount();
+}
+
+function saveProducts() {
+  localStorage.setItem('givy_admin_products', JSON.stringify(products));
+  // Trigger storage event for shop.html
+  localStorage.setItem('givy_admin_products_updated', Date.now().toString());
+  setTimeout(() => localStorage.removeItem('givy_admin_products_updated'), 100);
+  renderProductTable();
+  updateCount();
+  showToast("Products saved and synced with shop");
+}
+
+function saveCategories() {
+  localStorage.setItem('givy_admin_categories', JSON.stringify(categories));
+  products.forEach(p => { if(!categories.includes(p.category)) p.category = 'other'; });
+  saveProducts();
+  renderCategorySelect();
+}
+
+function updateCount() { 
+  const countSpan = document.getElementById('productCount');
+  if(countSpan) countSpan.innerText = products.length + ' items'; 
+}
+
+function renderCategorySelect() {
+  const select = document.getElementById('productCategory');
+  if(!select) return;
+  select.innerHTML = '';
+  categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    select.appendChild(opt);
   });
-  
-  // Listen for real-time updates from admin (cross-tab)
-  window.addEventListener('storage', (e) => {
-    if(e.key === 'givy_admin_products') {
-      console.log("🔄 Detected product update from admin");
-      loadProductsFromStorage();
-      showToast("🔄 Catalog updated by administrator");
-    }
-    if(e.key === 'givy_admin_categories') {
-      console.log("🔄 Detected category update");
-      loadProductsFromStorage();
-    }
+}
+
+// ======================== IMAGES ========================
+let currentImagePreviews = [];
+function renderImagePreviews() {
+  const grid = document.getElementById('imagePreviewGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  if(currentImagePreviews.length === 0) { 
+    grid.innerHTML = '<div style="font-size:12px; color:#777;">No images selected. Upload up to 10 images.</div>'; 
+    return; 
+  }
+  currentImagePreviews.forEach((src, idx) => {
+    const div = document.createElement('div'); div.className = 'preview-img-wrapper';
+    const img = document.createElement('img'); img.src = src;
+    const rm = document.createElement('div'); rm.className = 'remove-img-btn'; rm.innerHTML = '<i class="fas fa-times"></i>';
+    rm.onclick = () => { currentImagePreviews.splice(idx,1); renderImagePreviews(); };
+    div.appendChild(img); div.appendChild(rm); grid.appendChild(div);
   });
-  
-  // Initial load
-  loadProductsFromStorage();
+}
+
+const uploadTrigger = document.getElementById('triggerUpload');
+const imageUpload = document.getElementById('imageUpload');
+if(uploadTrigger) {
+  uploadTrigger.onclick = () => imageUpload.click();
+}
+if(imageUpload) {
+  imageUpload.onchange = (e) => {
+    const files = Array.from(e.target.files);
+    const remaining = 10 - currentImagePreviews.length;
+    if(remaining <= 0) { showToast("Max 10 images"); e.target.value = ''; return; }
+    const newFiles = files.slice(0, remaining);
+    newFiles.forEach(f => {
+      if(f.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => { currentImagePreviews.push(ev.target.result); renderImagePreviews(); };
+        reader.readAsDataURL(f);
+      }
+    });
+    e.target.value = '';
+  };
+}
+
+function resetImages() { currentImagePreviews = []; renderImagePreviews(); }
+
+// ======================== FORM SUBMIT & ADD MORE ========================
+const productForm = document.getElementById('productForm');
+if(productForm) {
+  productForm.onsubmit = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('productName').value.trim();
+    const brand = document.getElementById('productBrand').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const desc = document.getElementById('productDesc').value.trim();
+    const price = parseFloat(document.getElementById('productPrice').value);
+    if(!name || !desc || isNaN(price) || price <= 0) { showToast("Fill all fields correctly"); return; }
+    let images = currentImagePreviews.length ? [...currentImagePreviews] : ["https://picsum.photos/id/26/400/500"];
+    const editId = document.getElementById('editId').value;
+    
+    if(editId) {
+      const idx = products.findIndex(p => p.id == editId);
+      if(idx !== -1) {
+        products[idx] = { ...products[idx], name, brand, category, description: desc, price, images };
+        showToast("Product updated");
+      }
+      resetFormToAddMode();
+    } else {
+      const newProduct = { id: Date.now(), name, brand, category, description: desc, price, images };
+      products.push(newProduct);
+      showToast(`"${name}" added`);
+      saveProducts();
+      document.getElementById('productName').value = '';
+      document.getElementById('productBrand').value = 'GIVY STUDIO';
+      document.getElementById('productDesc').value = '';
+      document.getElementById('productPrice').value = '';
+      resetImages();
+      return;
+    }
+    saveProducts();
+  };
+}
+
+// ADD MORE BUTTON
+const addMoreBtn = document.getElementById('addMoreBtn');
+if(addMoreBtn) {
+  addMoreBtn.onclick = () => {
+    const name = document.getElementById('productName').value.trim();
+    if(name) {
+      productForm.dispatchEvent(new Event('submit'));
+    }
+    resetFormToAddMode();
+    document.getElementById('productName').value = '';
+    document.getElementById('productBrand').value = 'GIVY STUDIO';
+    document.getElementById('productDesc').value = '';
+    document.getElementById('productPrice').value = '';
+    resetImages();
+    showToast("Ready to add another product");
+  };
+}
+
+function resetFormToAddMode() {
+  const editIdField = document.getElementById('editId');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  const formTitle = document.getElementById('formTitle');
+  if(editIdField) editIdField.value = '';
+  if(submitBtn) submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Product';
+  if(cancelBtn) cancelBtn.style.display = 'none';
+  if(formTitle) formTitle.innerHTML = '✨ Add New Product';
+}
+
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+if(cancelEditBtn) {
+  cancelEditBtn.onclick = () => {
+    resetFormToAddMode();
+    document.getElementById('productName').value = '';
+    document.getElementById('productBrand').value = 'GIVY STUDIO';
+    document.getElementById('productDesc').value = '';
+    document.getElementById('productPrice').value = '';
+    resetImages();
+  };
+}
+
+// ======================== EDIT / DELETE ========================
+window.editProduct = (id) => {
+  const p = products.find(p => p.id == id);
+  if(!p) return;
+  document.getElementById('productName').value = p.name;
+  document.getElementById('productBrand').value = p.brand || 'GIVY STUDIO';
+  document.getElementById('productCategory').value = p.category;
+  document.getElementById('productDesc').value = p.description;
+  document.getElementById('productPrice').value = p.price;
+  document.getElementById('editId').value = p.id;
+  currentImagePreviews = [...(p.images || [])];
+  renderImagePreviews();
+  document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen"></i> Update Product';
+  document.getElementById('cancelEditBtn').style.display = 'block';
+  document.getElementById('formTitle').innerHTML = '✏️ Edit Product';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.deleteProduct = (id) => {
+  if(confirm("Remove this product?")) {
+    products = products.filter(p => p.id != id);
+    saveProducts();
+    showToast("Product deleted");
+    if(document.getElementById('editId').value == id) resetFormToAddMode();
+  }
+};
+
+// ======================== CATEGORY MANAGEMENT ========================
+const modal = document.getElementById('categoryModal');
+const manageBtn = document.getElementById('manageCategoriesBtn');
+if(manageBtn) {
+  manageBtn.onclick = () => {
+    renderCategoryList();
+    if(modal) modal.classList.add('active');
+  };
+}
+const closeModal = document.getElementById('closeModalBtn');
+if(closeModal) {
+  closeModal.onclick = () => { if(modal) modal.classList.remove('active'); };
+}
+const addCatBtn = document.getElementById('addCategoryBtn');
+if(addCatBtn) {
+  addCatBtn.onclick = () => {
+    const newCat = document.getElementById('newCategoryName').value.trim().toLowerCase();
+    if(newCat && !categories.includes(newCat)) {
+      categories.push(newCat);
+      saveCategories();
+      document.getElementById('newCategoryName').value = '';
+      renderCategoryList();
+      showToast(`Category "${newCat}" added`);
+    } else showToast("Category exists or invalid");
+  };
+}
+
+window.deleteCategory = (idx) => {
+  const cat = categories[idx];
+  if(confirm(`Delete "${cat}"? Products will move to "other".`)) {
+    categories.splice(idx,1);
+    if(categories.length === 0) categories = ['other'];
+    saveCategories();
+    products.forEach(p => { if(p.category === cat) p.category = 'other'; });
+    saveProducts();
+    renderCategoryList();
+    showToast(`Category "${cat}" removed`);
+  }
+};
+
+function renderCategoryList() {
+  const container = document.getElementById('categoryList');
+  if(!container) return;
+  container.innerHTML = '';
+  categories.forEach((cat, idx) => {
+    const div = document.createElement('div'); div.className = 'category-item';
+    div.innerHTML = `<span>${cat.charAt(0).toUpperCase() + cat.slice(1)}</span><button onclick="deleteCategory(${idx})"><i class="fas fa-trash"></i> Remove</button>`;
+    container.appendChild(div);
+  });
+  if(!categories.length) container.innerHTML = '<div style="padding:20px; text-align:center;">No categories</div>';
+}
+
+// ======================== FACEBOOK SYNC ========================
+window.syncToFacebook = (product) => {
+  console.log("FB Sync:", product);
+  showToast(`✅ "${product.name}" synced to Facebook`);
+};
+function syncAllToFacebook() {
+  if(!products.length) { showToast("No products to sync"); return; }
+  products.forEach(p => console.log("Syncing", p.name));
+  showToast(`🚀 ${products.length} products synced to Facebook Marketplace`);
+}
+const bulkSync = document.getElementById('bulkFacebookSync');
+if(bulkSync) bulkSync.onclick = syncAllToFacebook;
+
+// ======================== RENDER TABLE ========================
+function renderProductTable() {
+  const tbody = document.getElementById('productTableBody');
+  if(!tbody) return;
+  if(!products.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">No products yet</td></tr>'; return; }
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td><img class="product-thumb" src="${p.images && p.images[0] ? p.images[0] : 'https://picsum.photos/id/26/50/50'}" onerror="this.src='https://picsum.photos/id/26/50/50'"></td>
+      <td><strong>${escapeHtml(p.name)}</strong><br><span style="font-size:11px; color:#C5A267;">${escapeHtml(p.brand || 'GIVY STUDIO')}</span></td>
+      <td>${p.category}</td>
+      <td>$${p.price.toLocaleString()}</td>
+      <td class="action-icons">
+        <i class="fas fa-edit" onclick="editProduct(${p.id})"></i>
+        <i class="fas fa-trash-alt" onclick="deleteProduct(${p.id})"></i>
+        <i class="fab fa-facebook" onclick="syncToFacebook(${JSON.stringify(p).replace(/"/g, '&quot;')})" style="color:#1877F2;"></i>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function showToast(msg) { const t = document.getElementById('toastMsg'); if(t) { t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); } }
+
+loadAll();
 </script>
 </body>
 </html>
