@@ -4,6 +4,207 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>GivyRewardsShop | Luxury Furniture & Interiors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; line-height: 1.4; }
+    .container { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
+    .shop-header { display: flex; justify-content: center; align-items: center; padding: 36px 0 24px 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; position: relative; }
+    .logo { text-align: center; }
+    .logo h1 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 32px; background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .logo p { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #C5A267; margin-top: 8px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; justify-content: center; }
+    .filter-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 28px; font-weight: 500; font-size: 14px; color: #EDEDED; border-radius: 40px; cursor: pointer; transition: all 0.25s ease; }
+    .filter-btn.active, .filter-btn:hover { background: #C5A267; border-color: #C5A267; color: #0A0A0A; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px 28px; margin-bottom: 80px; }
+    .product-card { background: #121212; border-radius: 28px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.8); }
+    .product-img { position: relative; overflow: hidden; background: #1E1E1E; aspect-ratio: 4 / 5; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .product-card:hover .product-img img { transform: scale(1.03); }
+    .fb-contact-btn { position: absolute; bottom: 18px; left: 18px; background: #1877F2; border: none; border-radius: 40px; padding: 8px 16px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 2; transition: 0.2s; font-family: 'Inter', sans-serif; }
+    .fb-contact-btn:hover { background: #1464CC; transform: scale(1.02); }
+    .wishlist-icon { position: absolute; top: 18px; right: 18px; background: rgba(10,10,10,0.6); backdrop-filter: blur(4px); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: 0.2s; }
+    .wishlist-icon:hover { color: #C5A267; background: rgba(0,0,0,0.8); }
+    .product-info { padding: 20px 20px 24px; flex: 1; display: flex; flex-direction: column; }
+    .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; color: #C5A267; margin-bottom: 8px; }
+    .product-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; margin-bottom: 10px; }
+    .product-description { font-size: 13px; line-height: 1.45; color: #B0B0B0; margin: 8px 0 12px 0; border-left: 2px solid rgba(197,162,103,0.4); padding-left: 12px; }
+    .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
+    .price { font-weight: 600; font-size: 22px; color: #C5A267; }
+    .old-price { font-size: 15px; color: #9B9B9B; text-decoration: line-through; margin-left: 12px; }
+    .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
+    /* hidden admin icon - триггер для входа */
+    .admin-secret-trigger { position: fixed; bottom: 15px; left: 15px; width: 32px; height: 32px; opacity: 0.08; z-index: 999; cursor: pointer; transition: opacity 0.2s; border-radius: 50%; background: #C5A267; display: flex; align-items: center; justify-content: center; }
+    .admin-secret-trigger:hover { opacity: 0.3; }
+    .admin-secret-trigger i { font-size: 14px; color: #fff; }
+    footer { text-align: center; padding: 40px 0 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #6F6F6F; }
+    @media (max-width: 700px) { .container { padding: 0 20px; } .product-grid { gap: 24px; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header class="shop-header"><div class="logo"><h1>GivyRewardsShop</h1><p>Furniture · Objects · Interior Couture</p></div></header>
+  <div class="filters" id="filterGroup">
+    <button class="filter-btn active" data-category="all">All Pieces</button>
+    <button class="filter-btn" data-category="furniture">Furniture</button>
+    <button class="filter-btn" data-category="seating">Seating</button>
+    <button class="filter-btn" data-category="beds">Beds</button>
+    <button class="filter-btn" data-category="rugs">Rugs</button>
+    <button class="filter-btn" data-category="decor">Decor</button>
+    <button class="filter-btn" data-category="office">Office</button>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+<!-- Скрытая иконка для входа в админку (3 клика) -->
+<div class="admin-secret-trigger" id="adminSecretTrigger"><i class="fas fa-crown"></i></div>
+
+<div id="toastMsg" class="toast-msg">✨ Redirecting to Facebook Marketplace...</div>
+<footer><p>© GivyRewardsShop — Bespoke Furniture | Connect via Facebook Marketplace</p></footer>
+
+<script>
+  // ======================== SHOP - ЧИТАЕТ ТОВАРЫ ИЗ localStorage ОТ АДМИНКИ ========================
+  let products = [];
+  let activeFilter = "all";
+  
+  // Дефолтные товары на случай пустой админки
+  const defaultProducts = [
+    { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", images: ["https://picsum.photos/id/106/400/500"], description: "Sumptuous velvet upholstery with hand-polished brass legs. A masterpiece of contemporary comfort." },
+    { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", images: ["https://picsum.photos/id/20/400/500"], description: "Sculptural oval table in smoked oak with matte lacquer finish. Seats up to 10 guests." },
+    { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", images: ["https://picsum.photos/id/24/400/500"], description: "Wrap-around high-back armchair in bouclé wool. Designed for deep relaxation." }
+  ];
+
+  function loadProductsFromAdmin() {
+    const stored = localStorage.getItem('givy_admin_products');
+    if(stored && JSON.parse(stored).length > 0) {
+      products = JSON.parse(stored);
+    } else {
+      products = JSON.parse(JSON.stringify(defaultProducts));
+    }
+    renderProducts();
+  }
+
+  function formatPrice(price) { return '$' + price.toLocaleString('en-US'); }
+
+  // Функция открытия диалога с продавцом через Facebook Marketplace
+  function contactSellerOnFacebook(product) {
+    // Формируем сообщение для продавца
+    const message = encodeURIComponent(`Hi! I'm interested in "${product.name}" ($${product.price.toLocaleString()}) from GivyRewardsShop. Is it still available?`);
+    // Ссылка на Facebook Messenger продавца (нужно заменить YOUR_FB_USERNAME на реальный ID или имя)
+    // В реальном проекте вы указываете свой Facebook profile link или page link
+    const sellerFbLink = `https://m.me/your_fb_username`; // ЗАМЕНИТЕ на свой Facebook Messenger ссылку
+    
+    // Показываем уведомление и перенаправляем
+    showToast(`📱 Redirecting to Facebook to discuss "${product.name}"...`);
+    
+    // Эмуляция интеграции: в реальном проекте редирект на вашу страницу в FB Marketplace
+    // Создаем кастомное событие для трекинга
+    window.dispatchEvent(new CustomEvent('ofer:contactRequest', { detail: { product, sellerLink: sellerFbLink } }));
+    
+    // Для демонстрации открываем предупреждение с инструкцией. В боевом проекте раскомментируйте редирект:
+    // window.open(sellerFbLink, '_blank');
+    
+    // Так как это демо, показываем как настроить:
+    alert(`🔹 INTEGRATION READY 🔹\n\nCustomer wants to buy: ${product.name}\nPrice: $${product.price}\n\n✅ To connect with YOU (seller):\n1. Replace 'your_fb_username' in code with your actual Facebook username\n2. Uncomment window.open line\n\n📲 For now, this demo shows the integration logic. Contact the seller via Facebook Marketplace!`);
+  }
+
+  function renderProducts() {
+    const grid = document.getElementById("productGrid");
+    const filtered = activeFilter === "all" ? products : products.filter(p => p.category === activeFilter);
+    if (filtered.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px;">No pieces found</div>`; return; }
+    grid.innerHTML = filtered.map(product => {
+      const firstImage = product.images && product.images[0] ? product.images[0] : "https://picsum.photos/id/26/400/500";
+      return `
+        <div class="product-card" data-id="${product.id}">
+          <div class="product-img">
+            <img src="${firstImage}" alt="${product.name}" loading="lazy">
+            <div class="wishlist-icon" data-wish="${product.id}"><i class="far fa-heart"></i></div>
+            <button class="fb-contact-btn" data-id="${product.id}"><i class="fab fa-facebook-messenger"></i> Buy on FB Marketplace</button>
+          </div>
+          <div class="product-info">
+            <div class="brand">${product.brand || 'GIVY STUDIO'}</div>
+            <div class="product-title">${product.name}</div>
+            <div class="product-description">${product.description || 'Luxury craftsmanship, timeless design.'}</div>
+            <div class="price-row">
+              <div><span class="price">${formatPrice(product.price)}</span>${product.oldPrice ? `<span class="old-price">${formatPrice(product.oldPrice)}</span>` : ''}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Добавляем обработчики для кнопок Facebook
+    document.querySelectorAll('.fb-contact-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.getAttribute('data-id'));
+        const product = products.find(p => p.id === id);
+        if(product) contactSellerOnFacebook(product);
+      });
+    });
+    // Wishlist (демо)
+    document.querySelectorAll('.wishlist-icon').forEach(icon => {
+      icon.addEventListener('click', (e) => { e.stopPropagation(); showToast("❤️ Saved to wishlist (demo)"); icon.querySelector('i').classList.toggle('fas'); icon.querySelector('i').classList.toggle('far'); });
+    });
+    // Клик на карточку - дополнительная информация
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if(e.target.closest('.fb-contact-btn') || e.target.closest('.wishlist-icon')) return;
+        const id = parseInt(card.getAttribute('data-id'));
+        const product = products.find(p => p.id === id);
+        if(product) showToast(`✨ ${product.name} — Contact seller on Facebook to purchase`);
+      });
+    });
+  }
+
+  function showToast(msg) { const toast = document.getElementById("toastMsg"); toast.innerText = msg; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2500); }
+
+  // Фильтры
+  function initFilters() {
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeFilter = btn.getAttribute("data-category");
+        renderProducts();
+      });
+    });
+  }
+
+  // СЛУШАЕМ ОБНОВЛЕНИЯ ОТ АДМИНКИ (если открыта в другой вкладке)
+  window.addEventListener('storage', (e) => {
+    if(e.key === 'givy_admin_products') {
+      loadProductsFromAdmin();
+      showToast("🔄 Catalog updated by administrator");
+    }
+  });
+
+  // СКРЫТЫЙ ВХОД В АДМИНКУ: 3 быстрых клика по иконке
+  let clickCount = 0;
+  let clickTimer = null;
+  document.getElementById('adminSecretTrigger').addEventListener('click', () => {
+    clickCount++;
+    if(clickTimer) clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clickCount = 0; }, 800);
+    if(clickCount >= 3) {
+      window.location.href = 'admin.html';
+    }
+  });
+
+  loadProductsFromAdmin();
+  initFilters();
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GivyRewardsShop | Luxury Furniture & Interiors</title>
   <!-- Google Fonts: refined, elegant, premium -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <!-- Font Awesome 6 -->
