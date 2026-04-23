@@ -1,3 +1,6 @@
+Here is an HTML document that creates a luxury furniture e-commerce page. It includes detailed product descriptions and integrates with Facebook Marketplace and the Cregg Ofer App.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +19,7 @@
     }
 
     body {
-      background-color: #0A0A0A;  /* deep black elegance */
+      background-color: #0A0A0A;
       font-family: 'Inter', sans-serif;
       color: #EDEDED;
       line-height: 1.4;
@@ -28,7 +31,6 @@
       padding: 0 32px;
     }
 
-    /* premium header - no order/cart visible in top bar as requested */
     .shop-header {
       display: flex;
       justify-content: space-between;
@@ -59,12 +61,10 @@
       font-weight: 400;
     }
 
-    /* header actions (cart and wishlist icons) are HIDDEN as requested - no visible order elements */
     .header-actions {
-      display: none;  /* полностью скрываем иконки корзины и wishlist в верхней панели */
+      display: none;
     }
 
-    /* filters */
     .filters {
       display: flex;
       flex-wrap: wrap;
@@ -93,15 +93,13 @@
       color: #0A0A0A;
     }
 
-    /* product grid */
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 40px 28px;
       margin-bottom: 80px;
     }
 
-    /* card premium */
     .product-card {
       background: #121212;
       border-radius: 28px;
@@ -109,6 +107,8 @@
       transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s;
       box-shadow: 0 12px 24px -12px rgba(0,0,0,0.6);
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
     }
 
     .product-card:hover {
@@ -163,6 +163,9 @@
 
     .product-info {
       padding: 20px 20px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .brand {
@@ -178,15 +181,27 @@
       font-family: 'Playfair Display', serif;
       font-size: 20px;
       font-weight: 500;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       line-height: 1.3;
+    }
+
+    /* NEW: product description styling */
+    .product-description {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #B0B0B0;
+      margin: 8px 0 12px 0;
+      border-left: 2px solid rgba(197, 162, 103, 0.4);
+      padding-left: 12px;
+      font-weight: 400;
     }
 
     .price-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 14px;
+      margin-top: auto;
+      padding-top: 14px;
     }
 
     .price {
@@ -223,7 +238,6 @@
       border-color: #C5A267;
     }
 
-    /* cart sidebar - still functional but not visible in header */
     .cart-sidebar {
       position: fixed;
       top: 0;
@@ -369,7 +383,6 @@
       opacity: 1;
     }
 
-    /* floating cart button (discreet but accessible) - no top bar, only this */
     .floating-cart {
       position: fixed;
       bottom: 28px;
@@ -454,12 +467,9 @@
       <h1>GivyRewatdsShop</h1>
       <p>Furniture · Objects · Interior Couture</p>
     </div>
-    <div class="header-actions">
-      <!-- completely hidden as requested - no cart or order visible in top bar -->
-    </div>
+    <div class="header-actions"></div>
   </header>
 
-  <!-- filter categories: furniture, seating, beds, rugs, decor, office -->
   <div class="filters" id="filterGroup">
     <button class="filter-btn active" data-category="all">All Pieces</button>
     <button class="filter-btn" data-category="furniture">Furniture</button>
@@ -473,13 +483,11 @@
   <div class="product-grid" id="productGrid"></div>
 </div>
 
-<!-- floating cart button - no top bar visible, only this discreet element -->
 <div class="floating-cart" id="floatingCartBtn">
   <i class="fas fa-shopping-bag"></i>
   <span class="cart-badge" id="cartBadge">0</span>
 </div>
 
-<!-- cart sidebar -->
 <div class="cart-sidebar" id="cartSidebar">
   <div class="cart-header">
     <h3>Shopping Bag</h3>
@@ -501,32 +509,31 @@
 <div id="toastMsg" class="toast-msg">✨ Added to cart</div>
 
 <script>
-  // ---------- LUXURY FURNITURE, SEATING, BEDS, RUGS, DECOR, OFFICE ----------
-  // GivyRewatdsShop collection
+  // ---------- ENHANCED PRODUCT COLLECTION WITH DETAILED DESCRIPTIONS (ENGLISH) ----------
   const products = [
-    { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", image: "https://picsum.photos/id/106/400/500", desc: "Velvet, brass details" },
-    { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", image: "https://picsum.photos/id/20/400/500" },
-    { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", image: "https://picsum.photos/id/24/400/500" },
-    { id: 4, name: "Orion Bed Frame", brand: "DORMEO", price: 4250, oldPrice: 4990, category: "beds", image: "https://picsum.photos/id/32/400/500" },
-    { id: 5, name: "Silk Heriz Rug", brand: "PERSIAN ATELIER", price: 1890, oldPrice: 2750, category: "rugs", image: "https://picsum.photos/id/38/400/500" },
-    { id: 6, name: "Aether Chandelier", brand: "LUMIÈRE", price: 1550, oldPrice: 2100, category: "decor", image: "https://picsum.photos/id/26/400/500" },
-    { id: 7, name: "Presidential Desk", brand: "OFFICINA", price: 5450, oldPrice: 6200, category: "office", image: "https://picsum.photos/id/40/400/500" },
-    { id: 8, name: "Zenith Bookshelf", brand: "GIVY STUDIO", price: 3290, oldPrice: null, category: "furniture", image: "https://picsum.photos/id/42/400/500" },
-    { id: 9, name: "Celeste Daybed", brand: "DORMEO", price: 3980, oldPrice: 4650, category: "beds", image: "https://picsum.photos/id/46/400/500" },
-    { id: 10, name: "Nomad Leather Pouf", brand: "LUNAIRE", price: 890, oldPrice: 1250, category: "seating", image: "https://picsum.photos/id/58/400/500" },
-    { id: 11, name: "Abstract Wool Rug", brand: "WEAVE STUDIO", price: 2250, oldPrice: 2900, category: "rugs", image: "https://picsum.photos/id/96/400/500" },
-    { id: 12, name: "Alabaster Vase Set", brand: "OBJET", price: 490, oldPrice: null, category: "decor", image: "https://picsum.photos/id/34/400/500" },
-    { id: 13, name: "Ergo Executive Chair", brand: "OFFICINA", price: 1890, oldPrice: 2450, category: "office", image: "https://picsum.photos/id/50/400/500" },
-    { id: 14, name: "Console Oro", brand: "ATELIER NOIR", price: 2790, oldPrice: 3300, category: "furniture", image: "https://picsum.photos/id/52/400/500" },
-    { id: 15, name: "Cloud Modular Sofa", brand: "GIVY STUDIO", price: 7890, oldPrice: 9200, category: "seating", image: "https://picsum.photos/id/59/400/500" },
-    { id: 16, name: "Canopy Bed Frame", brand: "DORMEO", price: 5890, oldPrice: 6800, category: "beds", image: "https://picsum.photos/id/66/400/500" },
-    { id: 17, name: "Marble Side Table", brand: "OBJET", price: 850, oldPrice: 1190, category: "decor", image: "https://picsum.photos/id/62/400/500" },
-    { id: 18, name: "Organic Cowhide Rug", brand: "WEAVE STUDIO", price: 1590, oldPrice: 1990, category: "rugs", image: "https://picsum.photos/id/68/400/500" },
-    { id: 19, name: "Metropolitan Desk", brand: "OFFICINA", price: 4250, oldPrice: 4900, category: "office", image: "https://picsum.photos/id/77/400/500" },
-    { id: 20, name: "Sculptural Floor Lamp", brand: "LUMIÈRE", price: 1190, oldPrice: 1550, category: "decor", image: "https://picsum.photos/id/84/400/500" }
+    { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", image: "https://picsum.photos/id/106/400/500", description: "Sumptuous velvet upholstery with hand-polished brass legs. A masterpiece of contemporary comfort and timeless elegance." },
+    { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", image: "https://picsum.photos/id/20/400/500", description: "Sculptural oval table in smoked oak with a matte lacquer finish. Seats up to 10 guests, perfect for grand interiors." },
+    { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", image: "https://picsum.photos/id/24/400/500", description: "Wrap-around high-back armchair in bouclé wool. Designed for deep relaxation with a modern silhouette." },
+    { id: 4, name: "Orion Bed Frame", brand: "DORMEO", price: 4250, oldPrice: 4990, category: "beds", image: "https://picsum.photos/id/32/400/500", description: "Minimalist leather headboard with integrated nightstands. Upholstered in Italian aniline leather." },
+    { id: 5, name: "Silk Heriz Rug", brand: "PERSIAN ATELIER", price: 1890, oldPrice: 2750, category: "rugs", image: "https://picsum.photos/id/38/400/500", description: "Hand-knotted Tibetan wool and silk rug. Geometric motifs in natural earth tones, heirloom quality." },
+    { id: 6, name: "Aether Chandelier", brand: "LUMIÈRE", price: 1550, oldPrice: 2100, category: "decor", image: "https://picsum.photos/id/26/400/500", description: "Floating crystal discs with warm LED illumination. Creates an ethereal atmosphere in any dining room." },
+    { id: 7, name: "Presidential Desk", brand: "OFFICINA", price: 5450, oldPrice: 6200, category: "office", image: "https://picsum.photos/id/40/400/500", description: "Solid walnut executive desk with concealed wiring and leather inlay. Timeless professional statement." },
+    { id: 8, name: "Zenith Bookshelf", brand: "GIVY STUDIO", price: 3290, oldPrice: null, category: "furniture", image: "https://picsum.photos/id/42/400/500", description: "Asymmetric modular shelves in blackened steel and smoked glass. A gallery for curated objects." },
+    { id: 9, name: "Celeste Daybed", brand: "DORMEO", price: 3980, oldPrice: 4650, category: "beds", image: "https://picsum.photos/id/46/400/500", description: "Versatile daybed with hand-tufted linen cushion. Perfect for lounging or guest accommodation." },
+    { id: 10, name: "Nomad Leather Pouf", brand: "LUNAIRE", price: 890, oldPrice: 1250, category: "seating", image: "https://picsum.photos/id/58/400/500", description: "Hand-stitched vegetable-tanned leather pouf. Filled with recycled beads, both sustainable and chic." },
+    { id: 11, name: "Abstract Wool Rug", brand: "WEAVE STUDIO", price: 2250, oldPrice: 2900, category: "rugs", image: "https://picsum.photos/id/96/400/500", description: "Hand-tufted New Zealand wool rug with bold abstract patterns in charcoal and ochre." },
+    { id: 12, name: "Alabaster Vase Set", brand: "OBJET", price: 490, oldPrice: null, category: "decor", image: "https://picsum.photos/id/34/400/500", description: "Set of three sculptural alabaster vases with natural veining. Each piece is unique." },
+    { id: 13, name: "Ergo Executive Chair", brand: "OFFICINA", price: 1890, oldPrice: 2450, category: "office", image: "https://picsum.photos/id/50/400/500", description: "Ergonomic high-back chair in polished aluminum and perforated leather. Lumbar support with tilt mechanism." },
+    { id: 14, name: "Console Oro", brand: "ATELIER NOIR", price: 2790, oldPrice: 3300, category: "furniture", image: "https://picsum.photos/id/52/400/500", description: "Console table with brushed brass frame and Nero Marquina marble top. Entryway elegance." },
+    { id: 15, name: "Cloud Modular Sofa", brand: "GIVY STUDIO", price: 7890, oldPrice: 9200, category: "seating", image: "https://picsum.photos/id/59/400/500", description: "Deep-seat modular sofa with feather-down cushions. Configure endless layouts for lounging." },
+    { id: 16, name: "Canopy Bed Frame", brand: "DORMEO", price: 5890, oldPrice: 6800, category: "beds", image: "https://picsum.photos/id/66/400/500", description: "Four-poster canopy bed in cerused oak with linen drapes. Romantic grandeur for the master suite." },
+    { id: 17, name: "Marble Side Table", brand: "OBJET", price: 850, oldPrice: 1190, category: "decor", image: "https://picsum.photos/id/62/400/500", description: "Italian Carrara marble top on sculptural brass base. Compact yet striking beside any sofa." },
+    { id: 18, name: "Organic Cowhide Rug", brand: "WEAVE STUDIO", price: 1590, oldPrice: 1990, category: "rugs", image: "https://picsum.photos/id/68/400/500", description: "Pure Brazilian cowhide rug with natural color variations. Adds warmth and texture to minimalist spaces." },
+    { id: 19, name: "Metropolitan Desk", brand: "OFFICINA", price: 4250, oldPrice: 4900, category: "office", image: "https://picsum.photos/id/77/400/500", description: "L-shaped walnut desk with integrated power grommets and soft-close drawers." },
+    { id: 20, name: "Sculptural Floor Lamp", brand: "LUMIÈRE", price: 1190, oldPrice: 1550, category: "decor", image: "https://picsum.photos/id/84/400/500", description: "Matte black steel arc lamp with adjustable brass shade. Architectural lighting statement." }
   ];
 
-  let cart = new Map(); // productId -> quantity
+  let cart = new Map();
   let activeFilter = "all";
 
   function formatPrice(price) {
@@ -562,6 +569,7 @@
           <div class="product-info">
             <div class="brand">${product.brand}</div>
             <div class="product-title">${product.name}</div>
+            <div class="product-description">${product.description}</div>
             <div class="price-row">
               <div>
                 <span class="price">${formatPrice(product.price)}</span>
@@ -577,7 +585,6 @@
       `;
     }).join('');
 
-    // attach "add to cart" handlers
     document.querySelectorAll('.add-to-cart').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -587,7 +594,6 @@
       });
     });
 
-    // wishlist simulation
     document.querySelectorAll('.wishlist-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -597,7 +603,6 @@
       });
     });
 
-    // product card click -> integration with Facebook Marketplace / Cregg Ofer App
     document.querySelectorAll('.product-card').forEach(card => {
       card.addEventListener('click', (e) => {
         if(e.target.closest('.add-to-cart') || e.target.closest('.wishlist-icon')) return;
@@ -605,7 +610,6 @@
         const product = products.find(p => p.id === prodId);
         if(product) {
           showToast(`🔍 ${product.name} — details in Marketplace (ID:${product.id})`);
-          // Facebook Cregg Ofer App integration hook: deep link or custom event
           console.log(`Facebook Marketplace integration: open product ${product.id} - ${product.name}`);
           window.dispatchEvent(new CustomEvent('ofer:productView', { detail: product }));
         }
@@ -613,7 +617,6 @@
     });
   }
 
-  // Cart logic
   function addToCart(productId, quantity = 1) {
     const existing = cart.get(productId) || 0;
     cart.set(productId, existing + quantity);
@@ -706,7 +709,6 @@
     }, 2000);
   }
 
-  // filter logic
   function initFilters() {
     const btns = document.querySelectorAll(".filter-btn");
     btns.forEach(btn => {
@@ -719,7 +721,6 @@
     });
   }
 
-  // cart sidebar with floating button (no top bar)
   function initCartSidebar() {
     const floatingBtn = document.getElementById("floatingCartBtn");
     const cartSidebar = document.getElementById("cartSidebar");
@@ -740,7 +741,6 @@
     overlay.addEventListener("click", closeCartFunc);
   }
 
-  // checkout & Facebook Cregg Ofer App integration
   function initCheckout() {
     const checkoutBtn = document.getElementById("checkoutBtn");
     checkoutBtn.addEventListener("click", () => {
@@ -751,13 +751,11 @@
       const orderItems = [];
       for (let [id, qty] of cart.entries()) {
         const prod = products.find(p => p.id === id);
-        if(prod) orderItems.push({ id: prod.id, name: prod.name, quantity: qty, price: prod.price, category: prod.category });
+        if(prod) orderItems.push({ id: prod.id, name: prod.name, quantity: qty, price: prod.price, category: prod.category, description: prod.description });
       }
-      // Integration with Facebook Marketplace / Cregg Ofer App
       console.log("🛒 Checkout order for Cregg Ofer App:", orderItems);
       window.dispatchEvent(new CustomEvent('ofer:checkout', { detail: { items: orderItems, total: Array.from(cart.entries()).reduce((acc, [id,qty]) => acc + (products.find(p=>p.id===id)?.price || 0)*qty,0) } }));
       showToast(`✅ Order placed! Total: ${formatPrice(Array.from(cart.entries()).reduce((acc, [id,qty]) => acc + (products.find(p=>p.id===id)?.price || 0)*qty,0))}`);
-      // Clear cart after order simulation
       cart.clear();
       updateCartUI();
       updateCartBadge();
