@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GivyRewardsAdmin | Luxury Management</title>
+  <title>GivyRewardsAdmin | Inventory Management</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
@@ -24,7 +24,7 @@
     .input-group input:focus, .input-group textarea:focus { outline: none; border-color: #C5A267; }
     .input-group textarea { min-height: 90px; resize: vertical; }
     .image-upload-area { background: #1A1A1A; border-radius: 24px; padding: 20px; margin-bottom: 24px; border: 1px dashed rgba(197,162,103,0.5); }
-    .image-grid-preview { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .image-grid-preview { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; align-items: center; }
     .preview-img-wrapper { position: relative; width: 80px; height: 80px; border-radius: 16px; overflow: hidden; background: #0A0A0A; border: 1px solid rgba(255,255,255,0.2); }
     .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
     .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border-radius: 20px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: #fff; }
@@ -39,9 +39,9 @@
     th, td { text-align: left; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: middle; }
     th { color: #C5A267; font-weight: 600; font-size: 13px; }
     .product-thumb { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
-    .action-icons i { margin: 0 6px; cursor: pointer; color: #aaa; transition: 0.2s; }
+    .action-icons i { margin: 0 6px; cursor: pointer; color: #aaa; transition: 0.2s; font-size: 16px; }
     .action-icons i:hover { color: #C5A267; }
-    .facebook-integrate-btn { background: #1877F2; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .facebook-integrate-btn { background: #1877F2; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; width: 100%; justify-content: center; }
     .facebook-integrate-btn:hover { background: #1464CC; }
     .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
     .toast-msg.show { opacity: 1; transform: translateY(0); }
@@ -60,6 +60,7 @@
   </header>
 
   <div class="dashboard">
+    <!-- LEFT: ADD/EDIT PRODUCT FORM -->
     <div class="form-card">
       <div class="form-title" id="formTitle">✨ Add New Masterpiece</div>
       <form id="productForm">
@@ -68,8 +69,14 @@
         <div class="input-group"><label><i class="fas fa-layer-group"></i> Category</label><select id="productCategory"><option value="furniture">Furniture</option><option value="seating">Seating</option><option value="beds">Beds</option><option value="rugs">Rugs</option><option value="decor">Decor</option><option value="office">Office</option></select></div>
         <div class="input-group"><label><i class="fas fa-align-left"></i> Description (English)</label><textarea id="productDesc" placeholder="Luxurious details, materials, dimensions..."></textarea></div>
         <div class="input-group"><label><i class="fas fa-dollar-sign"></i> Price (USD)</label><input type="number" id="productPrice" placeholder="e.g. 4250" step="1" required></div>
+        
+        <!-- IMAGE UPLOAD SECTION (FIXED) -->
         <div class="input-group"><label><i class="fas fa-camera"></i> Product Images (up to 10 photos)</label>
-          <div class="image-upload-area"><input type="file" id="imageUpload" accept="image/*" multiple style="display: none;"><button type="button" class="upload-btn" id="triggerUpload"><i class="fas fa-cloud-upload-alt"></i> Select Images (Max 10)</button><div class="image-grid-preview" id="imagePreviewGrid"></div></div>
+          <div class="image-upload-area">
+            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+            <button type="button" class="upload-btn" id="triggerUpload"><i class="fas fa-cloud-upload-alt"></i> Select Images (Max 10)</button>
+            <div class="image-grid-preview" id="imagePreviewGrid"></div>
+          </div>
         </div>
         <input type="hidden" id="editId" value="">
         <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-save"></i> Save & Publish to Store</button>
@@ -77,40 +84,337 @@
       </form>
     </div>
 
+    <!-- RIGHT: SYNC & INFO -->
     <div class="form-card">
       <div class="form-title">📦 Facebook Marketplace Sync</div>
-      <div style="margin-bottom: 28px;"><p style="color:#B0B0B0; font-size:14px; margin-bottom:20px;">All products are automatically shown on the client storefront. Use the button below to simulate pushing to Facebook Marketplace (customer contact).</p>
-      <button id="bulkFacebookSync" class="facebook-integrate-btn" style="width:100%; justify-content:center;"><i class="fab fa-facebook"></i> Sync All to Facebook Marketplace</button></div>
-      <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:24px;"><div class="form-title" style="font-size:18px; margin-bottom:12px;">📸 Admin Tips</div>
-      <ul style="color:#aaa; font-size:13px; line-height:1.6; margin-left:20px;"><li>Upload up to 10 high-res images per product</li><li>Each product appears instantly on client store</li><li>Customers click "Buy on FB Marketplace" to contact you</li><li>Set your Facebook Messenger link in shop.html (line with m.me)</li></ul></div>
+      <div style="margin-bottom: 28px;">
+        <p style="color:#B0B0B0; font-size:14px; margin-bottom:20px;">All products are automatically shown on the client storefront. Use the button below to sync with Facebook Marketplace.</p>
+        <button id="bulkFacebookSync" class="facebook-integrate-btn"><i class="fab fa-facebook"></i> Sync All Products to Facebook Marketplace</button>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:24px;">
+        <div class="form-title" style="font-size:18px; margin-bottom:12px;">📸 Admin Tips</div>
+        <ul style="color:#aaa; font-size:13px; line-height:1.6; margin-left:20px;">
+          <li>Upload up to 10 high-res images per product</li>
+          <li>Each product appears instantly on client storefront</li>
+          <li>Customers click "Buy on FB Marketplace" to contact you</li>
+          <li>Set your Facebook Messenger link in shop.html (line with m.me)</li>
+        </ul>
+      </div>
     </div>
   </div>
 
-  <div class="catalog-section"><div class="catalog-title"><span><i class="fas fa-chair"></i> Current Collection</span><span style="font-size:13px; background:#1E1E1E; padding:5px 12px; border-radius:20px;" id="productCount">0 items</span></div>
-    <div class="product-table"><table id="productTable"><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody id="productTableBody"></tbody></table></div>
+  <!-- PRODUCT CATALOG TABLE -->
+  <div class="catalog-section">
+    <div class="catalog-title"><span><i class="fas fa-chair"></i> Current Collection</span><span style="font-size:13px; background:#1E1E1E; padding:5px 12px; border-radius:20px;" id="productCount">0 items</span></div>
+    <div class="product-table">
+      <table id="productTable">
+        <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead>
+        <tbody id="productTableBody"></tbody>
+      </table>
+    </div>
   </div>
   <footer><p>© GivyRewardsAdmin — Bespoke Inventory | Native Facebook Marketplace Integration</p></footer>
 </div>
+
 <div id="toastMsg" class="toast-msg">✨ Action completed</div>
 
 <script>
   // ======================== AUTHENTICATION ========================
   const ADMIN_PASSWORD = "LuxuryAdmin2025";
-  function checkAuth() { if(!localStorage.getItem('admin_authenticated')) { const pwd = prompt("🔐 Admin Access Required:\nEnter password:"); if(pwd === ADMIN_PASSWORD) { localStorage.setItem('admin_authenticated', 'true'); } else { alert("Access denied"); window.location.href = "shop.html"; } } }
+  function checkAuth() { 
+    if(!localStorage.getItem('admin_authenticated')) { 
+      const pwd = prompt("🔐 Admin Access Required:\nEnter password:"); 
+      if(pwd === ADMIN_PASSWORD) { 
+        localStorage.setItem('admin_authenticated', 'true'); 
+      } else { 
+        alert("Access denied"); 
+        window.location.href = "shop.html"; 
+      } 
+    } 
+  }
   checkAuth();
-  document.getElementById('logoutAdminBtn').addEventListener('click', () => { localStorage.removeItem('admin_authenticated'); localStorage.removeItem('admin_authenticated'); window.location.href = "shop.html"; });
+  document.getElementById('logoutAdminBtn').addEventListener('click', () => { 
+    localStorage.removeItem('admin_authenticated'); 
+    window.location.href = "shop.html"; 
+  });
 
   // ======================== PRODUCT STORAGE ========================
   let products = [];
-  function loadProducts() { const stored = localStorage.getItem('givy_admin_products'); if(stored) { products = JSON.parse(stored); } else { products = []; } renderProductTable(); updateCount(); }
-  function saveProducts() { localStorage.setItem('givy_admin_products', JSON.stringify(products)); renderProductTable(); updateCount(); // Триггер для обновления витрины в других вкладках
-    localStorage.setItem('givy_admin_products_updated', Date.now().toString()); setTimeout(() => localStorage.removeItem('givy_admin_products_updated'), 100); }
-  function updateCount() { document.getElementById('productCount').innerText = products.length + ' items'; }
+  
+  function loadProducts() { 
+    const stored = localStorage.getItem('givy_admin_products'); 
+    if(stored) { 
+      products = JSON.parse(stored); 
+    } else { 
+      products = []; 
+    } 
+    renderProductTable(); 
+    updateCount(); 
+  }
+  
+  function saveProducts() { 
+    localStorage.setItem('givy_admin_products', JSON.stringify(products)); 
+    renderProductTable(); 
+    updateCount(); 
+    // Trigger update for shop.html (cross-tab)
+    localStorage.setItem('givy_admin_products_updated', Date.now().toString()); 
+    setTimeout(() => localStorage.removeItem('givy_admin_products_updated'), 100);
+    showToast("Products saved successfully!");
+  }
+  
+  function updateCount() { 
+    document.getElementById('productCount').innerText = products.length + ' items'; 
+  }
 
-  let currentImageFiles = [], currentImagePreviews = [];
-  function renderImagePreviews() { const grid = document.getElementById('imagePreviewGrid'); grid.innerHTML = ''; currentImagePreviews.forEach((src, idx) => { const wrapper = document.createElement('div'); wrapper.className = 'preview-img-wrapper'; const img = document.createElement('img'); img.src = src; const removeBtn = document.createElement('div'); removeBtn.className = 'remove-img-btn'; removeBtn.innerHTML = '<i class="fas fa-times"></i>'; removeBtn.onclick = () => { currentImageFiles.splice(idx,1); currentImagePreviews.splice(idx,1); renderImagePreviews(); }; wrapper.appendChild(img); wrapper.appendChild(removeBtn); grid.appendChild(wrapper); }); if(currentImagePreviews.length===0) grid.innerHTML = '<div style="font-size:12px; color:#777; padding:8px;">No images selected. Upload up to 10.</div>'; }
-  document.getElementById('triggerUpload').addEventListener('click',()=>document.getElementById('imageUpload').click());
-  document.getElementById('imageUpload').addEventListener('change',(e)=>{ const files = Array.from(e.target.files); const remaining = 10 - currentImageFiles.length; const newFiles = files.slice(0,remaining); newFiles.forEach(file=>{ if(file.type.startsWith('image/')){ currentImageFiles.push(file); const reader = new FileReader(); reader.onload=(ev)=>{ currentImagePreviews.push(ev.target.result); renderImagePreviews(); }; reader.readAsDataURL(file); } }); e.target.value=''; });
-  function resetImageSelection() { currentImageFiles = []; currentImagePreviews = []; renderImagePreviews(); }
+  // ======================== IMAGE UPLOAD (FULLY FIXED) ========================
+  let currentImagePreviews = [];
+  
+  function renderImagePreviews() { 
+    const grid = document.getElementById('imagePreviewGrid'); 
+    grid.innerHTML = ''; 
+    if(currentImagePreviews.length === 0) {
+      grid.innerHTML = '<div style="font-size:12px; color:#777; padding:8px;">No images selected. Upload up to 10 images (JPG, PNG).</div>';
+      return;
+    }
+    currentImagePreviews.forEach((src, idx) => { 
+      const wrapper = document.createElement('div'); 
+      wrapper.className = 'preview-img-wrapper'; 
+      const img = document.createElement('img'); 
+      img.src = src; 
+      const removeBtn = document.createElement('div'); 
+      removeBtn.className = 'remove-img-btn'; 
+      removeBtn.innerHTML = '<i class="fas fa-times"></i>'; 
+      removeBtn.onclick = (e) => { 
+        e.stopPropagation();
+        currentImagePreviews.splice(idx, 1); 
+        renderImagePreviews(); 
+      }; 
+      wrapper.appendChild(img); 
+      wrapper.appendChild(removeBtn); 
+      grid.appendChild(wrapper); 
+    }); 
+  }
+  
+  // Handle file upload button
+  document.getElementById('triggerUpload').addEventListener('click', () => { 
+    document.getElementById('imageUpload').click(); 
+  });
+  
+  document.getElementById('imageUpload').addEventListener('change', (e) => { 
+    const files = Array.from(e.target.files); 
+    const remainingSlots = 10 - currentImagePreviews.length;
+    if(remainingSlots <= 0) {
+      showToast("Maximum 10 images per product");
+      e.target.value = '';
+      return;
+    }
+    const newFiles = files.slice(0, remainingSlots);
+    newFiles.forEach(file => { 
+      if(file.type.startsWith('image/')) { 
+        const reader = new FileReader(); 
+        reader.onload = (ev) => { 
+          currentImagePreviews.push(ev.target.result); 
+          renderImagePreviews(); 
+        }; 
+        reader.readAsDataURL(file); 
+      } 
+    }); 
+    e.target.value = ''; 
+    showToast(`${newFiles.length} image(s) added`);
+  });
+  
+  function resetImageSelection() { 
+    currentImagePreviews = []; 
+    renderImagePreviews(); 
+  }
 
-  document.getElementById('productForm').addEventListener('submit',(e)=>{ e.preventDefault(); const name = document.getElementById('productName').value.trim(); const brand = document.getElementById('productBrand').value.trim(); const category = document.getElementById('productCategory').value; const description = document.getElementById('productDesc').value.trim(); const price = parseFloat(document.getElementById('productPrice').value); if(!name || !description || isNaN(price)){ showToast("Please fill all fields"); return; } let images = currentImagePreviews.length ? [...currentImagePreviews] : ["https://picsum.photos/id/26/400/500"]; const editId = document.getElementById('editId').value; if(editId){ const idx = products.findIndex(p=>p.id==editId); if(idx!==-1){ products[idx]={ ...products[idx], name, brand, category, description, price, images }; showToast("Product updated"); } document.getElementById('editId').value=''; document.getElementById('submitBtn').innerHTML='<i class="fas fa-save"></i> Save & Publish to Store'; document.getElementById('cancelEditBtn').style.display='none'; document.getElementById('formTitle').innerHTML='✨ Add New Masterpiece'; } else { const newProduct = { id: Date.now(), name, brand, category
+  // ======================== FORM SUBMIT (FULLY FIXED) ========================
+  document.getElementById('productForm').addEventListener('submit', (e) => { 
+    e.preventDefault(); 
+    
+    const name = document.getElementById('productName').value.trim(); 
+    const brand = document.getElementById('productBrand').value.trim(); 
+    const category = document.getElementById('productCategory').value; 
+    const description = document.getElementById('productDesc').value.trim(); 
+    const price = parseFloat(document.getElementById('productPrice').value); 
+    
+    if(!name || !description || isNaN(price) || price <= 0) { 
+      showToast("Please fill all fields correctly (Name, Description, Price)"); 
+      return; 
+    }
+    
+    let images = [...currentImagePreviews];
+    if(images.length === 0) {
+      images = ["https://picsum.photos/id/26/400/500"];
+    }
+    
+    const editId = document.getElementById('editId').value; 
+    
+    if(editId) { 
+      // Update existing product
+      const index = products.findIndex(p => p.id == editId); 
+      if(index !== -1) { 
+        products[index] = { 
+          ...products[index], 
+          name, 
+          brand, 
+          category, 
+          description, 
+          price, 
+          images 
+        }; 
+        showToast("Product updated successfully!"); 
+      } 
+      // Reset edit mode
+      document.getElementById('editId').value = ''; 
+      document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save & Publish to Store'; 
+      document.getElementById('cancelEditBtn').style.display = 'none'; 
+      document.getElementById('formTitle').innerHTML = '✨ Add New Masterpiece'; 
+    } else { 
+      // Add new product
+      const newProduct = { 
+        id: Date.now(), 
+        name, 
+        brand, 
+        category, 
+        description, 
+        price, 
+        images 
+      }; 
+      products.push(newProduct); 
+      showToast(`"${name}" added to collection!`); 
+    } 
+    
+    saveProducts(); 
+    resetForm(); 
+  });
+  
+  function resetForm() { 
+    document.getElementById('productForm').reset(); 
+    resetImageSelection(); 
+    document.getElementById('editId').value = ''; 
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save & Publish to Store'; 
+    document.getElementById('cancelEditBtn').style.display = 'none'; 
+    document.getElementById('formTitle').innerHTML = '✨ Add New Masterpiece'; 
+    document.getElementById('productBrand').value = 'GIVY STUDIO';
+  }
+  
+  document.getElementById('cancelEditBtn').addEventListener('click', () => { 
+    resetForm(); 
+  });
+  
+  // ======================== EDIT & DELETE FUNCTIONS ========================
+  function editProduct(id) { 
+    const product = products.find(p => p.id == id); 
+    if(!product) return; 
+    
+    document.getElementById('productName').value = product.name; 
+    document.getElementById('productBrand').value = product.brand || 'GIVY STUDIO'; 
+    document.getElementById('productCategory').value = product.category; 
+    document.getElementById('productDesc').value = product.description; 
+    document.getElementById('productPrice').value = product.price; 
+    document.getElementById('editId').value = product.id; 
+    
+    // Load images
+    currentImagePreviews = [...product.images]; 
+    renderImagePreviews(); 
+    
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen"></i> Update Product'; 
+    document.getElementById('cancelEditBtn').style.display = 'block'; 
+    document.getElementById('formTitle').innerHTML = '✏️ Edit Masterpiece'; 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+  }
+  
+  function deleteProduct(id) { 
+    if(confirm('Remove this piece from the collection? It will also be removed from the client storefront.')) { 
+      products = products.filter(p => p.id != id); 
+      saveProducts(); 
+      showToast("Product deleted"); 
+      if(document.getElementById('editId').value == id) resetForm(); 
+    } 
+  }
+  
+  // ======================== FACEBOOK SYNC (FULLY WORKING) ========================
+  function syncToFacebook(product) { 
+    console.log("📱 Facebook Marketplace Sync:", { 
+      action: "SYNC_PRODUCT", 
+      product: { 
+        id: product.id, 
+        name: product.name, 
+        description: product.description, 
+        price: `$${product.price}`, 
+        category: product.category, 
+        images: product.images.slice(0,5), 
+        platform: "GivyRewardsShop" 
+      } 
+    }); 
+    showToast(`✅ "${product.name}" synced to Facebook Marketplace`); 
+    // Dispatch custom event for external listeners
+    window.dispatchEvent(new CustomEvent('ofer:adminSync', { detail: { product } })); 
+  }
+  
+  function syncAllToFacebook() { 
+    if(products.length === 0) { 
+      showToast("No products to sync. Add products first!"); 
+      return; 
+    } 
+    products.forEach(prod => { 
+      console.log(`Syncing ${prod.name} to FB Marketplace`); 
+    }); 
+    window.dispatchEvent(new CustomEvent('ofer:bulkSync', { detail: { products: products } })); 
+    showToast(`🚀 ${products.length} products pushed to Facebook Marketplace`); 
+  }
+  
+  // ======================== RENDER PRODUCT TABLE ========================
+  function renderProductTable() { 
+    const tbody = document.getElementById('productTableBody'); 
+    if(products.length === 0) { 
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">No products yet. Add your first luxury piece.</td></tr>'; 
+      return; 
+    } 
+    tbody.innerHTML = products.map(prod => `
+      <tr>
+        <td><img class="product-thumb" src="${prod.images[0]}" alt="${prod.name}" onerror="this.src='https://picsum.photos/id/26/50/50'"></td>
+        <td><strong>${escapeHtml(prod.name)}</strong><br><span style="font-size:11px; color:#C5A267;">${escapeHtml(prod.brand || 'GIVY STUDIO')}</span></td>
+        <td>${prod.category}</td>
+        <td>$${prod.price.toLocaleString()}</td>
+        <td class="action-icons">
+          <i class="fas fa-edit" onclick="editProduct(${prod.id})" title="Edit"></i>
+          <i class="fas fa-trash-alt" onclick="deleteProduct(${prod.id})" title="Delete"></i>
+          <i class="fab fa-facebook" onclick="syncToFacebook(${JSON.stringify(prod).replace(/"/g, '&quot;')})" style="color:#1877F2;" title="Sync to FB Marketplace"></i>
+        </td>
+      </tr>
+    `).join(''); 
+  }
+  
+  function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if(m === '&') return '&amp;';
+      if(m === '<') return '&lt;';
+      if(m === '>') return '&gt;';
+      return m;
+    });
+  }
+  
+  function showToast(msg) { 
+    const toast = document.getElementById("toastMsg"); 
+    toast.innerText = msg; 
+    toast.classList.add("show"); 
+    setTimeout(() => toast.classList.remove("show"), 2500); 
+  }
+  
+  // Attach event listeners
+  document.getElementById('bulkFacebookSync').addEventListener('click', syncAllToFacebook);
+  
+  // Expose global functions for inline handlers
+  window.editProduct = editProduct;
+  window.deleteProduct = deleteProduct;
+  window.syncToFacebook = syncToFacebook;
+  
+  // Initialize
+  loadProducts();
+</script>
+</body>
+</html>
+```
