@@ -1,154 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsShop | Luxury Furniture</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>GivyRewardsShop</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; line-height: 1.4; }
-    .container { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
-    .shop-header { display: flex; justify-content: center; align-items: center; padding: 36px 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; }
-    .logo h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .logo p { font-size: 12px; letter-spacing: 3px; color: #C5A267; margin-top: 8px; }
-    .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; justify-content: center; }
-    .filter-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 28px; font-weight: 500; font-size: 14px; color: #EDEDED; border-radius: 40px; cursor: pointer; transition: all 0.25s ease; }
-    .filter-btn.active, .filter-btn:hover { background: #C5A267; border-color: #C5A267; color: #0A0A0A; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px 28px; margin-bottom: 80px; }
-    .product-card { background: #121212; border-radius: 28px; overflow: hidden; transition: transform 0.3s; cursor: pointer; }
-    .product-card:hover { transform: translateY(-6px); }
-    .product-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #1E1E1E; }
-    .product-img img { width: 100%; height: 100%; object-fit: cover; }
-    .fb-contact-btn { position: absolute; bottom: 18px; left: 18px; background: #1877F2; border: none; border-radius: 40px; padding: 8px 16px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 2; }
-    .fb-contact-btn:hover { background: #1464CC; }
-    .product-info { padding: 20px; }
-    .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #C5A267; margin-bottom: 8px; }
-    .product-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; margin-bottom: 10px; }
-    .product-description { font-size: 13px; line-height: 1.45; color: #B0B0B0; margin: 8px 0; border-left: 2px solid rgba(197,162,103,0.4); padding-left: 12px; }
-    .price { font-weight: 600; font-size: 22px; color: #C5A267; }
-    .admin-secret { position: fixed; bottom: 15px; left: 15px; width: 32px; height: 32px; opacity: 0.08; background: #C5A267; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 999; }
-    .admin-secret:hover { opacity: 0.3; }
-    .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
-    .toast-msg.show { opacity: 1; transform: translateY(0); }
-    footer { text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #6F6F6F; }
+    body { background: #0A0A0A; font-family: Arial; color: white; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 30px; color: #C5A267; }
+    .product { background: #1A1A1A; padding: 20px; margin: 15px 0; border-radius: 15px; }
+    .product h3 { color: #C5A267; margin-bottom: 10px; }
+    .price { font-size: 22px; color: #C5A267; font-weight: bold; margin: 10px 0; }
+    button { background: #1877F2; color: white; padding: 12px 20px; border: none; border-radius: 25px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
+    .admin-link { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; }
+    .admin-link:hover { opacity: 1; }
+    .empty { text-align: center; padding: 50px; color: #888; }
   </style>
 </head>
 <body>
+  <h1>🛋️ GivyRewardsShop</h1>
+  <div id="products" class="empty">Loading...</div>
+  <div class="admin-link" onclick="goToAdmin()">👑</div>
 
-<div class="container">
-  <header class="shop-header"><div class="logo"><h1>GivyRewardsShop</h1><p>Furniture · Objects · Interior Couture</p></div></header>
-  <div class="filters" id="filterGroup"></div>
-  <div class="product-grid" id="productGrid"></div>
-</div>
-
-<div class="admin-secret" id="adminSecret"><i class="fas fa-crown"></i></div>
-<div id="toastMsg" class="toast-msg">✨ Message</div>
-<footer><p>© GivyRewardsShop — Connect via Facebook Marketplace</p></footer>
-
-<script>
-  let products = [];
-  let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
-  let activeFilter = 'all';
-  let clickCount = 0;
-
-  function loadData() {
-    const storedProducts = localStorage.getItem('givy_admin_products');
-    if(storedProducts && storedProducts !== '[]') {
-      products = JSON.parse(storedProducts);
-    } else {
-      products = [
-        { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, category: "seating", images: ["https://picsum.photos/id/106/400/500"], description: "Sumptuous velvet upholstery with brass legs." },
-        { id: 2, name: "Eclipse Table", brand: "ATELIER NOIR", price: 6750, category: "furniture", images: ["https://picsum.photos/id/20/400/500"], description: "Sculptural oval table in smoked oak." },
-        { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, category: "seating", images: ["https://picsum.photos/id/24/400/500"], description: "High-back armchair in bouclé wool." }
-      ];
+  <script>
+    let products = [];
+    
+    function loadProducts() {
+      try {
+        const saved = localStorage.getItem('givy_products');
+        if(saved && saved !== 'undefined') {
+          products = JSON.parse(saved);
+        } else {
+          products = [
+            { id: 1, name: "Marquess Sofa", description: "Luxury velvet sofa", price: 4890, category: "seating" },
+            { id: 2, name: "Eclipse Table", description: "Modern dining table", price: 6750, category: "furniture" },
+            { id: 3, name: "Cocoon Chair", description: "Comfort armchair", price: 2950, category: "seating" }
+          ];
+          localStorage.setItem('givy_products', JSON.stringify(products));
+        }
+      } catch(e) { console.log(e); }
+      
+      renderProducts();
     }
     
-    const storedCats = localStorage.getItem('givy_admin_categories');
-    if(storedCats && storedCats !== '[]') {
-      categories = JSON.parse(storedCats);
-    }
-    
-    renderFilters();
-    renderProducts();
-  }
-
-  function renderFilters() {
-    const container = document.getElementById('filterGroup');
-    container.innerHTML = '<button class="filter-btn active" data-category="all">All Pieces</button>';
-    categories.forEach(cat => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn';
-      btn.setAttribute('data-category', cat);
-      btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-      btn.onclick = () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeFilter = cat;
-        renderProducts();
-      };
-      container.appendChild(btn);
-    });
-  }
-
-  function contactSeller(product) {
-    const msg = encodeURIComponent(`Hi! I'm interested in "${product.name}" ($${product.price}) from GivyRewardsShop.`);
-    showToast(`📱 Contacting seller about "${product.name}"...`);
-    alert(`✅ To complete setup:\n1. Open shop.html\n2. Replace 'your_fb_username' with your Facebook username\n3. Uncomment the line with window.open\n\nProduct: ${product.name}\nPrice: $${product.price}`);
-  }
-
-  function renderProducts() {
-    const grid = document.getElementById('productGrid');
-    const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
-    if(filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px;">No products found</div>'; return; }
-    
-    grid.innerHTML = filtered.map(p => `
-      <div class="product-card">
-        <div class="product-img">
-          <img src="${p.images?.[0] || 'https://picsum.photos/id/26/400/500'}" alt="${p.name}">
-          <button class="fb-contact-btn" data-id="${p.id}"><i class="fab fa-facebook-messenger"></i> Buy on FB Marketplace</button>
-        </div>
-        <div class="product-info">
-          <div class="brand">${p.brand || 'GIVY STUDIO'}</div>
-          <div class="product-title">${p.name}</div>
-          <div class="product-description">${p.description || 'Luxury craftsmanship.'}</div>
+    function renderProducts() {
+      const container = document.getElementById('products');
+      if(!products.length) {
+        container.innerHTML = '<div class="empty">✨ No products yet.<br>Tap the crown icon to add.</div>';
+        return;
+      }
+      
+      container.innerHTML = products.map(p => `
+        <div class="product">
+          <h3>${p.name}</h3>
+          <p>${p.description || 'Premium quality furniture'}</p>
           <div class="price">$${p.price.toLocaleString()}</div>
+          <button onclick="buyProduct('${p.name}', ${p.price})">📱 Buy on Facebook Marketplace</button>
         </div>
-      </div>
-    `).join('');
-    
-    document.querySelectorAll('.fb-contact-btn').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.getAttribute('data-id'));
-        const product = products.find(p => p.id === id);
-        if(product) contactSeller(product);
-      };
-    });
-  }
-
-  function showToast(msg) {
-    const toast = document.getElementById('toastMsg');
-    toast.innerText = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-
-  document.getElementById('adminSecret').onclick = () => {
-    clickCount++;
-    setTimeout(() => { clickCount = 0; }, 500);
-    if(clickCount >= 3) window.location.href = 'admin.html';
-  };
-
-  window.addEventListener('storage', (e) => {
-    if(e.key === 'givy_admin_products' || e.key === 'givy_admin_categories') {
-      loadData();
-      showToast('🔄 Catalog updated');
+      `).join('');
     }
-  });
-
-  loadData();
-</script>
+    
+    function buyProduct(name, price) {
+      alert(`🔹 Contact seller on Facebook 🔹\n\nProduct: ${name}\nPrice: $${price}\n\nMessage: Hi! I'm interested in this ${name}. Is it still available?\n\nNote: Replace 'your_fb_username' in code with your actual Facebook username.`);
+      // window.open('https://m.me/your_fb_username', '_blank');
+    }
+    
+    function goToAdmin() {
+      window.location.href = 'admin.html';
+    }
+    
+    window.addEventListener('storage', function(e) {
+      if(e.key === 'givy_products') {
+        loadProducts();
+      }
+    });
+    
+    loadProducts();
+  </script>
 </body>
 </html>
