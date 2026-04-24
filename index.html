@@ -14,11 +14,12 @@
     .filter-btn.active { background: #C5A267; color: #0A0A0A; border-color: #C5A267; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
     .product-card { background: #121212; border-radius: 20px; overflow: hidden; }
-    .product-img { background: #1E1E1E; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .product-img { background: #1E1E1E; height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
     .product-info { padding: 20px; }
     .brand { color: #C5A267; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
     .product-title { font-size: 20px; font-weight: bold; margin: 8px 0; }
-    .product-desc { color: #999; font-size: 13px; margin: 10px 0; }
+    .product-desc { color: #999; font-size: 13px; margin: 10px 0; line-height: 1.4; }
     .price { color: #C5A267; font-size: 22px; font-weight: bold; }
     .fb-btn { background: #1877F2; border: none; padding: 10px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; }
     .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; z-index: 999; }
@@ -61,6 +62,7 @@
 
     function renderFilters() {
       const container = document.getElementById('filters');
+      if(!container) return;
       container.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
       categories.forEach(cat => {
         const btn = document.createElement('button');
@@ -90,23 +92,34 @@
 
     function renderProducts() {
       const grid = document.getElementById('productGrid');
+      if(!grid) return;
       const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
       if(filtered.length === 0) {
         grid.innerHTML = '<div class="empty">✨ No products in this category</div>';
         return;
       }
-      grid.innerHTML = filtered.map(p => `
-        <div class="product-card">
-          <div class="product-img">${p.images && p.images[0] && p.images[0] !== '🪑' ? `<img src="${p.images[0]}" style="width:100%; height:100%; object-fit:cover;">` : '🪑'}</div>
-          <div class="product-info">
-            <div class="brand">${escapeHtml(p.brand || 'GIVY STUDIO')}</div>
-            <div class="product-title">${escapeHtml(p.name)}</div>
-            <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
-            <div class="price">$${p.price.toLocaleString()}</div>
-            <button class="fb-btn" onclick="openFacebookChat('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">Facebook interesting</button>
+      grid.innerHTML = filtered.map(p => {
+        let imageHtml = '';
+        if(p.images && p.images[0] && p.images[0] !== '🪑' && p.images[0].startsWith('data:image')) {
+          imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
+        } else if(p.images && p.images[0] && p.images[0] !== '🪑') {
+          imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
+        } else {
+          imageHtml = '🪑';
+        }
+        return `
+          <div class="product-card">
+            <div class="product-img">${imageHtml}</div>
+            <div class="product-info">
+              <div class="brand">${escapeHtml(p.brand || 'GIVY STUDIO')}</div>
+              <div class="product-title">${escapeHtml(p.name)}</div>
+              <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
+              <div class="price">$${p.price.toLocaleString()}</div>
+              <button class="fb-btn" onclick="openFacebookChat('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">Facebook interesting</button>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     document.getElementById('adminTrigger').onclick = () => {
