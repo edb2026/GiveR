@@ -2,991 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GivyRewardsShop | Luxury Furniture & Interiors</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GivyRewardsShop | Luxury Furniture</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; line-height: 1.4; }
     .container { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
-    .shop-header { display: flex; justify-content: center; align-items: center; padding: 36px 0 24px 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; position: relative; }
-    .logo { text-align: center; }
-    .logo h1 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 32px; background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .logo p { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #C5A267; margin-top: 8px; }
+    .shop-header { display: flex; justify-content: center; align-items: center; padding: 36px 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; }
+    .logo h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .logo p { font-size: 12px; letter-spacing: 3px; color: #C5A267; margin-top: 8px; }
     .filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; justify-content: center; }
     .filter-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 28px; font-weight: 500; font-size: 14px; color: #EDEDED; border-radius: 40px; cursor: pointer; transition: all 0.25s ease; }
     .filter-btn.active, .filter-btn:hover { background: #C5A267; border-color: #C5A267; color: #0A0A0A; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 40px 28px; margin-bottom: 80px; }
-    .product-card { background: #121212; border-radius: 28px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; display: flex; flex-direction: column; }
-    .product-card:hover { transform: translateY(-6px); box-shadow: 0 24px 36px -12px rgba(0,0,0,0.8); }
-    .product-img { position: relative; overflow: hidden; background: #1E1E1E; aspect-ratio: 4 / 5; }
-    .product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-    .product-card:hover .product-img img { transform: scale(1.03); }
-    .fb-contact-btn { position: absolute; bottom: 18px; left: 18px; background: #1877F2; border: none; border-radius: 40px; padding: 8px 16px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 2; transition: 0.2s; font-family: 'Inter', sans-serif; }
-    .fb-contact-btn:hover { background: #1464CC; transform: scale(1.02); }
-    .wishlist-icon { position: absolute; top: 18px; right: 18px; background: rgba(10,10,10,0.6); backdrop-filter: blur(4px); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; transition: 0.2s; }
-    .wishlist-icon:hover { color: #C5A267; background: rgba(0,0,0,0.8); }
-    .product-info { padding: 20px 20px 24px; flex: 1; display: flex; flex-direction: column; }
-    .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; color: #C5A267; margin-bottom: 8px; }
+    .product-card { background: #121212; border-radius: 28px; overflow: hidden; transition: transform 0.3s; cursor: pointer; }
+    .product-card:hover { transform: translateY(-6px); }
+    .product-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #1E1E1E; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; }
+    .fb-contact-btn { position: absolute; bottom: 18px; left: 18px; background: #1877F2; border: none; border-radius: 40px; padding: 8px 16px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; cursor: pointer; z-index: 2; }
+    .fb-contact-btn:hover { background: #1464CC; }
+    .product-info { padding: 20px; }
+    .brand { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #C5A267; margin-bottom: 8px; }
     .product-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; margin-bottom: 10px; }
-    .product-description { font-size: 13px; line-height: 1.45; color: #B0B0B0; margin: 8px 0 12px 0; border-left: 2px solid rgba(197,162,103,0.4); padding-left: 12px; }
-    .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; }
+    .product-description { font-size: 13px; line-height: 1.45; color: #B0B0B0; margin: 8px 0; border-left: 2px solid rgba(197,162,103,0.4); padding-left: 12px; }
     .price { font-weight: 600; font-size: 22px; color: #C5A267; }
-    .old-price { font-size: 15px; color: #9B9B9B; text-decoration: line-through; margin-left: 12px; }
+    .admin-secret { position: fixed; bottom: 15px; left: 15px; width: 32px; height: 32px; opacity: 0.08; background: #C5A267; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 999; }
+    .admin-secret:hover { opacity: 0.3; }
     .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
     .toast-msg.show { opacity: 1; transform: translateY(0); }
-    /* hidden admin icon - триггер для входа */
-    .admin-secret-trigger { position: fixed; bottom: 15px; left: 15px; width: 32px; height: 32px; opacity: 0.08; z-index: 999; cursor: pointer; transition: opacity 0.2s; border-radius: 50%; background: #C5A267; display: flex; align-items: center; justify-content: center; }
-    .admin-secret-trigger:hover { opacity: 0.3; }
-    .admin-secret-trigger i { font-size: 14px; color: #fff; }
-    footer { text-align: center; padding: 40px 0 32px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #6F6F6F; }
-    @media (max-width: 700px) { .container { padding: 0 20px; } .product-grid { gap: 24px; } }
+    footer { text-align: center; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #6F6F6F; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header class="shop-header"><div class="logo"><h1>GivyRewardsShop</h1><p>Furniture · Objects · Interior Couture</p></div></header>
-  <div class="filters" id="filterGroup">
-    <button class="filter-btn active" data-category="all">All Pieces</button>
-    <button class="filter-btn" data-category="furniture">Furniture</button>
-    <button class="filter-btn" data-category="seating">Seating</button>
-    <button class="filter-btn" data-category="beds">Beds</button>
-    <button class="filter-btn" data-category="rugs">Rugs</button>
-    <button class="filter-btn" data-category="decor">Decor</button>
-    <button class="filter-btn" data-category="office">Office</button>
-  </div>
+  <div class="filters" id="filterGroup"></div>
   <div class="product-grid" id="productGrid"></div>
 </div>
 
-<!-- Скрытая иконка для входа в админку (3 клика) -->
-<div class="admin-secret-trigger" id="adminSecretTrigger"><i class="fas fa-crown"></i></div>
-
-<div id="toastMsg" class="toast-msg">✨ Redirecting to Facebook Marketplace...</div>
-<footer><p>© GivyRewardsShop — Bespoke Furniture | Connect via Facebook Marketplace</p></footer>
+<div class="admin-secret" id="adminSecret"><i class="fas fa-crown"></i></div>
+<div id="toastMsg" class="toast-msg">✨ Message</div>
+<footer><p>© GivyRewardsShop — Connect via Facebook Marketplace</p></footer>
 
 <script>
-  // ======================== SHOP - ЧИТАЕТ ТОВАРЫ ИЗ localStorage ОТ АДМИНКИ ========================
   let products = [];
-  let activeFilter = "all";
-  
-  // Дефолтные товары на случай пустой админки
-  const defaultProducts = [
-    { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", images: ["https://picsum.photos/id/106/400/500"], description: "Sumptuous velvet upholstery with hand-polished brass legs. A masterpiece of contemporary comfort." },
-    { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", images: ["https://picsum.photos/id/20/400/500"], description: "Sculptural oval table in smoked oak with matte lacquer finish. Seats up to 10 guests." },
-    { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", images: ["https://picsum.photos/id/24/400/500"], description: "Wrap-around high-back armchair in bouclé wool. Designed for deep relaxation." }
-  ];
-
-  function loadProductsFromAdmin() {
-    const stored = localStorage.getItem('givy_admin_products');
-    if(stored && JSON.parse(stored).length > 0) {
-      products = JSON.parse(stored);
-    } else {
-      products = JSON.parse(JSON.stringify(defaultProducts));
-    }
-    renderProducts();
-  }
-
-  function formatPrice(price) { return '$' + price.toLocaleString('en-US'); }
-
-  // Функция открытия диалога с продавцом через Facebook Marketplace
-  function contactSellerOnFacebook(product) {
-    // Формируем сообщение для продавца
-    const message = encodeURIComponent(`Hi! I'm interested in "${product.name}" ($${product.price.toLocaleString()}) from GivyRewardsShop. Is it still available?`);
-    // Ссылка на Facebook Messenger продавца (нужно заменить YOUR_FB_USERNAME на реальный ID или имя)
-    // В реальном проекте вы указываете свой Facebook profile link или page link
-    const sellerFbLink = `https://m.me/your_fb_username`; // ЗАМЕНИТЕ на свой Facebook Messenger ссылку
-    
-    // Показываем уведомление и перенаправляем
-    showToast(`📱 Redirecting to Facebook to discuss "${product.name}"...`);
-    
-    // Эмуляция интеграции: в реальном проекте редирект на вашу страницу в FB Marketplace
-    // Создаем кастомное событие для трекинга
-    window.dispatchEvent(new CustomEvent('ofer:contactRequest', { detail: { product, sellerLink: sellerFbLink } }));
-    
-    // Для демонстрации открываем предупреждение с инструкцией. В боевом проекте раскомментируйте редирект:
-    // window.open(sellerFbLink, '_blank');
-    
-    // Так как это демо, показываем как настроить:
-    alert(`🔹 INTEGRATION READY 🔹\n\nCustomer wants to buy: ${product.name}\nPrice: $${product.price}\n\n✅ To connect with YOU (seller):\n1. Replace 'your_fb_username' in code with your actual Facebook username\n2. Uncomment window.open line\n\n📲 For now, this demo shows the integration logic. Contact the seller via Facebook Marketplace!`);
-  }
-
-  function renderProducts() {
-    const grid = document.getElementById("productGrid");
-    const filtered = activeFilter === "all" ? products : products.filter(p => p.category === activeFilter);
-    if (filtered.length === 0) { grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px;">No pieces found</div>`; return; }
-    grid.innerHTML = filtered.map(product => {
-      const firstImage = product.images && product.images[0] ? product.images[0] : "https://picsum.photos/id/26/400/500";
-      return `
-        <div class="product-card" data-id="${product.id}">
-          <div class="product-img">
-            <img src="${firstImage}" alt="${product.name}" loading="lazy">
-            <div class="wishlist-icon" data-wish="${product.id}"><i class="far fa-heart"></i></div>
-            <button class="fb-contact-btn" data-id="${product.id}"><i class="fab fa-facebook-messenger"></i> Buy on FB Marketplace</button>
-          </div>
-          <div class="product-info">
-            <div class="brand">${product.brand || 'GIVY STUDIO'}</div>
-            <div class="product-title">${product.name}</div>
-            <div class="product-description">${product.description || 'Luxury craftsmanship, timeless design.'}</div>
-            <div class="price-row">
-              <div><span class="price">${formatPrice(product.price)}</span>${product.oldPrice ? `<span class="old-price">${formatPrice(product.oldPrice)}</span>` : ''}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Добавляем обработчики для кнопок Facebook
-    document.querySelectorAll('.fb-contact-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = parseInt(btn.getAttribute('data-id'));
-        const product = products.find(p => p.id === id);
-        if(product) contactSellerOnFacebook(product);
-      });
-    });
-    // Wishlist (демо)
-    document.querySelectorAll('.wishlist-icon').forEach(icon => {
-      icon.addEventListener('click', (e) => { e.stopPropagation(); showToast("❤️ Saved to wishlist (demo)"); icon.querySelector('i').classList.toggle('fas'); icon.querySelector('i').classList.toggle('far'); });
-    });
-    // Клик на карточку - дополнительная информация
-    document.querySelectorAll('.product-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if(e.target.closest('.fb-contact-btn') || e.target.closest('.wishlist-icon')) return;
-        const id = parseInt(card.getAttribute('data-id'));
-        const product = products.find(p => p.id === id);
-        if(product) showToast(`✨ ${product.name} — Contact seller on Facebook to purchase`);
-      });
-    });
-  }
-
-  function showToast(msg) { const toast = document.getElementById("toastMsg"); toast.innerText = msg; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2500); }
-
-  // Фильтры
-  function initFilters() {
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeFilter = btn.getAttribute("data-category");
-        renderProducts();
-      });
-    });
-  }
-
-  // СЛУШАЕМ ОБНОВЛЕНИЯ ОТ АДМИНКИ (если открыта в другой вкладке)
-  window.addEventListener('storage', (e) => {
-    if(e.key === 'givy_admin_products') {
-      loadProductsFromAdmin();
-      showToast("🔄 Catalog updated by administrator");
-    }
-  });
-
-  // СКРЫТЫЙ ВХОД В АДМИНКУ: 3 быстрых клика по иконке
+  let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+  let activeFilter = 'all';
   let clickCount = 0;
-  let clickTimer = null;
-  document.getElementById('adminSecretTrigger').addEventListener('click', () => {
-    clickCount++;
-    if(clickTimer) clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => { clickCount = 0; }, 800);
-    if(clickCount >= 3) {
-      window.location.href = 'admin.html';
-    }
-  });
 
-  loadProductsFromAdmin();
-  initFilters();
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GivyRewardsShop | Luxury Furniture & Interiors</title>
-  <!-- Google Fonts: refined, elegant, premium -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+  function loadData() {
+    const storedProducts = localStorage.getItem('givy_admin_products');
+    if(storedProducts && storedProducts !== '[]') {
+      products = JSON.parse(storedProducts);
+    } else {
+      products = [
+        { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, category: "seating", images: ["https://picsum.photos/id/106/400/500"], description: "Sumptuous velvet upholstery with brass legs." },
+        { id: 2, name: "Eclipse Table", brand: "ATELIER NOIR", price: 6750, category: "furniture", images: ["https://picsum.photos/id/20/400/500"], description: "Sculptural oval table in smoked oak." },
+        { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, category: "seating", images: ["https://picsum.photos/id/24/400/500"], description: "High-back armchair in bouclé wool." }
+      ];
     }
-
-    body {
-      background-color: #0A0A0A;
-      font-family: 'Inter', sans-serif;
-      color: #EDEDED;
-      line-height: 1.4;
+    
+    const storedCats = localStorage.getItem('givy_admin_categories');
+    if(storedCats && storedCats !== '[]') {
+      categories = JSON.parse(storedCats);
     }
-
-    .container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 0 32px;
-    }
-
-    /* header with absolute centering - equal margins left and right */
-    .shop-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 36px 0 24px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: 48px;
-      position: relative;
-    }
-
-    /* logo container - perfectly centered with equal distance to both edges */
-    .logo {
-      text-align: center;
-      width: 100%;
-      max-width: 100%;
-    }
-
-    .logo h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 500;
-      font-size: 32px;
-      letter-spacing: -0.3px;
-      background: linear-gradient(135deg, #FFFFFF 30%, #C5A267 80%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin: 0;
-      display: inline-block;
-    }
-
-    .logo p {
-      font-size: 12px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #C5A267;
-      margin-top: 8px;
-      font-weight: 400;
-    }
-
-    /* header actions hidden as requested */
-    .header-actions {
-      display: none;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 48px;
-      justify-content: center;
-    }
-
-    .filter-btn {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 8px 28px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: 0.3px;
-      color: #EDEDED;
-      border-radius: 40px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .filter-btn.active, .filter-btn:hover {
-      background: #C5A267;
-      border-color: #C5A267;
-      color: #0A0A0A;
-    }
-
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 40px 28px;
-      margin-bottom: 80px;
-    }
-
-    .product-card {
-      background: #121212;
-      border-radius: 28px;
-      overflow: hidden;
-      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s;
-      box-shadow: 0 12px 24px -12px rgba(0,0,0,0.6);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .product-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 24px 36px -12px rgba(0,0,0,0.8);
-    }
-
-    .product-img {
-      position: relative;
-      overflow: hidden;
-      background: #1E1E1E;
-      aspect-ratio: 4 / 5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .product-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s ease;
-    }
-
-    .product-card:hover .product-img img {
-      transform: scale(1.03);
-    }
-
-    .wishlist-icon {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      background: rgba(10,10,10,0.6);
-      backdrop-filter: blur(4px);
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 18px;
-      transition: 0.2s;
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    .wishlist-icon:hover {
-      color: #C5A267;
-      background: rgba(0,0,0,0.8);
-    }
-
-    .product-info {
-      padding: 20px 20px 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 500;
-      color: #C5A267;
-      margin-bottom: 8px;
-    }
-
-    .product-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-
-    .product-description {
-      font-size: 13px;
-      line-height: 1.45;
-      color: #B0B0B0;
-      margin: 8px 0 12px 0;
-      border-left: 2px solid rgba(197, 162, 103, 0.4);
-      padding-left: 12px;
-      font-weight: 400;
-    }
-
-    .price-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: auto;
-      padding-top: 14px;
-    }
-
-    .price {
-      font-weight: 600;
-      font-size: 22px;
-      letter-spacing: -0.3px;
-    }
-
-    .old-price {
-      font-size: 15px;
-      color: #9B9B9B;
-      text-decoration: line-through;
-      margin-left: 12px;
-    }
-
-    .add-to-cart {
-      background: rgba(197, 162, 103, 0.12);
-      border: 1px solid rgba(197, 162, 103, 0.4);
-      border-radius: 40px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #C5A267;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-
-    .add-to-cart:hover {
-      background: #C5A267;
-      color: #0A0A0A;
-      border-color: #C5A267;
-    }
-
-    .cart-sidebar {
-      position: fixed;
-      top: 0;
-      right: -480px;
-      width: 100%;
-      max-width: 480px;
-      height: 100vh;
-      background: #0F0F0F;
-      box-shadow: -8px 0 30px rgba(0,0,0,0.8);
-      z-index: 1000;
-      transition: right 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      display: flex;
-      flex-direction: column;
-      border-left: 1px solid rgba(197, 162, 103, 0.3);
-    }
-
-    .cart-sidebar.open {
-      right: 0;
-    }
-
-    .cart-header {
-      padding: 28px 28px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .cart-header h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 500;
-    }
-
-    .close-cart {
-      font-size: 28px;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-    .close-cart:hover { color: #C5A267; }
-
-    .cart-items {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .cart-item {
-      display: flex;
-      gap: 16px;
-      background: #171717;
-      border-radius: 20px;
-      padding: 12px;
-    }
-    .cart-item-img {
-      width: 70px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 14px;
-      background: #2A2A2A;
-    }
-    .cart-item-details {
-      flex: 1;
-    }
-    .cart-item-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .cart-item-price {
-      color: #C5A267;
-      font-weight: 500;
-    }
-    .cart-item-qty {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .qty-btn {
-      background: #2C2C2C;
-      border: none;
-      width: 26px;
-      height: 26px;
-      border-radius: 30px;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .remove-item {
-      color: #aa6f6f;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 8px;
-      display: inline-block;
-    }
-
-    .cart-total {
-      padding: 24px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      background: #0F0F0F;
-    }
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-    .checkout-btn {
-      width: 100%;
-      background: #C5A267;
-      border: none;
-      padding: 16px;
-      font-weight: 700;
-      font-size: 18px;
-      color: #0A0A0A;
-      border-radius: 40px;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .checkout-btn:hover {
-      opacity: 0.9;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(3px);
-      z-index: 999;
-      visibility: hidden;
-      opacity: 0;
-      transition: 0.2s;
-    }
-    .overlay.active {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .floating-cart {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      background: #C5A267;
-      width: 56px;
-      height: 56px;
-      border-radius: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 990;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      transition: transform 0.2s, background 0.2s;
-    }
-    .floating-cart:hover {
-      transform: scale(1.05);
-      background: #dbb87a;
-    }
-    .floating-cart i {
-      font-size: 24px;
-      color: #0A0A0A;
-    }
-    .cart-badge {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: #FFFFFF;
-      color: #0A0A0A;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: bold;
-      width: 22px;
-      height: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: monospace;
-    }
-
-    .toast-msg {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      background: #C5A267;
-      color: #0A0A0A;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 600;
-      z-index: 1200;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: 0.25s;
-      pointer-events: none;
-    }
-    .toast-msg.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (max-width: 700px) {
-      .container { padding: 0 20px; }
-      .product-grid { gap: 24px; }
-      .cart-sidebar { max-width: 100%; }
-    }
-    footer {
-      text-align: center;
-      padding: 40px 0 32px;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      font-size: 13px;
-      color: #6F6F6F;
-    }
-    button { background: none; border: none; }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <header class="shop-header">
-    <div class="logo">
-      <h1>GivyRewardsShop</h1>
-      <p>Furniture · Objects · Interior Couture</p>
-    </div>
-    <div class="header-actions"></div>
-  </header>
-
-  <div class="filters" id="filterGroup">
-    <button class="filter-btn active" data-category="all">All Pieces</button>
-    <button class="filter-btn" data-category="furniture">Furniture</button>
-    <button class="filter-btn" data-category="seating">Seating</button>
-    <button class="filter-btn" data-category="beds">Beds</button>
-    <button class="filter-btn" data-category="rugs">Rugs</button>
-    <button class="filter-btn" data-category="decor">Decor</button>
-    <button class="filter-btn" data-category="office">Office</button>
-  </div>
-
-  <div class="product-grid" id="productGrid"></div>
-</div>
-
-<div class="floating-cart" id="floatingCartBtn">
-  <i class="fas fa-shopping-bag"></i>
-  <span class="cart-badge" id="cartBadge">0</span>
-</div>
-
-<div class="cart-sidebar" id="cartSidebar">
-  <div class="cart-header">
-    <h3>Shopping Bag</h3>
-    <i class="fas fa-times close-cart" id="closeCartBtn"></i>
-  </div>
-  <div class="cart-items" id="cartItemsList">
-    <div style="text-align:center; padding:40px;">Your cart is empty</div>
-  </div>
-  <div class="cart-total">
-    <div class="total-row">
-      <span>Total</span>
-      <span id="cartTotalAmount">$0</span>
-    </div>
-    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
-    <p style="font-size:12px; margin-top:12px; text-align:center;">Worldwide white-glove delivery</p>
-  </div>
-</div>
-<div class="overlay" id="overlay"></div>
-<div id="toastMsg" class="toast-msg">✨ Added to cart</div>
-
-<script>
-  // Enhanced product collection with detailed English descriptions
-  const products = [
-    { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, oldPrice: 6250, category: "seating", image: "https://picsum.photos/id/106/400/500", description: "Sumptuous velvet upholstery with hand-polished brass legs. A masterpiece of contemporary comfort and timeless elegance." },
-    { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, oldPrice: 7900, category: "furniture", image: "https://picsum.photos/id/20/400/500", description: "Sculptural oval table in smoked oak with a matte lacquer finish. Seats up to 10 guests, perfect for grand interiors." },
-    { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, oldPrice: null, category: "seating", image: "https://picsum.photos/id/24/400/500", description: "Wrap-around high-back armchair in bouclé wool. Designed for deep relaxation with a modern silhouette." },
-    { id: 4, name: "Orion Bed Frame", brand: "DORMEO", price: 4250, oldPrice: 4990, category: "beds", image: "https://picsum.photos/id/32/400/500", description: "Minimalist leather headboard with integrated nightstands. Upholstered in Italian aniline leather." },
-    { id: 5, name: "Silk Heriz Rug", brand: "PERSIAN ATELIER", price: 1890, oldPrice: 2750, category: "rugs", image: "https://picsum.photos/id/38/400/500", description: "Hand-knotted Tibetan wool and silk rug. Geometric motifs in natural earth tones, heirloom quality." },
-    { id: 6, name: "Aether Chandelier", brand: "LUMIÈRE", price: 1550, oldPrice: 2100, category: "decor", image: "https://picsum.photos/id/26/400/500", description: "Floating crystal discs with warm LED illumination. Creates an ethereal atmosphere in any dining room." },
-    { id: 7, name: "Presidential Desk", brand: "OFFICINA", price: 5450, oldPrice: 6200, category: "office", image: "https://picsum.photos/id/40/400/500", description: "Solid walnut executive desk with concealed wiring and leather inlay. Timeless professional statement." },
-    { id: 8, name: "Zenith Bookshelf", brand: "GIVY STUDIO", price: 3290, oldPrice: null, category: "furniture", image: "https://picsum.photos/id/42/400/500", description: "Asymmetric modular shelves in blackened steel and smoked glass. A gallery for curated objects." },
-    { id: 9, name: "Celeste Daybed", brand: "DORMEO", price: 3980, oldPrice: 4650, category: "beds", image: "https://picsum.photos/id/46/400/500", description: "Versatile daybed with hand-tufted linen cushion. Perfect for lounging or guest accommodation." },
-    { id: 10, name: "Nomad Leather Pouf", brand: "LUNAIRE", price: 890, oldPrice: 1250, category: "seating", image: "https://picsum.photos/id/58/400/500", description: "Hand-stitched vegetable-tanned leather pouf. Filled with recycled beads, both sustainable and chic." },
-    { id: 11, name: "Abstract Wool Rug", brand: "WEAVE STUDIO", price: 2250, oldPrice: 2900, category: "rugs", image: "https://picsum.photos/id/96/400/500", description: "Hand-tufted New Zealand wool rug with bold abstract patterns in charcoal and ochre." },
-    { id: 12, name: "Alabaster Vase Set", brand: "OBJET", price: 490, oldPrice: null, category: "decor", image: "https://picsum.photos/id/34/400/500", description: "Set of three sculptural alabaster vases with natural veining. Each piece is unique." },
-    { id: 13, name: "Ergo Executive Chair", brand: "OFFICINA", price: 1890, oldPrice: 2450, category: "office", image: "https://picsum.photos/id/50/400/500", description: "Ergonomic high-back chair in polished aluminum and perforated leather. Lumbar support with tilt mechanism." },
-    { id: 14, name: "Console Oro", brand: "ATELIER NOIR", price: 2790, oldPrice: 3300, category: "furniture", image: "https://picsum.photos/id/52/400/500", description: "Console table with brushed brass frame and Nero Marquina marble top. Entryway elegance." },
-    { id: 15, name: "Cloud Modular Sofa", brand: "GIVY STUDIO", price: 7890, oldPrice: 9200, category: "seating", image: "https://picsum.photos/id/59/400/500", description: "Deep-seat modular sofa with feather-down cushions. Configure endless layouts for lounging." },
-    { id: 16, name: "Canopy Bed Frame", brand: "DORMEO", price: 5890, oldPrice: 6800, category: "beds", image: "https://picsum.photos/id/66/400/500", description: "Four-poster canopy bed in cerused oak with linen drapes. Romantic grandeur for the master suite." },
-    { id: 17, name: "Marble Side Table", brand: "OBJET", price: 850, oldPrice: 1190, category: "decor", image: "https://picsum.photos/id/62/400/500", description: "Italian Carrara marble top on sculptural brass base. Compact yet striking beside any sofa." },
-    { id: 18, name: "Organic Cowhide Rug", brand: "WEAVE STUDIO", price: 1590, oldPrice: 1990, category: "rugs", image: "https://picsum.photos/id/68/400/500", description: "Pure Brazilian cowhide rug with natural color variations. Adds warmth and texture to minimalist spaces." },
-    { id: 19, name: "Metropolitan Desk", brand: "OFFICINA", price: 4250, oldPrice: 4900, category: "office", image: "https://picsum.photos/id/77/400/500", description: "L-shaped walnut desk with integrated power grommets and soft-close drawers." },
-    { id: 20, name: "Sculptural Floor Lamp", brand: "LUMIÈRE", price: 1190, oldPrice: 1550, category: "decor", image: "https://picsum.photos/id/84/400/500", description: "Matte black steel arc lamp with adjustable brass shade. Architectural lighting statement." }
-  ];
-
-  let cart = new Map();
-  let activeFilter = "all";
-
-  function formatPrice(price) {
-    return '$' + price.toLocaleString('en-US');
+    
+    renderFilters();
+    renderProducts();
   }
 
-  function updateCartBadge() {
-    const badge = document.getElementById("cartBadge");
-    if (!badge) return;
-    const totalItems = Array.from(cart.values()).reduce((sum, qty) => sum + qty, 0);
-    badge.innerText = totalItems;
-    if (totalItems === 0) badge.style.display = "none";
-    else badge.style.display = "flex";
+  function renderFilters() {
+    const container = document.getElementById('filterGroup');
+    container.innerHTML = '<button class="filter-btn active" data-category="all">All Pieces</button>';
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.setAttribute('data-category', cat);
+      btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+      btn.onclick = () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = cat;
+        renderProducts();
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  function contactSeller(product) {
+    const msg = encodeURIComponent(`Hi! I'm interested in "${product.name}" ($${product.price}) from GivyRewardsShop.`);
+    showToast(`📱 Contacting seller about "${product.name}"...`);
+    alert(`✅ To complete setup:\n1. Open shop.html\n2. Replace 'your_fb_username' with your Facebook username\n3. Uncomment the line with window.open\n\nProduct: ${product.name}\nPrice: $${product.price}`);
   }
 
   function renderProducts() {
-    const grid = document.getElementById("productGrid");
-    const filtered = activeFilter === "all" ? products : products.filter(p => p.category === activeFilter);
-    if (filtered.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px;">No pieces found in this category</div>`;
-      return;
-    }
-    grid.innerHTML = filtered.map(product => {
-      const cartQty = cart.get(product.id) || 0;
-      return `
-        <div class="product-card" data-id="${product.id}">
-          <div class="product-img">
-            <img src="${product.image}" alt="${product.name}" loading="lazy">
-            <div class="wishlist-icon" data-wish="${product.id}">
-              <i class="far fa-heart"></i>
-            </div>
-          </div>
-          <div class="product-info">
-            <div class="brand">${product.brand}</div>
-            <div class="product-title">${product.name}</div>
-            <div class="product-description">${product.description}</div>
-            <div class="price-row">
-              <div>
-                <span class="price">${formatPrice(product.price)}</span>
-                ${product.oldPrice ? `<span class="old-price">${formatPrice(product.oldPrice)}</span>` : ''}
-              </div>
-              <div class="add-to-cart" data-id="${product.id}">
-                <i class="fas fa-shopping-bag"></i> <span>Add</span>
-              </div>
-            </div>
-            ${cartQty > 0 ? `<div style="font-size:12px; margin-top:10px; color:#C5A267;">✓ in cart (${cartQty})</div>` : ''}
-          </div>
+    const grid = document.getElementById('productGrid');
+    const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
+    if(filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px;">No products found</div>'; return; }
+    
+    grid.innerHTML = filtered.map(p => `
+      <div class="product-card">
+        <div class="product-img">
+          <img src="${p.images?.[0] || 'https://picsum.photos/id/26/400/500'}" alt="${p.name}">
+          <button class="fb-contact-btn" data-id="${p.id}"><i class="fab fa-facebook-messenger"></i> Buy on FB Marketplace</button>
         </div>
-      `;
-    }).join('');
-
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+        <div class="product-info">
+          <div class="brand">${p.brand || 'GIVY STUDIO'}</div>
+          <div class="product-title">${p.name}</div>
+          <div class="product-description">${p.description || 'Luxury craftsmanship.'}</div>
+          <div class="price">$${p.price.toLocaleString()}</div>
+        </div>
+      </div>
+    `).join('');
+    
+    document.querySelectorAll('.fb-contact-btn').forEach(btn => {
+      btn.onclick = (e) => {
         e.stopPropagation();
         const id = parseInt(btn.getAttribute('data-id'));
-        addToCart(id);
-        showToast("Added to cart");
-      });
-    });
-
-    document.querySelectorAll('.wishlist-icon').forEach(icon => {
-      icon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showToast("❤️ Saved to wishlist (demo)");
-        icon.querySelector('i').classList.toggle('fas');
-        icon.querySelector('i').classList.toggle('far');
-      });
-    });
-
-    document.querySelectorAll('.product-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if(e.target.closest('.add-to-cart') || e.target.closest('.wishlist-icon')) return;
-        const prodId = parseInt(card.getAttribute('data-id'));
-        const product = products.find(p => p.id === prodId);
-        if(product) {
-          showToast(`🔍 ${product.name} — details in Marketplace (ID:${product.id})`);
-          console.log(`Facebook Marketplace integration: open product ${product.id} - ${product.name}`);
-          window.dispatchEvent(new CustomEvent('ofer:productView', { detail: product }));
-        }
-      });
-    });
-  }
-
-  function addToCart(productId, quantity = 1) {
-    const existing = cart.get(productId) || 0;
-    cart.set(productId, existing + quantity);
-    updateCartUI();
-    updateCartBadge();
-    renderProducts();
-  }
-
-  function removeFromCart(productId) {
-    cart.delete(productId);
-    updateCartUI();
-    updateCartBadge();
-    renderProducts();
-  }
-
-  function updateQuantity(productId, delta) {
-    const current = cart.get(productId) || 0;
-    const newQty = current + delta;
-    if (newQty <= 0) {
-      cart.delete(productId);
-    } else {
-      cart.set(productId, newQty);
-    }
-    updateCartUI();
-    updateCartBadge();
-    renderProducts();
-  }
-
-  function updateCartUI() {
-    const cartContainer = document.getElementById("cartItemsList");
-    const totalSpan = document.getElementById("cartTotalAmount");
-    let totalPrice = 0;
-    let cartItemsHtml = "";
-
-    if (cart.size === 0) {
-      cartContainer.innerHTML = `<div style="text-align:center; padding:40px;">Your cart is empty<br>✨ discover timeless pieces</div>`;
-      totalSpan.innerText = `$0`;
-      return;
-    }
-
-    for (let [id, qty] of cart.entries()) {
-      const product = products.find(p => p.id === id);
-      if (!product) continue;
-      const itemTotal = product.price * qty;
-      totalPrice += itemTotal;
-      cartItemsHtml += `
-        <div class="cart-item" data-id="${id}">
-          <img class="cart-item-img" src="${product.image}" alt="${product.name}">
-          <div class="cart-item-details">
-            <div class="cart-item-title">${product.name}</div>
-            <div class="cart-item-price">${formatPrice(product.price)}</div>
-            <div class="cart-item-qty">
-              <button class="qty-btn" data-id="${id}" data-delta="-1">−</button>
-              <span>${qty}</span>
-              <button class="qty-btn" data-id="${id}" data-delta="1">+</button>
-            </div>
-            <div class="remove-item" data-id="${id}">Remove</div>
-          </div>
-        </div>
-      `;
-    }
-
-    cartContainer.innerHTML = cartItemsHtml;
-    totalSpan.innerText = formatPrice(totalPrice);
-
-    document.querySelectorAll('.qty-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const pid = parseInt(btn.getAttribute('data-id'));
-        const delta = parseInt(btn.getAttribute('data-delta'));
-        updateQuantity(pid, delta);
-      });
-    });
-    document.querySelectorAll('.remove-item').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const pid = parseInt(btn.getAttribute('data-id'));
-        removeFromCart(pid);
-        showToast("Item removed");
-      });
+        const product = products.find(p => p.id === id);
+        if(product) contactSeller(product);
+      };
     });
   }
 
   function showToast(msg) {
-    const toast = document.getElementById("toastMsg");
+    const toast = document.getElementById('toastMsg');
     toast.innerText = msg;
-    toast.classList.add("show");
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2000);
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
-  function initFilters() {
-    const btns = document.querySelectorAll(".filter-btn");
-    btns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        btns.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeFilter = btn.getAttribute("data-category");
-        renderProducts();
-      });
-    });
-  }
+  document.getElementById('adminSecret').onclick = () => {
+    clickCount++;
+    setTimeout(() => { clickCount = 0; }, 500);
+    if(clickCount >= 3) window.location.href = 'admin.html';
+  };
 
-  function initCartSidebar() {
-    const floatingBtn = document.getElementById("floatingCartBtn");
-    const cartSidebar = document.getElementById("cartSidebar");
-    const closeCart = document.getElementById("closeCartBtn");
-    const overlay = document.getElementById("overlay");
-
-    function openCart() {
-      cartSidebar.classList.add("open");
-      overlay.classList.add("active");
+  window.addEventListener('storage', (e) => {
+    if(e.key === 'givy_admin_products' || e.key === 'givy_admin_categories') {
+      loadData();
+      showToast('🔄 Catalog updated');
     }
-    function closeCartFunc() {
-      cartSidebar.classList.remove("open");
-      overlay.classList.remove("active");
-    }
+  });
 
-    floatingBtn.addEventListener("click", openCart);
-    closeCart.addEventListener("click", closeCartFunc);
-    overlay.addEventListener("click", closeCartFunc);
-  }
-
-  function initCheckout() {
-    const checkoutBtn = document.getElementById("checkoutBtn");
-    checkoutBtn.addEventListener("click", () => {
-      if (cart.size === 0) {
-        showToast("Your cart is empty, add beautiful pieces");
-        return;
-      }
-      const orderItems = [];
-      for (let [id, qty] of cart.entries()) {
-        const prod = products.find(p => p.id === id);
-        if(prod) orderItems.push({ id: prod.id, name: prod.name, quantity: qty, price: prod.price, category: prod.category, description: prod.description });
-      }
-      console.log("🛒 Checkout order for Cregg Ofer App:", orderItems);
-      window.dispatchEvent(new CustomEvent('ofer:checkout', { detail: { items: orderItems, total: Array.from(cart.entries()).reduce((acc, [id,qty]) => acc + (products.find(p=>p.id===id)?.price || 0)*qty,0) } }));
-      showToast(`✅ Order placed! Total: ${formatPrice(Array.from(cart.entries()).reduce((acc, [id,qty]) => acc + (products.find(p=>p.id===id)?.price || 0)*qty,0))}`);
-      cart.clear();
-      updateCartUI();
-      updateCartBadge();
-      renderProducts();
-      document.getElementById("cartSidebar").classList.remove("open");
-      document.getElementById("overlay").classList.remove("active");
-      showToast("Thank you — our concierge will contact you.");
-    });
-  }
-
-  function init() {
-    renderProducts();
-    initFilters();
-    initCartSidebar();
-    initCheckout();
-    updateCartBadge();
-  }
-
-  init();
+  loadData();
 </script>
-<footer>
-  <p>© GivyRewardsShop — Bespoke Furniture & Interiors | Integrated with Facebook Marketplace & Cregg Ofer App</p>
-</footer>
 </body>
 </html>
-```
