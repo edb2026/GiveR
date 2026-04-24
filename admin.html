@@ -3,431 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsAdmin | Luxury Management</title>
+  <title>GivyRewardsAdmin | Management</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #EDEDED; }
-    .admin-container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 36px 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; flex-wrap: wrap; gap: 16px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 36px 0 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 48px; }
     .logo h1 { font-family: 'Playfair Display', serif; font-size: 32px; background: linear-gradient(135deg, #C5A267 30%, #E8D5B5 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .logo p { font-size: 12px; letter-spacing: 3px; color: #C5A267; margin-top: 6px; }
-    .logout-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; font-size: 12px; }
-    .logout-btn:hover { background: rgba(197,162,103,0.3); }
-    .dashboard { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; margin-bottom: 60px; }
-    .form-card { background: #121212; border-radius: 32px; padding: 32px; border: 1px solid rgba(255,255,255,0.05); }
-    .form-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; margin-bottom: 28px; border-left: 4px solid #C5A267; padding-left: 18px; }
+    .exit-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+    .card { background: #121212; border-radius: 32px; padding: 32px; border: 1px solid rgba(255,255,255,0.05); }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 28px; border-left: 4px solid #C5A267; padding-left: 18px; }
     .input-group { margin-bottom: 24px; }
-    .input-group label { display: block; font-size: 13px; font-weight: 500; text-transform: uppercase; color: #C5A267; margin-bottom: 8px; }
-    .input-group input, .input-group textarea, .input-group select { width: 100%; background: #1E1E1E; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 14px 18px; font-family: 'Inter', sans-serif; font-size: 15px; color: #EDEDED; }
-    .input-group textarea { min-height: 90px; resize: vertical; }
-    .category-row { display: flex; gap: 12px; align-items: center; }
-    .category-row select { flex: 1; }
-    .edit-cat-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 12px 18px; color: #C5A267; cursor: pointer; white-space: nowrap; }
-    .image-upload-area { background: #1A1A1A; border-radius: 24px; padding: 20px; margin-bottom: 24px; border: 1px dashed rgba(197,162,103,0.5); }
-    .image-grid-preview { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-    .preview-img-wrapper { position: relative; width: 80px; height: 80px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
-    .preview-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-    .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border-radius: 20px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: #fff; }
-    .upload-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 10px 20px; font-size: 13px; color: #C5A267; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-    .button-group { display: flex; gap: 16px; margin-top: 12px; }
-    .submit-btn { background: #C5A267; border: none; flex: 1; padding: 16px; font-weight: 700; font-size: 16px; color: #0A0A0A; border-radius: 40px; cursor: pointer; }
-    .add-more-btn { background: rgba(197,162,103,0.2); border: 1px solid rgba(197,162,103,0.5); flex: 1; padding: 16px; font-weight: 600; font-size: 16px; color: #C5A267; border-radius: 40px; cursor: pointer; }
-    .catalog-section { background: #121212; border-radius: 32px; padding: 28px; margin-bottom: 60px; }
-    .product-table { width: 100%; overflow-x: auto; }
+    .input-group label { display: block; font-size: 13px; text-transform: uppercase; color: #C5A267; margin-bottom: 8px; }
+    .input-group input, .input-group textarea, .input-group select { width: 100%; background: #1E1E1E; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 14px 18px; color: #EDEDED; }
+    .cat-row { display: flex; gap: 12px; }
+    .cat-row select { flex: 1; }
+    .small-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 12px 18px; color: #C5A267; cursor: pointer; }
+    .upload-area { background: #1A1A1A; border-radius: 24px; padding: 20px; border: 1px dashed rgba(197,162,103,0.5); margin-bottom: 24px; }
+    .preview-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .preview-img { position: relative; width: 80px; height: 80px; border-radius: 16px; overflow: hidden; background: #0A0A0A; }
+    .preview-img img { width: 100%; height: 100%; object-fit: cover; }
+    .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); border-radius: 20px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; }
+    .upload-btn { background: rgba(197,162,103,0.15); border: 1px solid rgba(197,162,103,0.4); border-radius: 40px; padding: 10px 20px; color: #C5A267; cursor: pointer; display: inline-flex; gap: 8px; }
+    .btn-group { display: flex; gap: 16px; margin-top: 12px; }
+    .btn-primary { background: #C5A267; border: none; flex: 1; padding: 16px; font-weight: 700; color: #0A0A0A; border-radius: 40px; cursor: pointer; }
+    .btn-secondary { background: rgba(197,162,103,0.2); border: 1px solid rgba(197,162,103,0.5); flex: 1; padding: 16px; font-weight: 600; color: #C5A267; border-radius: 40px; cursor: pointer; }
+    .product-table { width: 100%; overflow-x: auto; margin-top: 24px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { text-align: left; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    th { color: #C5A267; }
     .product-thumb { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
-    .action-icons i { margin: 0 6px; cursor: pointer; color: #aaa; font-size: 16px; }
+    .action-icons i { margin: 0 6px; cursor: pointer; color: #aaa; }
     .action-icons i:hover { color: #C5A267; }
-    .fb-sync-btn { background: #1877F2; border: none; padding: 10px 20px; border-radius: 30px; color: white; font-weight: 600; cursor: pointer; width: 100%; }
-    .toast-msg { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; pointer-events: none; }
-    .toast-msg.show { opacity: 1; transform: translateY(0); }
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
     .modal.active { visibility: visible; opacity: 1; }
     .modal-content { background: #121212; border-radius: 32px; padding: 32px; max-width: 500px; width: 90%; }
-    .category-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #1E1E1E; border-radius: 16px; margin-bottom: 8px; }
-    .modal-close { background: #C5A267; border: none; padding: 12px; border-radius: 40px; color: #0A0A0A; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; }
+    .cat-item { display: flex; justify-content: space-between; padding: 12px; background: #1E1E1E; border-radius: 16px; margin-bottom: 8px; }
+    .toast { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: 600; z-index: 1200; opacity: 0; transform: translateY(20px); transition: 0.25s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
     footer { text-align: center; padding: 30px 0; border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #6F6F6F; }
-    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-<div class="admin-container">
-  <header class="admin-header">
-    <div class="logo"><h1>GivyRewardsAdmin</h1><p>LUXURY INVENTORY</p></div>
-    <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Exit to Shop</button>
-  </header>
+<div class="container">
+  <div class="header">
+    <div class="logo"><h1>GivyRewardsAdmin</h1><p>INVENTORY MANAGEMENT</p></div>
+    <button id="exitBtn" class="exit-btn"><i class="fas fa-sign-out-alt"></i> Exit to Shop</button>
+  </div>
 
-  <div class="dashboard">
-    <div class="form-card">
-      <div class="form-title" id="formTitle">✨ Add New Product</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" id="formTitle">✨ Add New Product</div>
       <form id="productForm">
-        <div class="input-group"><label>Product Name</label><input type="text" id="productName" placeholder="e.g. Celestial Sofa" required></div>
-        <div class="input-group"><label>Brand</label><input type="text" id="productBrand" placeholder="Brand name" value="GIVY STUDIO"></div>
-        <div class="input-group"><label>Category</label><div class="category-row"><select id="productCategory"></select><button type="button" class="edit-cat-btn" id="manageCategoriesBtn"><i class="fas fa-pen"></i> Edit</button></div></div>
-        <div class="input-group"><label>Description</label><textarea id="productDesc" placeholder="Luxurious details..."></textarea></div>
-        <div class="input-group"><label>Price (USD)</label><input type="number" id="productPrice" placeholder="e.g. 4250" step="1" required></div>
-        <div class="input-group"><label>Images (up to 10)</label>
-          <div class="image-upload-area">
-            <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
-            <button type="button" class="upload-btn" id="triggerUpload"><i class="fas fa-cloud-upload-alt"></i> Select Images</button>
-            <div class="image-grid-preview" id="imagePreviewGrid"></div>
-          </div>
+        <div class="input-group"><label>Product Name</label><input type="text" id="name" required></div>
+        <div class="input-group"><label>Brand</label><input type="text" id="brand" value="GIVY STUDIO"></div>
+        <div class="input-group"><label>Category</label><div class="cat-row"><select id="category"></select><button type="button" id="manageCatBtn" class="small-btn"><i class="fas fa-pen"></i> Edit</button></div></div>
+        <div class="input-group"><label>Description</label><textarea id="desc" rows="3"></textarea></div>
+        <div class="input-group"><label>Price (USD)</label><input type="number" id="price" step="1" required></div>
+        <div class="upload-area">
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+          <button type="button" id="uploadBtn" class="upload-btn"><i class="fas fa-cloud-upload-alt"></i> Select Images (Max 10)</button>
+          <div id="previewGrid" class="preview-grid"></div>
         </div>
         <input type="hidden" id="editId" value="">
-        <div class="button-group">
-          <button type="submit" class="submit-btn" id="submitBtn"><i class="fas fa-save"></i> Save Product</button>
-          <button type="button" class="add-more-btn" id="addMoreBtn"><i class="fas fa-plus-circle"></i> Add More</button>
+        <div class="btn-group">
+          <button type="submit" class="btn-primary" id="saveBtn"><i class="fas fa-save"></i> Save Product</button>
+          <button type="button" id="addMoreBtn" class="btn-secondary"><i class="fas fa-plus-circle"></i> Add More</button>
         </div>
-        <button type="button" id="cancelEditBtn" style="display:none; margin-top:12px; background:#333;" class="submit-btn">Cancel Edit</button>
+        <button type="button" id="cancelEditBtn" style="display:none; margin-top:12px;" class="btn-primary">Cancel Edit</button>
       </form>
     </div>
 
-    <div class="form-card">
-      <div class="form-title">📦 Facebook Sync</div>
-      <button id="bulkFacebookSync" class="fb-sync-btn"><i class="fab fa-facebook"></i> Sync All to Facebook Marketplace</button>
+    <div class="card">
+      <div class="card-title">📦 Facebook Sync</div>
+      <button id="syncAllBtn" class="btn-primary" style="background:#1877F2;"><i class="fab fa-facebook"></i> Sync All to Facebook Marketplace</button>
       <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div class="form-title" style="font-size:18px;">Tips</div>
-        <ul style="color:#aaa; font-size:13px; margin-left:20px;"><li>Products auto-save to both admin and shop</li><li>Use "Add More" to stay on form after saving</li><li>Categories sync with shop.html</li></ul>
+        <div class="card-title" style="font-size:18px;">Tips</div>
+        <ul style="color:#aaa; font-size:13px; margin-left:20px;"><li>Products automatically appear in shop.html</li><li>Use "Add More" to keep adding products</li><li>Categories update the store filters</li></ul>
       </div>
     </div>
   </div>
 
-  <div class="catalog-section">
-    <div class="form-title" style="margin-bottom:24px;">Current Collection <span id="productCount" style="font-size:14px; background:#1E1E1E; padding:4px 12px; border-radius:20px; margin-left:12px;">0 items</span></div>
-    <div class="product-table">
-      <table><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody id="productTableBody"></tbody></table>
-    </div>
+  <div class="card">
+    <div class="card-title">Current Collection <span id="count" style="font-size:14px; background:#1E1E1E; padding:4px 12px; border-radius:20px; margin-left:12px;">0 items</span></div>
+    <div class="product-table"><table><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody id="tableBody"></tbody></table></div>
   </div>
   <footer><p>© GivyRewardsAdmin — Integrated with GivyRewardsShop</p></footer>
 </div>
 
-<div id="categoryModal" class="modal"><div class="modal-content"><h3>Manage Categories</h3><div class="input-group"><label>New Category</label><div style="display:flex; gap:8px;"><input type="text" id="newCategoryName" placeholder="e.g. Lighting" style="flex:1;"><button id="addCategoryBtn" class="upload-btn">Add</button></div></div><div id="categoryList" class="category-list" style="margin:20px 0; max-height:300px; overflow-y:auto;"></div><button class="modal-close" id="closeModalBtn">Close</button></div></div>
-
-<div id="toastMsg" class="toast-msg">✨ Done</div>
+<div id="catModal" class="modal"><div class="modal-content"><h3>Manage Categories</h3><div class="input-group"><label>New Category</label><div style="display:flex; gap:8px;"><input type="text" id="newCat" placeholder="e.g. Lighting"><button id="addCatBtn" class="upload-btn">Add</button></div></div><div id="catList" style="margin:20px 0; max-height:300px; overflow-y:auto;"></div><button id="closeModalBtn" class="btn-primary">Close</button></div></div>
+<div id="toast" class="toast">✨ Done</div>
 
 <script>
-// ======================== AUTH ========================
-const ADMIN_PASSWORD = "LuxuryAdmin2025";
-if(!localStorage.getItem('admin_authenticated')) {
-  const pwd = prompt("🔐 Admin Access Required:");
-  if(pwd === ADMIN_PASSWORD) {
-    localStorage.setItem('admin_authenticated', 'true');
-  } else {
-    alert("Access denied");
-    window.location.href = "shop.html";
+  const PASSWORD = "LuxuryAdmin2025";
+  if(!localStorage.getItem('admin_auth')) {
+    const pwd = prompt("🔐 Admin Password:");
+    if(pwd === PASSWORD) localStorage.setItem('admin_auth', 'true');
+    else { alert("Access Denied"); window.location.href = "shop.html"; }
   }
-}
 
-// ======================== FIXED EXIT - WORKS PROPERLY ========================
-document.getElementById('logoutAdminBtn').onclick = () => {
-  localStorage.removeItem('admin_authenticated');
-  window.location.href = "shop.html";
-};
+  let products = [];
+  let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+  let imagePreviews = [];
 
-// ======================== GLOBAL STORAGE ========================
-let products = [];
-let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
-
-function loadAll() {
-  const storedProducts = localStorage.getItem('givy_admin_products');
-  if(storedProducts && storedProducts !== 'undefined') {
-    try {
-      products = JSON.parse(storedProducts);
-      if(!Array.isArray(products)) products = [];
-    } catch(e) { products = []; }
-  } else {
-    products = [];
+  function saveToStorage() {
+    localStorage.setItem('givy_admin_products', JSON.stringify(products));
+    localStorage.setItem('givy_admin_categories', JSON.stringify(categories));
+    localStorage.setItem('givy_admin_updated', Date.now().toString());
+    renderTable();
+    document.getElementById('count').innerText = products.length + ' items';
+    showToast("Saved & synced with shop");
   }
-  
-  const storedCats = localStorage.getItem('givy_admin_categories');
-  if(storedCats && storedCats !== 'undefined') {
-    try {
-      const parsed = JSON.parse(storedCats);
-      if(Array.isArray(parsed) && parsed.length) categories = parsed;
-    } catch(e) {}
+
+  function loadFromStorage() {
+    const storedProducts = localStorage.getItem('givy_admin_products');
+    if(storedProducts) products = JSON.parse(storedProducts);
+    const storedCats = localStorage.getItem('givy_admin_categories');
+    if(storedCats) categories = JSON.parse(storedCats);
+    renderCategorySelect();
+    renderTable();
+    document.getElementById('count').innerText = products.length + ' items';
   }
-  
-  renderCategorySelect();
-  renderProductTable();
-  updateCount();
-}
 
-function saveProducts() {
-  localStorage.setItem('givy_admin_products', JSON.stringify(products));
-  // Trigger storage event for shop.html
-  localStorage.setItem('givy_admin_products_updated', Date.now().toString());
-  setTimeout(() => localStorage.removeItem('givy_admin_products_updated'), 100);
-  renderProductTable();
-  updateCount();
-  showToast("Products saved and synced with shop");
-}
-
-function saveCategories() {
-  localStorage.setItem('givy_admin_categories', JSON.stringify(categories));
-  products.forEach(p => { if(!categories.includes(p.category)) p.category = 'other'; });
-  saveProducts();
-  renderCategorySelect();
-}
-
-function updateCount() { 
-  const countSpan = document.getElementById('productCount');
-  if(countSpan) countSpan.innerText = products.length + ' items'; 
-}
-
-function renderCategorySelect() {
-  const select = document.getElementById('productCategory');
-  if(!select) return;
-  select.innerHTML = '';
-  categories.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat;
-    opt.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-    select.appendChild(opt);
-  });
-}
-
-// ======================== IMAGES ========================
-let currentImagePreviews = [];
-function renderImagePreviews() {
-  const grid = document.getElementById('imagePreviewGrid');
-  if(!grid) return;
-  grid.innerHTML = '';
-  if(currentImagePreviews.length === 0) { 
-    grid.innerHTML = '<div style="font-size:12px; color:#777;">No images selected. Upload up to 10 images.</div>'; 
-    return; 
+  function renderCategorySelect() {
+    const select = document.getElementById('category');
+    select.innerHTML = '';
+    categories.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+      select.appendChild(opt);
+    });
   }
-  currentImagePreviews.forEach((src, idx) => {
-    const div = document.createElement('div'); div.className = 'preview-img-wrapper';
-    const img = document.createElement('img'); img.src = src;
-    const rm = document.createElement('div'); rm.className = 'remove-img-btn'; rm.innerHTML = '<i class="fas fa-times"></i>';
-    rm.onclick = () => { currentImagePreviews.splice(idx,1); renderImagePreviews(); };
-    div.appendChild(img); div.appendChild(rm); grid.appendChild(div);
-  });
-}
 
-const uploadTrigger = document.getElementById('triggerUpload');
-const imageUpload = document.getElementById('imageUpload');
-if(uploadTrigger) {
-  uploadTrigger.onclick = () => imageUpload.click();
-}
-if(imageUpload) {
-  imageUpload.onchange = (e) => {
+  function renderImagePreviews() {
+    const grid = document.getElementById('previewGrid');
+    grid.innerHTML = '';
+    if(imagePreviews.length === 0) { grid.innerHTML = '<div style="font-size:12px; color:#777;">No images selected</div>'; return; }
+    imagePreviews.forEach((src, i) => {
+      const div = document.createElement('div'); div.className = 'preview-img';
+      const img = document.createElement('img'); img.src = src;
+      const rm = document.createElement('div'); rm.className = 'remove-img'; rm.innerHTML = '<i class="fas fa-times"></i>';
+      rm.onclick = () => { imagePreviews.splice(i,1); renderImagePreviews(); };
+      div.appendChild(img); div.appendChild(rm); grid.appendChild(div);
+    });
+  }
+
+  document.getElementById('uploadBtn').onclick = () => document.getElementById('fileInput').click();
+  document.getElementById('fileInput').onchange = (e) => {
     const files = Array.from(e.target.files);
-    const remaining = 10 - currentImagePreviews.length;
-    if(remaining <= 0) { showToast("Max 10 images"); e.target.value = ''; return; }
-    const newFiles = files.slice(0, remaining);
-    newFiles.forEach(f => {
+    const remaining = 10 - imagePreviews.length;
+    files.slice(0, remaining).forEach(f => {
       if(f.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => { currentImagePreviews.push(ev.target.result); renderImagePreviews(); };
+        reader.onload = ev => { imagePreviews.push(ev.target.result); renderImagePreviews(); };
         reader.readAsDataURL(f);
       }
     });
     e.target.value = '';
   };
-}
 
-function resetImages() { currentImagePreviews = []; renderImagePreviews(); }
+  function resetForm() {
+    document.getElementById('name').value = '';
+    document.getElementById('brand').value = 'GIVY STUDIO';
+    document.getElementById('desc').value = '';
+    document.getElementById('price').value = '';
+    document.getElementById('editId').value = '';
+    imagePreviews = [];
+    renderImagePreviews();
+    document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save Product';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+    document.getElementById('formTitle').innerHTML = '✨ Add New Product';
+  }
 
-// ======================== FORM SUBMIT & ADD MORE ========================
-const productForm = document.getElementById('productForm');
-if(productForm) {
-  productForm.onsubmit = (e) => {
+  document.getElementById('productForm').onsubmit = (e) => {
     e.preventDefault();
-    const name = document.getElementById('productName').value.trim();
-    const brand = document.getElementById('productBrand').value.trim();
-    const category = document.getElementById('productCategory').value;
-    const desc = document.getElementById('productDesc').value.trim();
-    const price = parseFloat(document.getElementById('productPrice').value);
-    if(!name || !desc || isNaN(price) || price <= 0) { showToast("Fill all fields correctly"); return; }
-    let images = currentImagePreviews.length ? [...currentImagePreviews] : ["https://picsum.photos/id/26/400/500"];
+    const name = document.getElementById('name').value.trim();
+    const brand = document.getElementById('brand').value.trim();
+    const category = document.getElementById('category').value;
+    const desc = document.getElementById('desc').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    if(!name || !desc || isNaN(price)) { showToast("Fill all fields"); return; }
+    const images = imagePreviews.length ? [...imagePreviews] : ["https://picsum.photos/id/26/400/500"];
     const editId = document.getElementById('editId').value;
     
     if(editId) {
       const idx = products.findIndex(p => p.id == editId);
-      if(idx !== -1) {
-        products[idx] = { ...products[idx], name, brand, category, description: desc, price, images };
-        showToast("Product updated");
-      }
-      resetFormToAddMode();
+      if(idx !== -1) products[idx] = { id: editId, name, brand, category, description: desc, price, images };
+      showToast("Product updated");
+      resetForm();
     } else {
       const newProduct = { id: Date.now(), name, brand, category, description: desc, price, images };
       products.push(newProduct);
       showToast(`"${name}" added`);
-      saveProducts();
-      document.getElementById('productName').value = '';
-      document.getElementById('productBrand').value = 'GIVY STUDIO';
-      document.getElementById('productDesc').value = '';
-      document.getElementById('productPrice').value = '';
-      resetImages();
-      return;
+      resetForm();
     }
-    saveProducts();
+    saveToStorage();
   };
-}
 
-// ADD MORE BUTTON
-const addMoreBtn = document.getElementById('addMoreBtn');
-if(addMoreBtn) {
-  addMoreBtn.onclick = () => {
-    const name = document.getElementById('productName').value.trim();
-    if(name) {
-      productForm.dispatchEvent(new Event('submit'));
-    }
-    resetFormToAddMode();
-    document.getElementById('productName').value = '';
-    document.getElementById('productBrand').value = 'GIVY STUDIO';
-    document.getElementById('productDesc').value = '';
-    document.getElementById('productPrice').value = '';
-    resetImages();
+  document.getElementById('addMoreBtn').onclick = () => {
+    const name = document.getElementById('name').value.trim();
+    if(name) document.getElementById('productForm').dispatchEvent(new Event('submit'));
+    resetForm();
     showToast("Ready to add another product");
   };
-}
 
-function resetFormToAddMode() {
-  const editIdField = document.getElementById('editId');
-  const submitBtn = document.getElementById('submitBtn');
-  const cancelBtn = document.getElementById('cancelEditBtn');
-  const formTitle = document.getElementById('formTitle');
-  if(editIdField) editIdField.value = '';
-  if(submitBtn) submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Product';
-  if(cancelBtn) cancelBtn.style.display = 'none';
-  if(formTitle) formTitle.innerHTML = '✨ Add New Product';
-}
+  document.getElementById('cancelEditBtn').onclick = () => resetForm();
 
-const cancelEditBtn = document.getElementById('cancelEditBtn');
-if(cancelEditBtn) {
-  cancelEditBtn.onclick = () => {
-    resetFormToAddMode();
-    document.getElementById('productName').value = '';
-    document.getElementById('productBrand').value = 'GIVY STUDIO';
-    document.getElementById('productDesc').value = '';
-    document.getElementById('productPrice').value = '';
-    resetImages();
+  window.editProduct = (id) => {
+    const p = products.find(p => p.id == id);
+    if(!p) return;
+    document.getElementById('name').value = p.name;
+    document.getElementById('brand').value = p.brand;
+    document.getElementById('category').value = p.category;
+    document.getElementById('desc').value = p.description;
+    document.getElementById('price').value = p.price;
+    document.getElementById('editId').value = p.id;
+    imagePreviews = [...(p.images || [])];
+    renderImagePreviews();
+    document.getElementById('saveBtn').innerHTML = '<i class="fas fa-pen"></i> Update Product';
+    document.getElementById('cancelEditBtn').style.display = 'block';
+    document.getElementById('formTitle').innerHTML = '✏️ Edit Product';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-}
 
-// ======================== EDIT / DELETE ========================
-window.editProduct = (id) => {
-  const p = products.find(p => p.id == id);
-  if(!p) return;
-  document.getElementById('productName').value = p.name;
-  document.getElementById('productBrand').value = p.brand || 'GIVY STUDIO';
-  document.getElementById('productCategory').value = p.category;
-  document.getElementById('productDesc').value = p.description;
-  document.getElementById('productPrice').value = p.price;
-  document.getElementById('editId').value = p.id;
-  currentImagePreviews = [...(p.images || [])];
-  renderImagePreviews();
-  document.getElementById('submitBtn').innerHTML = '<i class="fas fa-pen"></i> Update Product';
-  document.getElementById('cancelEditBtn').style.display = 'block';
-  document.getElementById('formTitle').innerHTML = '✏️ Edit Product';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
+  window.deleteProduct = (id) => {
+    if(confirm("Delete this product?")) {
+      products = products.filter(p => p.id != id);
+      saveToStorage();
+      showToast("Product deleted");
+    }
+  };
 
-window.deleteProduct = (id) => {
-  if(confirm("Remove this product?")) {
-    products = products.filter(p => p.id != id);
-    saveProducts();
-    showToast("Product deleted");
-    if(document.getElementById('editId').value == id) resetFormToAddMode();
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    if(!products.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">No products</td></tr>'; return; }
+    tbody.innerHTML = products.map(p => `
+      <tr>
+        <td><img class="product-thumb" src="${p.images?.[0] || 'https://picsum.photos/id/26/50/50'}"></td>
+        <td><strong>${p.name}</strong><br><span style="font-size:11px; color:#C5A267;">${p.brand}</span></td>
+        <td>${p.category}</td>
+        <td>$${p.price.toLocaleString()}</td>
+        <td class="action-icons">
+          <i class="fas fa-edit" onclick="editProduct(${p.id})"></i>
+          <i class="fas fa-trash-alt" onclick="deleteProduct(${p.id})"></i>
+          <i class="fab fa-facebook" onclick="showToast('Synced to FB')" style="color:#1877F2;"></i>
+        </td>
+      </tr>
+    `).join('');
   }
-};
 
-// ======================== CATEGORY MANAGEMENT ========================
-const modal = document.getElementById('categoryModal');
-const manageBtn = document.getElementById('manageCategoriesBtn');
-if(manageBtn) {
-  manageBtn.onclick = () => {
-    renderCategoryList();
-    if(modal) modal.classList.add('active');
-  };
-}
-const closeModal = document.getElementById('closeModalBtn');
-if(closeModal) {
-  closeModal.onclick = () => { if(modal) modal.classList.remove('active'); };
-}
-const addCatBtn = document.getElementById('addCategoryBtn');
-if(addCatBtn) {
-  addCatBtn.onclick = () => {
-    const newCat = document.getElementById('newCategoryName').value.trim().toLowerCase();
+  // Categories Modal
+  const modal = document.getElementById('catModal');
+  document.getElementById('manageCatBtn').onclick = () => { renderCatList(); modal.classList.add('active'); };
+  document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
+  document.getElementById('addCatBtn').onclick = () => {
+    const newCat = document.getElementById('newCat').value.trim().toLowerCase();
     if(newCat && !categories.includes(newCat)) {
       categories.push(newCat);
-      saveCategories();
-      document.getElementById('newCategoryName').value = '';
-      renderCategoryList();
+      saveToStorage();
+      renderCategorySelect();
+      renderCatList();
+      document.getElementById('newCat').value = '';
       showToast(`Category "${newCat}" added`);
-    } else showToast("Category exists or invalid");
+    }
   };
-}
-
-window.deleteCategory = (idx) => {
-  const cat = categories[idx];
-  if(confirm(`Delete "${cat}"? Products will move to "other".`)) {
-    categories.splice(idx,1);
-    if(categories.length === 0) categories = ['other'];
-    saveCategories();
-    products.forEach(p => { if(p.category === cat) p.category = 'other'; });
-    saveProducts();
-    renderCategoryList();
-    showToast(`Category "${cat}" removed`);
+  window.deleteCategory = (idx) => {
+    const cat = categories[idx];
+    if(confirm(`Delete "${cat}"?`)) {
+      categories.splice(idx,1);
+      saveToStorage();
+      renderCategorySelect();
+      renderCatList();
+      showToast(`Category deleted`);
+    }
+  };
+  function renderCatList() {
+    const container = document.getElementById('catList');
+    container.innerHTML = '';
+    categories.forEach((c, i) => {
+      const div = document.createElement('div'); div.className = 'cat-item';
+      div.innerHTML = `<span>${c}</span><button onclick="deleteCategory(${i})" style="background:rgba(255,100,100,0.2); border:none; padding:6px12px; border-radius:20px; color:#ff8888; cursor:pointer;">Remove</button>`;
+      container.appendChild(div);
+    });
   }
-};
 
-function renderCategoryList() {
-  const container = document.getElementById('categoryList');
-  if(!container) return;
-  container.innerHTML = '';
-  categories.forEach((cat, idx) => {
-    const div = document.createElement('div'); div.className = 'category-item';
-    div.innerHTML = `<span>${cat.charAt(0).toUpperCase() + cat.slice(1)}</span><button onclick="deleteCategory(${idx})"><i class="fas fa-trash"></i> Remove</button>`;
-    container.appendChild(div);
-  });
-  if(!categories.length) container.innerHTML = '<div style="padding:20px; text-align:center;">No categories</div>';
-}
+  document.getElementById('syncAllBtn').onclick = () => showToast(`🚀 ${products.length} products synced to Facebook`);
 
-// ======================== FACEBOOK SYNC ========================
-window.syncToFacebook = (product) => {
-  console.log("FB Sync:", product);
-  showToast(`✅ "${product.name}" synced to Facebook`);
-};
-function syncAllToFacebook() {
-  if(!products.length) { showToast("No products to sync"); return; }
-  products.forEach(p => console.log("Syncing", p.name));
-  showToast(`🚀 ${products.length} products synced to Facebook Marketplace`);
-}
-const bulkSync = document.getElementById('bulkFacebookSync');
-if(bulkSync) bulkSync.onclick = syncAllToFacebook;
+  document.getElementById('exitBtn').onclick = () => { window.location.href = "shop.html"; };
 
-// ======================== RENDER TABLE ========================
-function renderProductTable() {
-  const tbody = document.getElementById('productTableBody');
-  if(!tbody) return;
-  if(!products.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;">No products yet</td></tr>'; return; }
-  tbody.innerHTML = products.map(p => `
-    <tr>
-      <td><img class="product-thumb" src="${p.images && p.images[0] ? p.images[0] : 'https://picsum.photos/id/26/50/50'}" onerror="this.src='https://picsum.photos/id/26/50/50'"></td>
-      <td><strong>${escapeHtml(p.name)}</strong><br><span style="font-size:11px; color:#C5A267;">${escapeHtml(p.brand || 'GIVY STUDIO')}</span></td>
-      <td>${p.category}</td>
-      <td>$${p.price.toLocaleString()}</td>
-      <td class="action-icons">
-        <i class="fas fa-edit" onclick="editProduct(${p.id})"></i>
-        <i class="fas fa-trash-alt" onclick="deleteProduct(${p.id})"></i>
-        <i class="fab fa-facebook" onclick="syncToFacebook(${JSON.stringify(p).replace(/"/g, '&quot;')})" style="color:#1877F2;"></i>
-      </td>
-    </tr>
-  `).join('');
-}
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
 
-function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-function showToast(msg) { const t = document.getElementById('toastMsg'); if(t) { t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); } }
-
-loadAll();
+  loadFromStorage();
 </script>
 </body>
 </html>
