@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsShop</title>
+  <title>GivyRewardsShop | Luxury Furniture</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
     .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #333; margin-bottom: 30px; }
     h1 { font-size: 32px; background: linear-gradient(135deg, #C5A267, #E8D5B5); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
-    .filter-btn { background: #1A1A1A; border: 1px solid #333; padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; }
-    .filter-btn.active { background: #C5A267; color: #0A0A0A; border-color: #C5A267; }
+    .filter-btn { background: #1A1A1A; border: 1px solid #333; padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; transition: 0.2s; }
+    .filter-btn.active, .filter-btn:hover { background: #C5A267; color: #0A0A0A; border-color: #C5A267; }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-    .product-card { background: #121212; border-radius: 20px; overflow: hidden; }
+    .product-card { background: #121212; border-radius: 20px; overflow: hidden; transition: transform 0.2s; }
+    .product-card:hover { transform: translateY(-5px); }
     .product-img { background: #1E1E1E; height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .product-img img { width: 100%; height: 100%; object-fit: cover; }
     .product-info { padding: 20px; }
@@ -21,16 +22,23 @@
     .product-title { font-size: 20px; font-weight: bold; margin: 8px 0; }
     .product-desc { color: #999; font-size: 13px; margin: 10px 0; line-height: 1.4; }
     .price { color: #C5A267; font-size: 22px; font-weight: bold; }
-    .fb-btn { background: #1877F2; border: none; padding: 10px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; }
-    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; z-index: 999; }
+    .fb-btn { background: #1877F2; border: none; padding: 12px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; transition: 0.2s; }
+    .fb-btn:hover { background: #1464CC; }
+    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; z-index: 999; transition: opacity 0.2s; }
+    .admin-trigger:hover { opacity: 0.6; }
     .empty { text-align: center; padding: 60px; color: #666; }
+    footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #222; margin-top: 40px; color: #555; font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="header"><h1>GivyRewardsShop</h1><p style="color:#C5A267; margin-top:8px;">Luxury Furniture & Interiors</p></div>
+  <div class="header">
+    <h1>GivyRewardsShop</h1>
+    <p style="color:#C5A267; margin-top:8px;">Luxury Furniture & Interiors</p>
+  </div>
   <div class="filters" id="filters"></div>
   <div class="product-grid" id="productGrid"><div class="empty">Loading...</div></div>
   <div class="admin-trigger" id="adminTrigger">👑</div>
+  <footer>© GivyRewardsShop — Connect with seller via Facebook Messenger</footer>
 
   <script>
     let products = [];
@@ -79,10 +87,10 @@
       });
     }
 
-    function openFacebookChat(fbUsername, productName, productPrice) {
+    function openMessenger(fbUsername, productName, productPrice) {
       let username = fbUsername || globalFbUsername;
       if(!username) {
-        alert('🔹 Facebook Marketplace Contact 🔹\n\nProduct: ' + productName + '\nPrice: $' + productPrice + '\n\nNo Facebook username set for this product.\nAdmin can add it in product settings.');
+        alert('🔹 Facebook Messenger Contact 🔹\n\nProduct: ' + productName + '\nPrice: $' + productPrice + '\n\nNo Facebook username set. Admin can add it in product settings.');
         return;
       }
       let cleanUsername = username.replace('@', '').replace('https://', '').replace('facebook.com/', '').replace('m.me/', '').trim();
@@ -99,13 +107,13 @@
         return;
       }
       grid.innerHTML = filtered.map(p => {
-        let imageHtml = '';
-        if(p.images && p.images[0] && p.images[0] !== '🪑' && p.images[0].startsWith('data:image')) {
-          imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
-        } else if(p.images && p.images[0] && p.images[0] !== '🪑') {
-          imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
-        } else {
-          imageHtml = '🪑';
+        let imageHtml = '🪑';
+        if(p.images && p.images[0]) {
+          if(p.images[0].startsWith('data:image') || p.images[0].startsWith('http')) {
+            imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
+          } else {
+            imageHtml = p.images[0];
+          }
         }
         return `
           <div class="product-card">
@@ -115,7 +123,7 @@
               <div class="product-title">${escapeHtml(p.name)}</div>
               <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
               <div class="price">$${p.price.toLocaleString()}</div>
-              <button class="fb-btn" onclick="openFacebookChat('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">Facebook interesting</button>
+              <button class="fb-btn" onclick="openMessenger('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">💬 Buy on Messenger</button>
             </div>
           </div>
         `;
