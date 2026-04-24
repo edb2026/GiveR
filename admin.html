@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsAdmin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>GivyRewardsAdmin | Full Control</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
@@ -17,8 +17,8 @@
     input, textarea, select { width: 100%; padding: 12px; margin: 8px 0 18px 0; background: #1E1E1E; border: 1px solid #333; border-radius: 12px; color: white; font-size: 14px; }
     textarea { min-height: 80px; resize: vertical; }
     .cat-row { display: flex; gap: 12px; align-items: center; }
-    .cat-row select { flex: 1; margin-bottom: 18px; }
-    .small-btn { background: #2a2a2a; border: 1px solid #C5A267; padding: 10px 15px; border-radius: 30px; color: #C5A267; cursor: pointer; white-space: nowrap; }
+    .cat-row select { flex: 1; margin-bottom: 0; }
+    .small-btn { background: #2a2a2a; border: 1px solid #C5A267; padding: 12px 15px; border-radius: 30px; color: #C5A267; cursor: pointer; white-space: nowrap; }
     .upload-area { background: #1A1A1A; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px dashed #C5A267; }
     .preview-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
     .preview-img { position: relative; width: 80px; height: 80px; background: #0A0A0A; border-radius: 12px; overflow: hidden; border: 1px solid #444; }
@@ -32,240 +32,341 @@
     .product-info { flex: 1; }
     .delete-btn { background: #aa2e2e; border: none; padding: 8px 16px; border-radius: 20px; color: white; cursor: pointer; margin: 4px; }
     .edit-btn { background: #2a5f8a; border: none; padding: 8px 16px; border-radius: 20px; color: white; cursor: pointer; margin: 4px; }
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; }
-    .modal.active { visibility: visible; opacity: 1; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; pointer-events: none; }
+    .modal.active { visibility: visible; opacity: 1; pointer-events: auto; }
     .modal-content { background: #121212; border-radius: 28px; padding: 30px; max-width: 450px; width: 90%; }
     .cat-item { display: flex; justify-content: space-between; padding: 12px; background: #1E1E1E; border-radius: 12px; margin-bottom: 8px; }
-    .toast { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100; opacity: 0; transition: 0.2s; }
+    .toast { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100; opacity: 0; transition: 0.2s; pointer-events: none; }
     .toast.show { opacity: 1; }
+    .fb-field { background: #1E1E1E; border-radius: 16px; padding: 15px; margin-top: 20px; border: 1px solid #1877F2; }
+    .fb-field label { display: block; margin-bottom: 8px; color: #1877F2; font-weight: bold; }
+    .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0A0A0A; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+    .login-box { background: #121212; padding: 40px; border-radius: 32px; width: 320px; text-align: center; border: 1px solid #C5A267; }
+    .login-box input { margin: 20px 0; text-align: center; }
     @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header"><h1>👑 GivyRewardsAdmin</h1><button class="exit-btn" id="exitBtn">🚪 Exit to Shop</button></div>
-  
-  <div id="loginBox" style="text-align:center; padding:60px;">
-    <div style="background:#121212; padding:40px; border-radius:30px; max-width:350px; margin:0 auto;">
-      <h2>🔐 Admin Login</h2>
-      <input type="password" id="password" placeholder="Enter password" style="margin:20px 0;">
-      <button class="btn-primary" onclick="login()">Login</button>
-    </div>
-  </div>
-  
-  <div id="adminPanel" style="display:none;">
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title" id="formTitle">✨ Add New Product</div>
-        <input type="text" id="name" placeholder="Product Name (e.g. Velvet Sofa)">
-        <input type="text" id="brand" placeholder="Brand" value="GIVY STUDIO">
-        <div class="cat-row"><select id="category"></select><button class="small-btn" id="manageCatBtn">📁 Edit Categories</button></div>
-        <textarea id="desc" placeholder="Product description..."></textarea>
-        <input type="number" id="price" placeholder="Price in USD">
-        
-        <div class="upload-area">
-          <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
-          <button type="button" class="upload-btn" id="uploadBtn">📸 Select Images (Max 10)</button>
-          <div id="previewGrid" class="preview-grid"></div>
-        </div>
-        
-        <input type="hidden" id="editId">
-        <div class="btn-group">
-          <button class="btn-primary" id="saveBtn">💾 Save Product</button>
-          <button class="btn-secondary" id="addMoreBtn">➕ Add More</button>
-        </div>
-        <button id="cancelBtn" style="display:none; margin-top:10px;" class="btn-primary">Cancel Edit</button>
-      </div>
-      
-      <div class="card">
-        <div class="card-title">📘 Facebook Sync</div>
-        <button id="syncBtn" class="btn-primary" style="background:#1877F2;">Sync All to Facebook Marketplace</button>
-        <div style="margin-top:25px; padding-top:20px; border-top:1px solid #333;">
-          <p style="color:#999; font-size:13px;">✅ Products auto-save to shop<br>✅ Categories update filters<br>✅ Up to 10 images per product<br>✅ Click crown on shop to return</p>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title">📦 Current Collection <span id="count" style="background:#C5A267; color:#0A0A0A; padding:4px 12px; border-radius:20px; font-size:14px;">0</span></div>
-      <div id="productList"></div>
-    </div>
+
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+    <h2 style="margin-bottom: 10px;">🔐 Admin Access</h2>
+    <p style="color:#999; margin-bottom: 20px;">Enter password to continue</p>
+    <input type="password" id="adminPasswordInput" placeholder="Password" autocomplete="off">
+    <button class="btn-primary" id="submitLoginBtn" style="width:100%;">Unlock Panel</button>
   </div>
 </div>
 
-<div id="catModal" class="modal"><div class="modal-content"><h3>Manage Categories</h3><div style="display:flex; gap:8px; margin:20px 0;"><input type="text" id="newCat" placeholder="e.g. Lighting"><button id="addCatBtn" class="upload-btn">Add</button></div><div id="catList"></div><button id="closeModalBtn" class="btn-primary" style="margin-top:20px;">Close</button></div></div>
-<div id="toast" class="toast">✨ Done</div>
+<div class="container" id="adminMain" style="display: none;">
+  <div class="header">
+    <h1>👑 GivyRewardsAdmin</h1>
+    <button class="exit-btn" id="exitBtn">🚪 Exit to Shop</button>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" id="formTitle">✨ Add New Product</div>
+      <input type="text" id="productName" placeholder="Product Name (e.g. Velvet Sofa)">
+      <input type="text" id="productBrand" placeholder="Brand" value="GIVY STUDIO">
+      <div class="cat-row">
+        <select id="productCategory"></select>
+        <button type="button" class="small-btn" id="manageCatBtn">📁 Edit</button>
+      </div>
+      <textarea id="productDesc" placeholder="Detailed description..."></textarea>
+      <input type="number" id="productPrice" placeholder="Price in USD">
+
+      <div class="upload-area">
+        <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none">
+        <button type="button" class="upload-btn" id="triggerUploadBtn">📸 Select Images (Max 10)</button>
+        <div id="imagePreviewGrid" class="preview-grid"></div>
+      </div>
+
+      <input type="hidden" id="editProductId">
+      <div class="btn-group">
+        <button class="btn-primary" id="saveProductBtn">💾 Save Product</button>
+        <button class="btn-secondary" id="addMoreProductBtn">➕ Add More</button>
+      </div>
+      <button id="cancelEditBtn" style="display:none; margin-top:10px;" class="btn-primary">Cancel Edit</button>
+
+      <div class="fb-field">
+        <label>📘 Facebook Username (for this item)</label>
+        <input type="text" id="fbUsername" placeholder="e.g. john.doe or your_page_name">
+        <p style="font-size:11px; color:#888; margin-top:6px;">Customer will chat with this account when clicking "Facebook interesting"</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📘 Global Facebook Settings</div>
+      <div class="fb-field" style="margin-top:0;">
+        <label>🌐 Default Seller Facebook Username</label>
+        <input type="text" id="globalFbUsername" placeholder="Your main Facebook username">
+        <p style="font-size:11px; color:#888; margin-top:6px;">Used when product doesn't have custom username</p>
+      </div>
+      <button id="saveGlobalFbBtn" class="small-btn" style="margin-top:15px; width:100%;">Save Global Settings</button>
+      <div style="margin-top:25px; padding-top:20px; border-top:1px solid #333;">
+        <p style="color:#aaa; font-size:13px;">✅ Each product can have unique FB contact<br>✅ Click "Facebook interesting" on shop → direct Messenger chat<br>✅ Works with any Facebook username or page</p>
+      </div>
+      <button id="syncFakeBtn" class="btn-primary" style="background:#1877F2; margin-top:20px;">Sync All to Facebook</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📦 Current Collection <span id="productCountBadge" style="background:#C5A267; color:#0A0A0A; padding:4px 12px; border-radius:20px; font-size:14px;">0</span></div>
+    <div id="productListContainer"></div>
+  </div>
+</div>
+
+<div id="categoryModal" class="modal">
+  <div class="modal-content">
+    <h3>Manage Categories</h3>
+    <div style="display:flex; gap:8px; margin:20px 0;"><input type="text" id="newCategoryName" placeholder="e.g. Lighting"><button id="addCategoryBtn" class="upload-btn">Add</button></div>
+    <div id="categoryListContainer"></div>
+    <button id="closeCategoryModalBtn" class="btn-primary" style="margin-top:20px;">Close</button>
+  </div>
+</div>
+<div id="toastMsg" class="toast">✨ Done</div>
 
 <script>
-  const ADMIN_PASSWORD = "admin123";
+  const ADMIN_PW = "admin123";
+  const loginOverlay = document.getElementById('loginOverlay');
+  const adminMain = document.getElementById('adminMain');
+  const passwordInput = document.getElementById('adminPasswordInput');
+  const submitBtn = document.getElementById('submitLoginBtn');
+
+  function checkAuth() {
+    if(localStorage.getItem('admin_authenticated') === 'true') {
+      loginOverlay.style.display = 'none';
+      adminMain.style.display = 'block';
+      loadAllData();
+    } else {
+      loginOverlay.style.display = 'flex';
+      adminMain.style.display = 'none';
+    }
+  }
+
+  submitBtn.onclick = () => {
+    if(passwordInput.value === ADMIN_PW) {
+      localStorage.setItem('admin_authenticated', 'true');
+      checkAuth();
+    } else {
+      alert('Wrong password');
+    }
+  };
+  checkAuth();
+
   let products = [];
   let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
   let imagePreviews = [];
+  let globalFbUsername = '';
 
-  function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
-  
-  function login() {
-    const pwd = document.getElementById('password').value;
-    if(pwd === ADMIN_PASSWORD) {
-      localStorage.setItem('admin_auth', 'true');
-      document.getElementById('loginBox').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
-      loadAll();
-    } else { alert('Wrong password'); }
-  }
-  
-  if(localStorage.getItem('admin_auth') === 'true') {
-    document.getElementById('loginBox').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-    loadAll();
-  }
-  
-  function loadAll() {
+  function loadAllData() {
     const storedProducts = localStorage.getItem('givy_products');
     if(storedProducts) products = JSON.parse(storedProducts);
     else products = [];
+
     const storedCats = localStorage.getItem('givy_categories');
     if(storedCats) categories = JSON.parse(storedCats);
+    else categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+
+    const storedGlobalFb = localStorage.getItem('givy_global_fb');
+    if(storedGlobalFb) globalFbUsername = storedGlobalFb;
+    document.getElementById('globalFbUsername').value = globalFbUsername || '';
+
     renderCategorySelect();
-    renderProductList();
-    document.getElementById('count').innerText = products.length;
+    renderProductTable();
+    document.getElementById('productCountBadge').innerText = products.length;
   }
-  
-  function saveToStorage() {
+
+  function saveToLocalStorage() {
     localStorage.setItem('givy_products', JSON.stringify(products));
     localStorage.setItem('givy_categories', JSON.stringify(categories));
-    renderProductList();
-    document.getElementById('count').innerText = products.length;
-    showToast('Saved & synced with shop');
+    renderProductTable();
+    document.getElementById('productCountBadge').innerText = products.length;
+    showToast('✅ Saved & synced with shop');
   }
-  
+
   function renderCategorySelect() {
-    const select = document.getElementById('category');
+    const select = document.getElementById('productCategory');
     select.innerHTML = '';
-    categories.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c.charAt(0).toUpperCase() + c.slice(1); select.appendChild(opt); });
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+      select.appendChild(opt);
+    });
   }
-  
-  // Image upload
-  function renderPreviews() {
-    const grid = document.getElementById('previewGrid');
+
+  function renderImagePreview() {
+    const grid = document.getElementById('imagePreviewGrid');
     grid.innerHTML = '';
-    if(imagePreviews.length === 0) { grid.innerHTML = '<div style="color:#777; font-size:12px;">No images selected</div>'; return; }
-    imagePreviews.forEach((src, i) => {
+    if(imagePreviews.length === 0) { grid.innerHTML = '<div style="color:#777; font-size:12px;">No images selected (max 10)</div>'; return; }
+    imagePreviews.forEach((src, idx) => {
       const div = document.createElement('div'); div.className = 'preview-img';
       const img = document.createElement('img'); img.src = src;
       const rm = document.createElement('div'); rm.className = 'remove-img'; rm.innerHTML = '✕';
-      rm.onclick = () => { imagePreviews.splice(i,1); renderPreviews(); };
+      rm.onclick = () => { imagePreviews.splice(idx,1); renderImagePreview(); };
       div.appendChild(img); div.appendChild(rm); grid.appendChild(div);
     });
   }
-  
-  document.getElementById('uploadBtn').onclick = () => document.getElementById('fileInput').click();
-  document.getElementById('fileInput').onchange = (e) => {
+
+  document.getElementById('triggerUploadBtn').onclick = () => document.getElementById('imageFileInput').click();
+  document.getElementById('imageFileInput').onchange = (e) => {
     const files = Array.from(e.target.files);
     const remaining = 10 - imagePreviews.length;
-    files.slice(0, remaining).forEach(f => {
-      if(f.type.startsWith('image/')) {
+    files.slice(0, remaining).forEach(file => {
+      if(file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => { imagePreviews.push(ev.target.result); renderPreviews(); };
-        reader.readAsDataURL(f);
+        reader.onload = ev => { imagePreviews.push(ev.target.result); renderImagePreview(); };
+        reader.readAsDataURL(file);
       }
     });
     e.target.value = '';
   };
-  
-  function clearForm() {
-    document.getElementById('name').value = '';
-    document.getElementById('brand').value = 'GIVY STUDIO';
-    document.getElementById('desc').value = '';
-    document.getElementById('price').value = '';
-    document.getElementById('editId').value = '';
-    imagePreviews = [];
-    renderPreviews();
-    document.getElementById('saveBtn').innerHTML = '💾 Save Product';
-    document.getElementById('cancelBtn').style.display = 'none';
+
+  function resetImageSelection() { imagePreviews = []; renderImagePreview(); }
+  function clearProductForm() {
+    document.getElementById('productName').value = '';
+    document.getElementById('productBrand').value = 'GIVY STUDIO';
+    document.getElementById('productDesc').value = '';
+    document.getElementById('productPrice').value = '';
+    document.getElementById('editProductId').value = '';
+    document.getElementById('fbUsername').value = '';
+    resetImageSelection();
+    document.getElementById('saveProductBtn').innerHTML = '💾 Save Product';
+    document.getElementById('cancelEditBtn').style.display = 'none';
     document.getElementById('formTitle').innerHTML = '✨ Add New Product';
   }
-  
-  function saveProduct() {
-    const name = document.getElementById('name').value.trim();
-    const brand = document.getElementById('brand').value.trim();
-    const category = document.getElementById('category').value;
-    const desc = document.getElementById('desc').value.trim();
-    const price = parseFloat(document.getElementById('price').value);
-    if(!name || !price || isNaN(price)) { alert('Fill name and price'); return; }
+
+  function saveCurrentProduct() {
+    const name = document.getElementById('productName').value.trim();
+    const brand = document.getElementById('productBrand').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const desc = document.getElementById('productDesc').value.trim();
+    const price = parseFloat(document.getElementById('productPrice').value);
+    const fbUsernamePerProduct = document.getElementById('fbUsername').value.trim();
+    if(!name || !price || isNaN(price)) { alert('Please fill Name and Price'); return false; }
     const images = imagePreviews.length ? [...imagePreviews] : ['🪑'];
-    const editId = document.getElementById('editId').value;
-    
+
+    const editId = document.getElementById('editProductId').value;
     if(editId) {
       const idx = products.findIndex(p => p.id == editId);
-      if(idx !== -1) products[idx] = { id: parseInt(editId), name, brand, category, description: desc, price, images };
-      showToast('Product updated');
-      clearForm();
+      if(idx !== -1) {
+        products[idx] = { ...products[idx], name, brand, category, description: desc, price, images, fbUsername: fbUsernamePerProduct || null };
+        showToast('Product updated');
+      }
+      clearProductForm();
     } else {
-      products.push({ id: Date.now(), name, brand, category, description: desc, price, images });
+      const newId = Date.now();
+      products.push({ id: newId, name, brand, category, description: desc, price, images, fbUsername: fbUsernamePerProduct || null });
       showToast(`"${name}" added`);
-      clearForm();
+      clearProductForm();
     }
-    saveToStorage();
+    saveToLocalStorage();
+    return true;
   }
-  
-  document.getElementById('saveBtn').onclick = () => saveProduct();
-  document.getElementById('addMoreBtn').onclick = () => { if(document.getElementById('name').value.trim()) saveProduct(); clearForm(); showToast('Ready to add another'); };
-  document.getElementById('cancelBtn').onclick = () => clearForm();
-  document.getElementById('exitBtn').onclick = () => window.location.href = 'index.html';
-  document.getElementById('syncBtn').onclick = () => showToast(`🚀 ${products.length} products synced to Facebook`);
-  
-  // Categories modal
-  const modal = document.getElementById('catModal');
-  document.getElementById('manageCatBtn').onclick = () => { renderCatList(); modal.classList.add('active'); };
-  document.getElementById('closeModalBtn').onclick = () => modal.classList.remove('active');
-  document.getElementById('addCatBtn').onclick = () => {
-    const newCat = document.getElementById('newCat').value.trim().toLowerCase();
-    if(newCat && !categories.includes(newCat)) { categories.push(newCat); saveToStorage(); renderCategorySelect(); renderCatList(); document.getElementById('newCat').value = ''; showToast(`Category "${newCat}" added`); }
-    else alert('Category exists or empty');
+
+  document.getElementById('saveProductBtn').onclick = () => { saveCurrentProduct(); };
+  document.getElementById('addMoreProductBtn').onclick = () => {
+    const hasName = document.getElementById('productName').value.trim();
+    if(hasName) saveCurrentProduct();
+    clearProductForm();
+    showToast('✨ Ready to add another product');
   };
-  window.deleteCategory = (idx) => {
-    if(confirm('Delete category?')) { categories.splice(idx,1); if(!categories.length) categories=['other']; saveToStorage(); renderCategorySelect(); renderCatList(); showToast('Category deleted'); }
-  };
-  function renderCatList() {
-    const container = document.getElementById('catList');
-    container.innerHTML = '';
-    categories.forEach((c,i) => { const div = document.createElement('div'); div.className = 'cat-item'; div.innerHTML = `<span>${c}</span><button onclick="deleteCategory(${i})" style="background:#aa2e2e; border:none; padding:6px12px; border-radius:20px; color:white;">Delete</button>`; container.appendChild(div); });
-  }
-  
-  window.editProduct = (id) => {
-    const p = products.find(p => p.id == id);
-    if(!p) return;
-    document.getElementById('name').value = p.name;
-    document.getElementById('brand').value = p.brand;
-    document.getElementById('category').value = p.category;
-    document.getElementById('desc').value = p.description;
-    document.getElementById('price').value = p.price;
-    document.getElementById('editId').value = p.id;
-    imagePreviews = [...(p.images || [])];
-    renderPreviews();
-    document.getElementById('saveBtn').innerHTML = '✏️ Update Product';
-    document.getElementById('cancelBtn').style.display = 'block';
+  document.getElementById('cancelEditBtn').onclick = () => { clearProductForm(); };
+
+  window.editProductItem = (id) => {
+    const product = products.find(p => p.id == id);
+    if(!product) return;
+    document.getElementById('productName').value = product.name;
+    document.getElementById('productBrand').value = product.brand;
+    document.getElementById('productCategory').value = product.category;
+    document.getElementById('productDesc').value = product.description;
+    document.getElementById('productPrice').value = product.price;
+    document.getElementById('editProductId').value = product.id;
+    document.getElementById('fbUsername').value = product.fbUsername || '';
+    imagePreviews = [...(product.images || [])];
+    renderImagePreview();
+    document.getElementById('saveProductBtn').innerHTML = '✏️ Update Product';
+    document.getElementById('cancelEditBtn').style.display = 'block';
     document.getElementById('formTitle').innerHTML = '✏️ Edit Product';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  
-  window.deleteProduct = (id) => {
-    if(confirm('Delete product?')) { products = products.filter(p => p.id != id); saveToStorage(); if(document.getElementById('editId').value == id) clearForm(); showToast('Product deleted'); }
+
+  window.deleteProductItem = (id) => {
+    if(confirm('Permanently delete this product?')) {
+      products = products.filter(p => p.id != id);
+      saveToLocalStorage();
+      if(document.getElementById('editProductId').value == id) clearProductForm();
+      showToast('🗑️ Product deleted');
+    }
   };
-  
-  function renderProductList() {
-    const container = document.getElementById('productList');
-    if(!products.length) { container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No products yet</div>'; return; }
+
+  function renderProductTable() {
+    const container = document.getElementById('productListContainer');
+    if(!products.length) { container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No products yet. Add your first masterpiece.</div>'; return; }
     container.innerHTML = products.map(p => `
       <div class="product-item">
-        <div class="product-info"><strong style="color:#C5A267;">${escapeHtml(p.name)}</strong><br><span style="color:#888;">${p.brand || 'GIVY STUDIO'} | ${p.category}</span><br><span style="color:#C5A267;">$${p.price.toLocaleString()}</span><br><span style="font-size:12px; color:#666;">${p.description ? p.description.substring(0,60) : ''}</span></div>
-        <div><button class="edit-btn" onclick="editProduct(${p.id})">✏️ Edit</button><button class="delete-btn" onclick="deleteProduct(${p.id})">🗑️ Delete</button></div>
+        <div class="product-info">
+          <strong style="color:#C5A267;">${escapeHtml(p.name)}</strong><br>
+          <span style="color:#888;">${escapeHtml(p.brand)} | ${p.category}</span><br>
+          <span style="color:#C5A267;">$${p.price.toLocaleString()}</span>
+          <div style="font-size:11px; color:#1877F2; margin-top:4px;">${p.fbUsername ? '📘 FB: ' + escapeHtml(p.fbUsername) : '🌐 Default FB account'}</div>
+        </div>
+        <div>
+          <button class="edit-btn" onclick="editProductItem(${p.id})">✏️ Edit</button>
+          <button class="delete-btn" onclick="deleteProductItem(${p.id})">🗑️ Delete</button>
+        </div>
       </div>
     `).join('');
   }
-  
+
+  const catModal = document.getElementById('categoryModal');
+  document.getElementById('manageCatBtn').onclick = () => { renderCategoryListModal(); catModal.classList.add('active'); };
+  document.getElementById('closeCategoryModalBtn').onclick = () => catModal.classList.remove('active');
+  document.getElementById('addCategoryBtn').onclick = () => {
+    const newCat = document.getElementById('newCategoryName').value.trim().toLowerCase();
+    if(newCat && !categories.includes(newCat)) {
+      categories.push(newCat);
+      saveToLocalStorage();
+      renderCategorySelect();
+      renderCategoryListModal();
+      document.getElementById('newCategoryName').value = '';
+      showToast(`Category "${newCat}" added`);
+    } else alert('Category exists or empty');
+  };
+  window.removeCategory = (idx) => {
+    if(confirm('Delete category? Products with this category will remain.')) {
+      categories.splice(idx,1);
+      if(!categories.length) categories = ['other'];
+      saveToLocalStorage();
+      renderCategorySelect();
+      renderCategoryListModal();
+      showToast('Category removed');
+    }
+  };
+  function renderCategoryListModal() {
+    const container = document.getElementById('categoryListContainer');
+    container.innerHTML = '';
+    categories.forEach((c,i) => {
+      const div = document.createElement('div'); div.className = 'cat-item';
+      div.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory(${i})" style="background:#aa2e2e; border:none; padding:6px 12px; border-radius:20px; color:white; cursor:pointer;">Delete</button>`;
+      container.appendChild(div);
+    });
+  }
+
+  document.getElementById('saveGlobalFbBtn').onclick = () => {
+    const val = document.getElementById('globalFbUsername').value.trim();
+    globalFbUsername = val;
+    localStorage.setItem('givy_global_fb', globalFbUsername);
+    showToast('Global Facebook username saved');
+  };
+  document.getElementById('syncFakeBtn').onclick = () => showToast(`🚀 ${products.length} products ready for Facebook Marketplace`);
+  document.getElementById('exitBtn').onclick = () => { window.location.href = 'index.html'; };
+
+  function showToast(msg) { const t = document.getElementById('toastMsg'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+  loadAllData();
 </script>
 </body>
 </html>
