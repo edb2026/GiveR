@@ -21,7 +21,7 @@
     .product-desc { color: #999; font-size: 13px; margin: 10px 0; }
     .price { color: #C5A267; font-size: 22px; font-weight: bold; }
     .fb-btn { background: #1877F2; border: none; padding: 10px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; }
-    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; }
+    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; z-index: 999; }
     .empty { text-align: center; padding: 60px; color: #666; }
   </style>
 </head>
@@ -33,9 +33,10 @@
 
   <script>
     let products = [];
-    let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+    let categories = [];
     let activeFilter = 'all';
     let clickCount = 0;
+    let globalFbUsername = '';
 
     function loadData() {
       try {
@@ -43,15 +44,17 @@
         if(savedProducts && savedProducts !== '[]') {
           products = JSON.parse(savedProducts);
         } else {
-          products = [
-            { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, category: "seating", description: "Sumptuous velvet upholstery with brass legs.", image: "🛋️" },
-            { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, category: "furniture", description: "Sculptural oval table in smoked oak.", image: "🍽️" },
-            { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, category: "seating", description: "High-back armchair in bouclé wool.", image: "💺" }
-          ];
+          products = [];
         }
         const savedCats = localStorage.getItem('givy_categories');
-        if(savedCats && savedCats !== '[]') categories = JSON.parse(savedCats);
-      } catch(e) {}
+        if(savedCats && savedCats !== '[]') {
+          categories = JSON.parse(savedCats);
+        } else {
+          categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+        }
+        const savedGlobalFb = localStorage.getItem('givy_global_fb');
+        globalFbUsername = savedGlobalFb || '';
+      } catch(e) { console.log(e); }
       renderFilters();
       renderProducts();
     }
@@ -74,6 +77,17 @@
       });
     }
 
+    function openFacebookChat(fbUsername, productName, productPrice) {
+      let username = fbUsername || globalFbUsername;
+      if(!username) {
+        alert('🔹 Facebook Marketplace Contact 🔹\n\nProduct: ' + productName + '\nPrice: $' + productPrice + '\n\nNo Facebook username set for this product.\nAdmin can add it in product settings.');
+        return;
+      }
+      let cleanUsername = username.replace('@', '').replace('https://', '').replace('facebook.com/', '').replace('m.me/', '').trim();
+      const messengerUrl = 'https://m.me/' + cleanUsername;
+      window.open(messengerUrl, '_blank');
+    }
+
     function renderProducts() {
       const grid = document.getElementById('productGrid');
       const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
@@ -83,20 +97,16 @@
       }
       grid.innerHTML = filtered.map(p => `
         <div class="product-card">
-          <div class="product-img">${p.image || '🪑'}</div>
+          <div class="product-img">${p.images && p.images[0] && p.images[0] !== '🪑' ? `<img src="${p.images[0]}" style="width:100%; height:100%; object-fit:cover;">` : '🪑'}</div>
           <div class="product-info">
-            <div class="brand">${p.brand || 'GIVY STUDIO'}</div>
+            <div class="brand">${escapeHtml(p.brand || 'GIVY STUDIO')}</div>
             <div class="product-title">${escapeHtml(p.name)}</div>
             <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
             <div class="price">$${p.price.toLocaleString()}</div>
-            <button class="fb-btn" onclick="contactSeller('${escapeHtml(p.name)}', ${p.price})">📱 Buy on Facebook Marketplace</button>
+            <button class="fb-btn" onclick="openFacebookChat('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">Facebook interesting</button>
           </div>
         </div>
       `).join('');
-    }
-
-    function contactSeller(name, price) {
-      alert(`🔹 Contact Seller on Facebook 🔹\n\nProduct: ${name}\nPrice: $${price}\n\nMessage: Hi! I'm interested in this ${name}. Is it still available?\n\nReplace 'your_fb_username' in code with your actual Facebook username.`);
     }
 
     document.getElementById('adminTrigger').onclick = () => {
@@ -106,7 +116,9 @@
     };
 
     window.addEventListener('storage', (e) => {
-      if(e.key === 'givy_products' || e.key === 'givy_categories') loadData();
+      if(e.key === 'givy_products' || e.key === 'givy_categories' || e.key === 'givy_global_fb') {
+        loadData();
+      }
     });
 
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
