@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>GivyRewardsAdmin | Full Control</title>
+  <title>GivyRewardsAdmin</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
@@ -35,7 +35,8 @@
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; visibility: hidden; opacity: 0; transition: 0.2s; pointer-events: none; }
     .modal.active { visibility: visible; opacity: 1; pointer-events: auto; }
     .modal-content { background: #121212; border-radius: 28px; padding: 30px; max-width: 450px; width: 90%; }
-    .cat-item { display: flex; justify-content: space-between; padding: 12px; background: #1E1E1E; border-radius: 12px; margin-bottom: 8px; }
+    .cat-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #1E1E1E; border-radius: 12px; margin-bottom: 8px; }
+    .cat-item button { background: #aa2e2e; border: none; padding: 6px 12px; border-radius: 20px; color: white; cursor: pointer; }
     .toast { position: fixed; bottom: 30px; left: 30px; background: #C5A267; color: #0A0A0A; padding: 12px 24px; border-radius: 40px; font-weight: bold; z-index: 1100; opacity: 0; transition: 0.2s; pointer-events: none; }
     .toast.show { opacity: 1; }
     .fb-field { background: #1E1E1E; border-radius: 16px; padding: 15px; margin-top: 20px; border: 1px solid #1877F2; }
@@ -66,11 +67,11 @@
   <div class="grid-2">
     <div class="card">
       <div class="card-title" id="formTitle">✨ Add New Product</div>
-      <input type="text" id="productName" placeholder="Product Name (e.g. Velvet Sofa)">
+      <input type="text" id="productName" placeholder="Product Name">
       <input type="text" id="productBrand" placeholder="Brand" value="GIVY STUDIO">
       <div class="cat-row">
         <select id="productCategory"></select>
-        <button type="button" class="small-btn" id="manageCatBtn">📁 Edit</button>
+        <button type="button" class="small-btn" id="manageCatBtn">📁 Edit Categories</button>
       </div>
       <textarea id="productDesc" placeholder="Detailed description..."></textarea>
       <input type="number" id="productPrice" placeholder="Price in USD">
@@ -91,22 +92,21 @@
       <div class="fb-field">
         <label>📘 Facebook Username (for this item)</label>
         <input type="text" id="fbUsername" placeholder="e.g. john.doe or your_page_name">
-        <p style="font-size:11px; color:#888; margin-top:6px;">Customer will chat with this account when clicking "Facebook interesting"</p>
+        <p style="font-size:11px; color:#888; margin-top:6px;">Customer will chat with this account</p>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">📘 Global Facebook Settings</div>
+      <div class="card-title">📘 Global Settings</div>
       <div class="fb-field" style="margin-top:0;">
-        <label>🌐 Default Seller Facebook Username</label>
+        <label>🌐 Default Facebook Username</label>
         <input type="text" id="globalFbUsername" placeholder="Your main Facebook username">
-        <p style="font-size:11px; color:#888; margin-top:6px;">Used when product doesn't have custom username</p>
       </div>
       <button id="saveGlobalFbBtn" class="small-btn" style="margin-top:15px; width:100%;">Save Global Settings</button>
-      <div style="margin-top:25px; padding-top:20px; border-top:1px solid #333;">
-        <p style="color:#aaa; font-size:13px;">✅ Each product can have unique FB contact<br>✅ Click "Facebook interesting" on shop → direct Messenger chat<br>✅ Works with any Facebook username or page</p>
-      </div>
       <button id="syncFakeBtn" class="btn-primary" style="background:#1877F2; margin-top:20px;">Sync All to Facebook</button>
+      <div style="margin-top:25px; padding-top:20px; border-top:1px solid #333;">
+        <p style="color:#aaa; font-size:13px;">✅ Products auto-save to shop<br>✅ Click crown on shop to return</p>
+      </div>
     </div>
   </div>
 
@@ -119,7 +119,10 @@
 <div id="categoryModal" class="modal">
   <div class="modal-content">
     <h3>Manage Categories</h3>
-    <div style="display:flex; gap:8px; margin:20px 0;"><input type="text" id="newCategoryName" placeholder="e.g. Lighting"><button id="addCategoryBtn" class="upload-btn">Add</button></div>
+    <div style="display:flex; gap:8px; margin:20px 0;">
+      <input type="text" id="newCategoryName" placeholder="e.g. Lighting" style="flex:1;">
+      <button id="addCategoryBtn" class="upload-btn">Add</button>
+    </div>
     <div id="categoryListContainer"></div>
     <button id="closeCategoryModalBtn" class="btn-primary" style="margin-top:20px;">Close</button>
   </div>
@@ -127,6 +130,7 @@
 <div id="toastMsg" class="toast">✨ Done</div>
 
 <script>
+  // ========== AUTH ==========
   const ADMIN_PW = "admin123";
   const loginOverlay = document.getElementById('loginOverlay');
   const adminMain = document.getElementById('adminMain');
@@ -154,6 +158,7 @@
   };
   checkAuth();
 
+  // ========== DATA ==========
   let products = [];
   let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
   let imagePreviews = [];
@@ -161,16 +166,19 @@
 
   function loadAllData() {
     const storedProducts = localStorage.getItem('givy_products');
-    if(storedProducts) products = JSON.parse(storedProducts);
-    else products = [];
+    if(storedProducts) {
+      try { products = JSON.parse(storedProducts); } catch(e) { products = []; }
+    } else { products = []; }
 
     const storedCats = localStorage.getItem('givy_categories');
-    if(storedCats) categories = JSON.parse(storedCats);
-    else categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+    if(storedCats) {
+      try { categories = JSON.parse(storedCats); } catch(e) { categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office']; }
+    }
+    if(!categories || categories.length === 0) categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
 
     const storedGlobalFb = localStorage.getItem('givy_global_fb');
-    if(storedGlobalFb) globalFbUsername = storedGlobalFb;
-    document.getElementById('globalFbUsername').value = globalFbUsername || '';
+    globalFbUsername = storedGlobalFb || '';
+    document.getElementById('globalFbUsername').value = globalFbUsername;
 
     renderCategorySelect();
     renderProductTable();
@@ -180,13 +188,15 @@
   function saveToLocalStorage() {
     localStorage.setItem('givy_products', JSON.stringify(products));
     localStorage.setItem('givy_categories', JSON.stringify(categories));
+    localStorage.setItem('givy_global_fb', globalFbUsername);
     renderProductTable();
     document.getElementById('productCountBadge').innerText = products.length;
-    showToast('✅ Saved & synced with shop');
+    showToast('✅ Saved to storage');
   }
 
   function renderCategorySelect() {
     const select = document.getElementById('productCategory');
+    if(!select) return;
     select.innerHTML = '';
     categories.forEach(cat => {
       const opt = document.createElement('option');
@@ -196,16 +206,30 @@
     });
   }
 
+  // ========== IMAGES ==========
   function renderImagePreview() {
     const grid = document.getElementById('imagePreviewGrid');
+    if(!grid) return;
     grid.innerHTML = '';
-    if(imagePreviews.length === 0) { grid.innerHTML = '<div style="color:#777; font-size:12px;">No images selected (max 10)</div>'; return; }
+    if(imagePreviews.length === 0) {
+      grid.innerHTML = '<div style="color:#777; font-size:12px;">No images selected (max 10)</div>';
+      return;
+    }
     imagePreviews.forEach((src, idx) => {
-      const div = document.createElement('div'); div.className = 'preview-img';
-      const img = document.createElement('img'); img.src = src;
-      const rm = document.createElement('div'); rm.className = 'remove-img'; rm.innerHTML = '✕';
-      rm.onclick = () => { imagePreviews.splice(idx,1); renderImagePreview(); };
-      div.appendChild(img); div.appendChild(rm); grid.appendChild(div);
+      const div = document.createElement('div');
+      div.className = 'preview-img';
+      const img = document.createElement('img');
+      img.src = src;
+      const rm = document.createElement('div');
+      rm.className = 'remove-img';
+      rm.innerHTML = '✕';
+      rm.onclick = () => {
+        imagePreviews.splice(idx, 1);
+        renderImagePreview();
+      };
+      div.appendChild(img);
+      div.appendChild(rm);
+      grid.appendChild(div);
     });
   }
 
@@ -216,7 +240,10 @@
     files.slice(0, remaining).forEach(file => {
       if(file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => { imagePreviews.push(ev.target.result); renderImagePreview(); };
+        reader.onload = ev => {
+          imagePreviews.push(ev.target.result);
+          renderImagePreview();
+        };
         reader.readAsDataURL(file);
       }
     });
@@ -224,6 +251,8 @@
   };
 
   function resetImageSelection() { imagePreviews = []; renderImagePreview(); }
+
+  // ========== FORM ==========
   function clearProductForm() {
     document.getElementById('productName').value = '';
     document.getElementById('productBrand').value = 'GIVY STUDIO';
@@ -244,20 +273,43 @@
     const desc = document.getElementById('productDesc').value.trim();
     const price = parseFloat(document.getElementById('productPrice').value);
     const fbUsernamePerProduct = document.getElementById('fbUsername').value.trim();
-    if(!name || !price || isNaN(price)) { alert('Please fill Name and Price'); return false; }
+    
+    if(!name || !price || isNaN(price)) {
+      alert('Please fill Name and Price');
+      return false;
+    }
+    
     const images = imagePreviews.length ? [...imagePreviews] : ['🪑'];
-
     const editId = document.getElementById('editProductId').value;
+    
     if(editId) {
       const idx = products.findIndex(p => p.id == editId);
       if(idx !== -1) {
-        products[idx] = { ...products[idx], name, brand, category, description: desc, price, images, fbUsername: fbUsernamePerProduct || null };
+        products[idx] = {
+          id: parseInt(editId),
+          name: name,
+          brand: brand,
+          category: category,
+          description: desc,
+          price: price,
+          images: images,
+          fbUsername: fbUsernamePerProduct || null
+        };
         showToast('Product updated');
       }
       clearProductForm();
     } else {
       const newId = Date.now();
-      products.push({ id: newId, name, brand, category, description: desc, price, images, fbUsername: fbUsernamePerProduct || null });
+      products.push({
+        id: newId,
+        name: name,
+        brand: brand,
+        category: category,
+        description: desc,
+        price: price,
+        images: images,
+        fbUsername: fbUsernamePerProduct || null
+      });
       showToast(`"${name}" added`);
       clearProductForm();
     }
@@ -274,6 +326,7 @@
   };
   document.getElementById('cancelEditBtn').onclick = () => { clearProductForm(); };
 
+  // ========== EDIT / DELETE ==========
   window.editProductItem = (id) => {
     const product = products.find(p => p.id == id);
     if(!product) return;
@@ -284,7 +337,7 @@
     document.getElementById('productPrice').value = product.price;
     document.getElementById('editProductId').value = product.id;
     document.getElementById('fbUsername').value = product.fbUsername || '';
-    imagePreviews = [...(product.images || [])];
+    imagePreviews = [...(product.images || ['🪑'])];
     renderImagePreview();
     document.getElementById('saveProductBtn').innerHTML = '✏️ Update Product';
     document.getElementById('cancelEditBtn').style.display = 'block';
@@ -297,13 +350,17 @@
       products = products.filter(p => p.id != id);
       saveToLocalStorage();
       if(document.getElementById('editProductId').value == id) clearProductForm();
-      showToast('🗑️ Product deleted');
+      showToast('Product deleted');
     }
   };
 
   function renderProductTable() {
     const container = document.getElementById('productListContainer');
-    if(!products.length) { container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No products yet. Add your first masterpiece.</div>'; return; }
+    if(!container) return;
+    if(!products.length) {
+      container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No products yet. Add your first masterpiece.</div>';
+      return;
+    }
     container.innerHTML = products.map(p => `
       <div class="product-item">
         <div class="product-info">
@@ -320,9 +377,14 @@
     `).join('');
   }
 
+  // ========== CATEGORIES MODAL ==========
   const catModal = document.getElementById('categoryModal');
-  document.getElementById('manageCatBtn').onclick = () => { renderCategoryListModal(); catModal.classList.add('active'); };
+  document.getElementById('manageCatBtn').onclick = () => {
+    renderCategoryListModal();
+    catModal.classList.add('active');
+  };
   document.getElementById('closeCategoryModalBtn').onclick = () => catModal.classList.remove('active');
+  
   document.getElementById('addCategoryBtn').onclick = () => {
     const newCat = document.getElementById('newCategoryName').value.trim().toLowerCase();
     if(newCat && !categories.includes(newCat)) {
@@ -332,39 +394,64 @@
       renderCategoryListModal();
       document.getElementById('newCategoryName').value = '';
       showToast(`Category "${newCat}" added`);
-    } else alert('Category exists or empty');
+    } else if(!newCat) {
+      alert('Enter category name');
+    } else {
+      alert('Category already exists');
+    }
   };
+  
   window.removeCategory = (idx) => {
-    if(confirm('Delete category? Products with this category will remain.')) {
-      categories.splice(idx,1);
-      if(!categories.length) categories = ['other'];
+    if(confirm('Delete this category?')) {
+      categories.splice(idx, 1);
+      if(categories.length === 0) categories = ['other'];
       saveToLocalStorage();
       renderCategorySelect();
       renderCategoryListModal();
       showToast('Category removed');
     }
   };
+  
   function renderCategoryListModal() {
     const container = document.getElementById('categoryListContainer');
+    if(!container) return;
     container.innerHTML = '';
-    categories.forEach((c,i) => {
-      const div = document.createElement('div'); div.className = 'cat-item';
-      div.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory(${i})" style="background:#aa2e2e; border:none; padding:6px 12px; border-radius:20px; color:white; cursor:pointer;">Delete</button>`;
+    categories.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'cat-item';
+      div.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory(${i})">Delete</button>`;
       container.appendChild(div);
     });
+    if(categories.length === 0) container.innerHTML = '<div style="color:#888; padding:20px; text-align:center;">No categories. Add one above.</div>';
   }
 
+  // ========== GLOBAL SETTINGS ==========
   document.getElementById('saveGlobalFbBtn').onclick = () => {
     const val = document.getElementById('globalFbUsername').value.trim();
     globalFbUsername = val;
     localStorage.setItem('givy_global_fb', globalFbUsername);
     showToast('Global Facebook username saved');
   };
-  document.getElementById('syncFakeBtn').onclick = () => showToast(`🚀 ${products.length} products ready for Facebook Marketplace`);
-  document.getElementById('exitBtn').onclick = () => { window.location.href = 'index.html'; };
+  
+  document.getElementById('syncFakeBtn').onclick = () => {
+    showToast(`🚀 ${products.length} products ready for Facebook Marketplace`);
+  };
+  
+  document.getElementById('exitBtn').onclick = () => {
+    window.location.href = 'index.html';
+  };
 
-  function showToast(msg) { const t = document.getElementById('toastMsg'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
-  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+  function showToast(msg) {
+    const t = document.getElementById('toastMsg');
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  
+  function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+  }
 
   loadAllData();
 </script>
