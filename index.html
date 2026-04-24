@@ -3,80 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GivyRewardsShop | Luxury Furniture</title>
+  <title>GivyRewardsShop</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
-    .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #333; margin-bottom: 30px; }
-    h1 { font-size: 32px; background: linear-gradient(135deg, #C5A267, #E8D5B5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    body { background: #0A0A0A; font-family: Arial, sans-serif; color: #EDEDED; padding: 20px; }
+    h1 { text-align: center; color: #C5A267; margin-bottom: 20px; }
     .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
-    .filter-btn { background: #1A1A1A; border: 1px solid #333; padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; transition: 0.2s; }
-    .filter-btn.active, .filter-btn:hover { background: #C5A267; color: #0A0A0A; border-color: #C5A267; }
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-    .product-card { background: #121212; border-radius: 20px; overflow: hidden; transition: transform 0.2s; }
-    .product-card:hover { transform: translateY(-5px); }
-    .product-img { background: #1E1E1E; height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .product-img img { width: 100%; height: 100%; object-fit: cover; }
-    .product-info { padding: 20px; }
-    .brand { color: #C5A267; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    .product-title { font-size: 20px; font-weight: bold; margin: 8px 0; }
-    .product-desc { color: #999; font-size: 13px; margin: 10px 0; line-height: 1.4; }
-    .price { color: #C5A267; font-size: 22px; font-weight: bold; }
-    .fb-btn { background: #1877F2; border: none; padding: 12px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; transition: 0.2s; }
-    .fb-btn:hover { background: #1464CC; }
-    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; z-index: 999; transition: opacity 0.2s; }
-    .admin-trigger:hover { opacity: 0.6; }
-    .empty { text-align: center; padding: 60px; color: #666; }
-    footer { text-align: center; padding: 40px 0 20px; border-top: 1px solid #222; margin-top: 40px; color: #555; font-size: 12px; }
+    .filter-btn { background: #1A1A1A; border: 1px solid #333; padding: 8px 20px; border-radius: 40px; color: white; cursor: pointer; }
+    .filter-btn.active { background: #C5A267; color: black; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .product-card { background: #121212; border-radius: 16px; padding: 15px; }
+    .product-img { background: #1E1E1E; height: 200px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+    .brand { color: #C5A267; font-size: 12px; }
+    .title { font-size: 18px; font-weight: bold; margin: 8px 0; }
+    .desc { color: #999; font-size: 13px; margin: 10px 0; }
+    .price { color: #C5A267; font-size: 20px; font-weight: bold; }
+    .fb-btn { background: #1877F2; border: none; padding: 10px; border-radius: 30px; color: white; font-weight: bold; width: 100%; margin-top: 15px; cursor: pointer; }
+    .admin-icon { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; z-index: 999; }
+    .empty { text-align: center; padding: 50px; color: #666; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>GivyRewardsShop</h1>
-    <p style="color:#C5A267; margin-top:8px;">Luxury Furniture & Interiors</p>
-  </div>
-  <div class="filters" id="filters"></div>
-  <div class="product-grid" id="productGrid"><div class="empty">Loading...</div></div>
-  <div class="admin-trigger" id="adminTrigger">👑</div>
-  <footer>© GivyRewardsShop — Connect with seller via Facebook Messenger</footer>
+  <h1>🛋️ GivyRewardsShop</h1>
+  <div id="filters" class="filters"></div>
+  <div id="products" class="product-grid"><div class="empty">Loading...</div></div>
+  <div class="admin-icon" id="adminIcon">👑</div>
 
   <script>
     let products = [];
-    let categories = [];
+    let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
     let activeFilter = 'all';
+    let globalFb = '';
     let clickCount = 0;
-    let globalFbUsername = '';
 
     function loadData() {
-      try {
-        const savedProducts = localStorage.getItem('givy_products');
-        if(savedProducts && savedProducts !== '[]') {
-          products = JSON.parse(savedProducts);
-        } else {
-          products = [];
-        }
-        const savedCats = localStorage.getItem('givy_categories');
-        if(savedCats && savedCats !== '[]') {
-          categories = JSON.parse(savedCats);
-        } else {
-          categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
-        }
-        const savedGlobalFb = localStorage.getItem('givy_global_fb');
-        globalFbUsername = savedGlobalFb || '';
-      } catch(e) { console.log(e); }
+      const savedProducts = localStorage.getItem('givy_products');
+      products = savedProducts ? JSON.parse(savedProducts) : [];
+      
+      const savedCats = localStorage.getItem('givy_categories');
+      if(savedCats) categories = JSON.parse(savedCats);
+      
+      const savedFb = localStorage.getItem('givy_global_fb');
+      globalFb = savedFb || '';
+      
       renderFilters();
       renderProducts();
     }
 
     function renderFilters() {
       const container = document.getElementById('filters');
-      if(!container) return;
       container.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
       categories.forEach(cat => {
         const btn = document.createElement('button');
         btn.className = 'filter-btn';
-        btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
-        btn.dataset.cat = cat;
+        btn.textContent = cat;
         btn.onclick = () => {
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
@@ -87,62 +68,48 @@
       });
     }
 
-    function openMessenger(fbUsername, productName, productPrice) {
-      let username = fbUsername || globalFbUsername;
-      if(!username) {
-        alert('🔹 Facebook Messenger Contact 🔹\n\nProduct: ' + productName + '\nPrice: $' + productPrice + '\n\nNo Facebook username set. Admin can add it in product settings.');
+    function openMessenger(fbUser, productName) {
+      let user = fbUser || globalFb;
+      if(!user) {
+        alert(`Contact seller about: ${productName}\n\nNo Facebook username set. Admin can add it.`);
         return;
       }
-      let cleanUsername = username.replace('@', '').replace('https://', '').replace('facebook.com/', '').replace('m.me/', '').trim();
-      const messengerUrl = 'https://m.me/' + cleanUsername;
-      window.open(messengerUrl, '_blank');
+      window.open('https://m.me/' + user.replace('@', ''), '_blank');
     }
 
     function renderProducts() {
-      const grid = document.getElementById('productGrid');
-      if(!grid) return;
+      const container = document.getElementById('products');
       const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
+      
       if(filtered.length === 0) {
-        grid.innerHTML = '<div class="empty">✨ No products in this category</div>';
+        container.innerHTML = '<div class="empty">✨ No products</div>';
         return;
       }
-      grid.innerHTML = filtered.map(p => {
-        let imageHtml = '🪑';
-        if(p.images && p.images[0]) {
-          if(p.images[0].startsWith('data:image') || p.images[0].startsWith('http')) {
-            imageHtml = `<img src="${p.images[0]}" alt="${p.name}">`;
-          } else {
-            imageHtml = p.images[0];
-          }
-        }
-        return `
-          <div class="product-card">
-            <div class="product-img">${imageHtml}</div>
-            <div class="product-info">
-              <div class="brand">${escapeHtml(p.brand || 'GIVY STUDIO')}</div>
-              <div class="product-title">${escapeHtml(p.name)}</div>
-              <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
-              <div class="price">$${p.price.toLocaleString()}</div>
-              <button class="fb-btn" onclick="openMessenger('${escapeHtml(p.fbUsername || '')}', '${escapeHtml(p.name)}', ${p.price})">💬 Buy on Messenger</button>
-            </div>
-          </div>
-        `;
-      }).join('');
+      
+      container.innerHTML = filtered.map(p => `
+        <div class="product-card">
+          <div class="product-img">${p.image ? `<img src="${p.image}">` : '🪑'}</div>
+          <div class="brand">${p.brand || 'GIVY STUDIO'}</div>
+          <div class="title">${escapeHtml(p.name)}</div>
+          <div class="desc">${escapeHtml(p.desc || 'Luxury piece')}</div>
+          <div class="price">$${p.price}</div>
+          <button class="fb-btn" onclick="openMessenger('${p.fbUser || ''}', '${escapeHtml(p.name)}')">💬 Facebook interesting</button>
+        </div>
+      `).join('');
     }
 
-    document.getElementById('adminTrigger').onclick = () => {
+    document.getElementById('adminIcon').onclick = () => {
       clickCount++;
-      setTimeout(() => { clickCount = 0; }, 500);
-      if(clickCount >= 3) window.location.href = 'admin.html';
+      setTimeout(() => clickCount = 0, 500);
+      if(clickCount >= 3) location.href = 'admin.html';
     };
 
     window.addEventListener('storage', (e) => {
-      if(e.key === 'givy_products' || e.key === 'givy_categories' || e.key === 'givy_global_fb') {
-        loadData();
-      }
+      if(e.key === 'givy_products' || e.key === 'givy_categories') loadData();
     });
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    
     loadData();
   </script>
 </body>
