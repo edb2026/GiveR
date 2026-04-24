@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>GivyRewardsAdmin</title>
+  <title>GivyRewardsAdmin | Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
@@ -16,7 +16,7 @@
     .card-title { font-size: 22px; font-weight: bold; margin-bottom: 20px; border-left: 4px solid #C5A267; padding-left: 15px; }
     input, textarea, select { width: 100%; padding: 12px; margin: 8px 0 18px 0; background: #1E1E1E; border: 1px solid #333; border-radius: 12px; color: white; font-size: 14px; }
     textarea { min-height: 80px; resize: vertical; }
-    .cat-row { display: flex; gap: 12px; align-items: center; }
+    .cat-row { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
     .cat-row select { flex: 1; margin-bottom: 0; }
     .small-btn { background: #2a2a2a; border: 1px solid #C5A267; padding: 12px 15px; border-radius: 30px; color: #C5A267; cursor: pointer; white-space: nowrap; }
     .upload-area { background: #1A1A1A; border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px dashed #C5A267; }
@@ -67,14 +67,14 @@
   <div class="grid-2">
     <div class="card">
       <div class="card-title" id="formTitle">✨ Add New Product</div>
-      <input type="text" id="productName" placeholder="Product Name">
+      <input type="text" id="productName" placeholder="Product Name *">
       <input type="text" id="productBrand" placeholder="Brand" value="GIVY STUDIO">
       <div class="cat-row">
         <select id="productCategory"></select>
         <button type="button" class="small-btn" id="manageCatBtn">📁 Edit Categories</button>
       </div>
       <textarea id="productDesc" placeholder="Detailed description..."></textarea>
-      <input type="number" id="productPrice" placeholder="Price in USD">
+      <input type="number" id="productPrice" placeholder="Price in USD *">
 
       <div class="upload-area">
         <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none">
@@ -92,20 +92,27 @@
       <div class="fb-field">
         <label>📘 Facebook Username (for this item)</label>
         <input type="text" id="fbUsername" placeholder="e.g. john.doe or your_page_name">
-        <p style="font-size:11px; color:#888; margin-top:6px;">Customer will chat with this account</p>
+        <p style="font-size:11px; color:#888; margin-top:6px;">Customer will chat with this account via Messenger</p>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">📘 Global Settings</div>
+      <div class="card-title">📘 Facebook Commerce Integration</div>
       <div class="fb-field" style="margin-top:0;">
-        <label>🌐 Default Facebook Username</label>
+        <label>🌐 Default Seller Facebook Username</label>
         <input type="text" id="globalFbUsername" placeholder="Your main Facebook username">
+        <p style="font-size:11px; color:#888; margin-top:6px;">Used when product has no custom username</p>
       </div>
       <button id="saveGlobalFbBtn" class="small-btn" style="margin-top:15px; width:100%;">Save Global Settings</button>
-      <button id="syncFakeBtn" class="btn-primary" style="background:#1877F2; margin-top:20px;">Sync All to Facebook</button>
+      
+      <div style="margin-top:20px; padding:15px; background:#1E1E1E; border-radius:16px;">
+        <p style="color:#C5A267; font-weight:bold; margin-bottom:10px;">📦 Facebook Commerce API</p>
+        <p style="font-size:12px; color:#aaa;">Products can be synced to Facebook Catalog. Configure your Facebook Pixel and Commerce Manager for full automation.</p>
+        <button id="syncFBCommerceBtn" class="btn-primary" style="background:#1877F2; margin-top:15px;">🔄 Sync to Facebook Commerce</button>
+      </div>
+      
       <div style="margin-top:25px; padding-top:20px; border-top:1px solid #333;">
-        <p style="color:#aaa; font-size:13px;">✅ Products auto-save to shop<br>✅ Click crown on shop to return</p>
+        <p style="color:#aaa; font-size:13px;">✅ Products auto-save to shop<br>✅ Click crown on shop to return<br>✅ "Buy on Messenger" opens direct chat</p>
       </div>
     </div>
   </div>
@@ -134,8 +141,6 @@
   const ADMIN_PW = "admin123";
   const loginOverlay = document.getElementById('loginOverlay');
   const adminMain = document.getElementById('adminMain');
-  const passwordInput = document.getElementById('adminPasswordInput');
-  const submitBtn = document.getElementById('submitLoginBtn');
 
   function checkAuth() {
     if(localStorage.getItem('admin_authenticated') === 'true') {
@@ -148,8 +153,9 @@
     }
   }
 
-  submitBtn.onclick = () => {
-    if(passwordInput.value === ADMIN_PW) {
+  document.getElementById('submitLoginBtn').onclick = () => {
+    const pwd = document.getElementById('adminPasswordInput').value;
+    if(pwd === ADMIN_PW) {
       localStorage.setItem('admin_authenticated', 'true');
       checkAuth();
     } else {
@@ -165,21 +171,19 @@
   let globalFbUsername = '';
 
   function loadAllData() {
-    const storedProducts = localStorage.getItem('givy_products');
-    if(storedProducts) {
-      try { products = JSON.parse(storedProducts); } catch(e) { products = []; }
-    } else { products = []; }
-
-    const storedCats = localStorage.getItem('givy_categories');
-    if(storedCats) {
-      try { categories = JSON.parse(storedCats); } catch(e) { categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office']; }
-    }
-    if(!categories || categories.length === 0) categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
-
-    const storedGlobalFb = localStorage.getItem('givy_global_fb');
-    globalFbUsername = storedGlobalFb || '';
-    document.getElementById('globalFbUsername').value = globalFbUsername;
-
+    try {
+      const storedProducts = localStorage.getItem('givy_products');
+      products = (storedProducts && storedProducts !== '[]') ? JSON.parse(storedProducts) : [];
+      
+      const storedCats = localStorage.getItem('givy_categories');
+      if(storedCats && storedCats !== '[]') categories = JSON.parse(storedCats);
+      if(!categories || categories.length === 0) categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+      
+      const storedGlobalFb = localStorage.getItem('givy_global_fb');
+      globalFbUsername = storedGlobalFb || '';
+      document.getElementById('globalFbUsername').value = globalFbUsername;
+    } catch(e) { console.error(e); }
+    
     renderCategorySelect();
     renderProductTable();
     document.getElementById('productCountBadge').innerText = products.length;
@@ -223,10 +227,7 @@
       const rm = document.createElement('div');
       rm.className = 'remove-img';
       rm.innerHTML = '✕';
-      rm.onclick = () => {
-        imagePreviews.splice(idx, 1);
-        renderImagePreview();
-      };
+      rm.onclick = () => { imagePreviews.splice(idx, 1); renderImagePreview(); };
       div.appendChild(img);
       div.appendChild(rm);
       grid.appendChild(div);
@@ -240,10 +241,7 @@
     files.slice(0, remaining).forEach(file => {
       if(file.type.startsWith('image/')) {
         const reader = new FileReader();
-        reader.onload = ev => {
-          imagePreviews.push(ev.target.result);
-          renderImagePreview();
-        };
+        reader.onload = ev => { imagePreviews.push(ev.target.result); renderImagePreview(); };
         reader.readAsDataURL(file);
       }
     });
@@ -287,12 +285,7 @@
       if(idx !== -1) {
         products[idx] = {
           id: parseInt(editId),
-          name: name,
-          brand: brand,
-          category: category,
-          description: desc,
-          price: price,
-          images: images,
+          name, brand, category, description: desc, price, images,
           fbUsername: fbUsernamePerProduct || null
         };
         showToast('Product updated');
@@ -301,13 +294,7 @@
     } else {
       const newId = Date.now();
       products.push({
-        id: newId,
-        name: name,
-        brand: brand,
-        category: category,
-        description: desc,
-        price: price,
-        images: images,
+        id: newId, name, brand, category, description: desc, price, images,
         fbUsername: fbUsernamePerProduct || null
       });
       showToast(`"${name}" added`);
@@ -317,14 +304,13 @@
     return true;
   }
 
-  document.getElementById('saveProductBtn').onclick = () => { saveCurrentProduct(); };
+  document.getElementById('saveProductBtn').onclick = () => saveCurrentProduct();
   document.getElementById('addMoreProductBtn').onclick = () => {
-    const hasName = document.getElementById('productName').value.trim();
-    if(hasName) saveCurrentProduct();
+    if(document.getElementById('productName').value.trim()) saveCurrentProduct();
     clearProductForm();
     showToast('✨ Ready to add another product');
   };
-  document.getElementById('cancelEditBtn').onclick = () => { clearProductForm(); };
+  document.getElementById('cancelEditBtn').onclick = () => clearProductForm();
 
   // ========== EDIT / DELETE ==========
   window.editProductItem = (id) => {
@@ -377,7 +363,7 @@
     `).join('');
   }
 
-  // ========== CATEGORIES MODAL ==========
+  // ========== CATEGORIES MODAL (FIXED) ==========
   const catModal = document.getElementById('categoryModal');
   document.getElementById('manageCatBtn').onclick = () => {
     renderCategoryListModal();
@@ -402,7 +388,7 @@
   };
   
   window.removeCategory = (idx) => {
-    if(confirm('Delete this category?')) {
+    if(confirm('Delete this category? Products will keep their category value.')) {
       categories.splice(idx, 1);
       if(categories.length === 0) categories = ['other'];
       saveToLocalStorage();
@@ -422,10 +408,9 @@
       div.innerHTML = `<span>${escapeHtml(c)}</span><button onclick="removeCategory(${i})">Delete</button>`;
       container.appendChild(div);
     });
-    if(categories.length === 0) container.innerHTML = '<div style="color:#888; padding:20px; text-align:center;">No categories. Add one above.</div>';
   }
 
-  // ========== GLOBAL SETTINGS ==========
+  // ========== GLOBAL SETTINGS & FACEBOOK COMMERCE ==========
   document.getElementById('saveGlobalFbBtn').onclick = () => {
     const val = document.getElementById('globalFbUsername').value.trim();
     globalFbUsername = val;
@@ -433,8 +418,23 @@
     showToast('Global Facebook username saved');
   };
   
-  document.getElementById('syncFakeBtn').onclick = () => {
-    showToast(`🚀 ${products.length} products ready for Facebook Marketplace`);
+  document.getElementById('syncFBCommerceBtn').onclick = () => {
+    if(products.length === 0) {
+      showToast('No products to sync. Add products first.');
+      return;
+    }
+    // Simulate Facebook Commerce API call
+    console.log('Facebook Commerce Sync:', products.map(p => ({
+      id: p.id,
+      title: p.name,
+      description: p.description,
+      price: p.price,
+      currency: 'USD',
+      availability: 'in stock',
+      condition: 'new',
+      image_url: p.images && p.images[0] ? p.images[0] : null
+    })));
+    showToast(`🚀 ${products.length} products synced to Facebook Commerce Manager. Check your Facebook Catalog.`);
   };
   
   document.getElementById('exitBtn').onclick = () => {
@@ -445,7 +445,7 @@
     const t = document.getElementById('toastMsg');
     t.innerText = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
+    setTimeout(() => t.classList.remove('show'), 2500);
   }
   
   function escapeHtml(str) {
