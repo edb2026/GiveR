@@ -1,80 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GivyRewardsShop</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0A0A0A; font-family: Arial; color: white; padding: 20px; }
-    h1 { text-align: center; margin-bottom: 30px; color: #C5A267; }
-    .product { background: #1A1A1A; padding: 20px; margin: 15px 0; border-radius: 15px; }
-    .product h3 { color: #C5A267; margin-bottom: 10px; }
-    .price { font-size: 22px; color: #C5A267; font-weight: bold; margin: 10px 0; }
-    button { background: #1877F2; color: white; padding: 12px 20px; border: none; border-radius: 25px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
-    .admin-link { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; }
-    .admin-link:hover { opacity: 1; }
-    .empty { text-align: center; padding: 50px; color: #888; }
+    body { background: #0A0A0A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #EDEDED; padding: 20px; }
+    .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #333; margin-bottom: 30px; }
+    h1 { font-size: 32px; background: linear-gradient(135deg, #C5A267, #E8D5B5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
+    .filter-btn { background: #1A1A1A; border: 1px solid #333; padding: 8px 20px; border-radius: 40px; color: #EDEDED; cursor: pointer; }
+    .filter-btn.active { background: #C5A267; color: #0A0A0A; border-color: #C5A267; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+    .product-card { background: #121212; border-radius: 20px; overflow: hidden; }
+    .product-img { background: #1E1E1E; height: 250px; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .product-info { padding: 20px; }
+    .brand { color: #C5A267; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .product-title { font-size: 20px; font-weight: bold; margin: 8px 0; }
+    .product-desc { color: #999; font-size: 13px; margin: 10px 0; }
+    .price { color: #C5A267; font-size: 22px; font-weight: bold; }
+    .fb-btn { background: #1877F2; border: none; padding: 10px 16px; border-radius: 40px; color: white; font-weight: bold; margin-top: 15px; width: 100%; cursor: pointer; }
+    .admin-trigger { position: fixed; bottom: 20px; left: 20px; width: 40px; height: 40px; background: #C5A267; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.2; cursor: pointer; }
+    .empty { text-align: center; padding: 60px; color: #666; }
   </style>
 </head>
 <body>
-  <h1>🛋️ GivyRewardsShop</h1>
-  <div id="products" class="empty">Loading...</div>
-  <div class="admin-link" onclick="goToAdmin()">👑</div>
+  <div class="header"><h1>GivyRewardsShop</h1><p style="color:#C5A267; margin-top:8px;">Luxury Furniture & Interiors</p></div>
+  <div class="filters" id="filters"></div>
+  <div class="product-grid" id="productGrid"><div class="empty">Loading...</div></div>
+  <div class="admin-trigger" id="adminTrigger">👑</div>
 
   <script>
     let products = [];
-    
-    function loadProducts() {
+    let categories = ['furniture', 'seating', 'beds', 'rugs', 'decor', 'office'];
+    let activeFilter = 'all';
+    let clickCount = 0;
+
+    function loadData() {
       try {
-        const saved = localStorage.getItem('givy_products');
-        if(saved && saved !== 'undefined') {
-          products = JSON.parse(saved);
+        const savedProducts = localStorage.getItem('givy_products');
+        if(savedProducts && savedProducts !== '[]') {
+          products = JSON.parse(savedProducts);
         } else {
           products = [
-            { id: 1, name: "Marquess Sofa", description: "Luxury velvet sofa", price: 4890, category: "seating" },
-            { id: 2, name: "Eclipse Table", description: "Modern dining table", price: 6750, category: "furniture" },
-            { id: 3, name: "Cocoon Chair", description: "Comfort armchair", price: 2950, category: "seating" }
+            { id: 1, name: "Marquess Sofa", brand: "GIVY STUDIO", price: 4890, category: "seating", description: "Sumptuous velvet upholstery with brass legs.", image: "🛋️" },
+            { id: 2, name: "Eclipse Dining Table", brand: "ATELIER NOIR", price: 6750, category: "furniture", description: "Sculptural oval table in smoked oak.", image: "🍽️" },
+            { id: 3, name: "Cocoon Armchair", brand: "LUNAIRE", price: 2950, category: "seating", description: "High-back armchair in bouclé wool.", image: "💺" }
           ];
-          localStorage.setItem('givy_products', JSON.stringify(products));
         }
-      } catch(e) { console.log(e); }
-      
+        const savedCats = localStorage.getItem('givy_categories');
+        if(savedCats && savedCats !== '[]') categories = JSON.parse(savedCats);
+      } catch(e) {}
+      renderFilters();
       renderProducts();
     }
-    
+
+    function renderFilters() {
+      const container = document.getElementById('filters');
+      container.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        btn.dataset.cat = cat;
+        btn.onclick = () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeFilter = cat;
+          renderProducts();
+        };
+        container.appendChild(btn);
+      });
+    }
+
     function renderProducts() {
-      const container = document.getElementById('products');
-      if(!products.length) {
-        container.innerHTML = '<div class="empty">✨ No products yet.<br>Tap the crown icon to add.</div>';
+      const grid = document.getElementById('productGrid');
+      const filtered = activeFilter === 'all' ? products : products.filter(p => p.category === activeFilter);
+      if(filtered.length === 0) {
+        grid.innerHTML = '<div class="empty">✨ No products in this category</div>';
         return;
       }
-      
-      container.innerHTML = products.map(p => `
-        <div class="product">
-          <h3>${p.name}</h3>
-          <p>${p.description || 'Premium quality furniture'}</p>
-          <div class="price">$${p.price.toLocaleString()}</div>
-          <button onclick="buyProduct('${p.name}', ${p.price})">📱 Buy on Facebook Marketplace</button>
+      grid.innerHTML = filtered.map(p => `
+        <div class="product-card">
+          <div class="product-img">${p.image || '🪑'}</div>
+          <div class="product-info">
+            <div class="brand">${p.brand || 'GIVY STUDIO'}</div>
+            <div class="product-title">${escapeHtml(p.name)}</div>
+            <div class="product-desc">${escapeHtml(p.description || 'Luxury craftsmanship.')}</div>
+            <div class="price">$${p.price.toLocaleString()}</div>
+            <button class="fb-btn" onclick="contactSeller('${escapeHtml(p.name)}', ${p.price})">📱 Buy on Facebook Marketplace</button>
+          </div>
         </div>
       `).join('');
     }
-    
-    function buyProduct(name, price) {
-      alert(`🔹 Contact seller on Facebook 🔹\n\nProduct: ${name}\nPrice: $${price}\n\nMessage: Hi! I'm interested in this ${name}. Is it still available?\n\nNote: Replace 'your_fb_username' in code with your actual Facebook username.`);
-      // window.open('https://m.me/your_fb_username', '_blank');
+
+    function contactSeller(name, price) {
+      alert(`🔹 Contact Seller on Facebook 🔹\n\nProduct: ${name}\nPrice: $${price}\n\nMessage: Hi! I'm interested in this ${name}. Is it still available?\n\nReplace 'your_fb_username' in code with your actual Facebook username.`);
     }
-    
-    function goToAdmin() {
-      window.location.href = 'admin.html';
-    }
-    
-    window.addEventListener('storage', function(e) {
-      if(e.key === 'givy_products') {
-        loadProducts();
-      }
+
+    document.getElementById('adminTrigger').onclick = () => {
+      clickCount++;
+      setTimeout(() => { clickCount = 0; }, 500);
+      if(clickCount >= 3) window.location.href = 'admin.html';
+    };
+
+    window.addEventListener('storage', (e) => {
+      if(e.key === 'givy_products' || e.key === 'givy_categories') loadData();
     });
-    
-    loadProducts();
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    loadData();
   </script>
 </body>
 </html>
