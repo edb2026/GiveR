@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Givy Rewards Marketplace | Most Viewed Products</title>
+    <title>Givy Rewards Marketplace | Most Viewed First</title>
     <style>
         * {
             margin: 0;
@@ -11,13 +11,11 @@
             box-sizing: border-box;
             font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, 'Roboto', sans-serif;
         }
-
         body {
             background: #f4f7fc;
             color: #1a2c3e;
             padding-bottom: 70px;
         }
-
         .app-header {
             background: linear-gradient(135deg, #0f2b3d, #1b4f6e);
             color: white;
@@ -75,6 +73,7 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
         .nav-links button {
             background: rgba(255,255,255,0.15);
@@ -287,9 +286,6 @@
         .auth-modal h3 {
             margin-bottom: 12px;
         }
-        .hidden {
-            display: none;
-        }
         @media (max-width: 700px) {
             .header-top { flex-direction: row; flex-wrap: wrap; }
             .auth-modal { width: 90%; right: 5%; left: 5%; top: 80px; }
@@ -300,7 +296,7 @@
 <div id="app"></div>
 
 <script>
-    // ------------------- STORAGE KEYS --------------------
+    // STORAGE KEYS
     const STORAGE = {
         users: 'givy_users',
         products: 'givy_products',
@@ -316,7 +312,6 @@
         localStorage.setItem(key, JSON.stringify(data));
     }
 
-    // Helper: increment view count
     function incrementProductViews(productId) {
         let products = getStorage(STORAGE.products);
         const idx = products.findIndex(p => p.id === productId);
@@ -326,13 +321,13 @@
         }
     }
 
-    // Demo data with view counts
+    // INIT DEMO DATA (all in English)
     function initData() {
         let users = getStorage(STORAGE.users, []);
         if (users.length === 0) {
             users = [
                 { id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] },
-                { id: 'u2', email: 'alice@example.com', username: 'AliceWonder', password: '123456', role: 'user', contactMethods: [{ type: 'whatsapp', value: '+79991234567' }, { type: 'telegram', value: '@alice_tg' }] },
+                { id: 'u2', email: 'alice@example.com', username: 'AliceWonder', password: '123456', role: 'user', contactMethods: [{ type: 'whatsapp', value: '+19991234567' }, { type: 'telegram', value: '@alice_tg' }] },
                 { id: 'u3', email: 'bob@example.com', username: 'BobBuilder', password: '123456', role: 'user', contactMethods: [{ type: 'email', value: 'bob@example.com' }] }
             ];
             setStorage(STORAGE.users, users);
@@ -347,7 +342,6 @@
             ];
             setStorage(STORAGE.products, products);
         } else {
-            // ensure existing products have views field
             let updated = false;
             products = products.map(p => {
                 if (p.views === undefined) { p.views = Math.floor(Math.random() * 150) + 10; updated = true; }
@@ -372,6 +366,7 @@
 
     let currentUser = null;
     let showAuthPopup = false;
+    let currentView = 'marketplace';
 
     // Helper functions
     function getUserById(uid) {
@@ -422,11 +417,14 @@
         return getStorage(STORAGE.messages).filter(m => m.toId === userId);
     }
 
-    let currentView = 'marketplace';
+    function renderContactMethods(methods) {
+        if (!methods.length) return '<span class="contact-badge">📞 Contact: not provided</span>';
+        return methods.map(m => `<span class="contact-badge">${m.type.toUpperCase()}: ${escapeHtml(m.value)}</span>`).join('');
+    }
 
+    // RENDER ENGINE
     function render() {
         const container = document.getElementById('app');
-        // Header always visible with login icon
         const isLoggedIn = !!currentUser;
         let headerHtml = `
             <div class="app-header">
@@ -439,7 +437,7 @@
                     </div>
                 </div>
                 ${isLoggedIn ? `
-                <div class="nav-links" style="margin-top: 10px;">
+                <div class="nav-links">
                     <button data-nav="marketplace">🏠 Products</button>
                     <button data-nav="addProduct">➕ Add Product</button>
                     <button data-nav="profile">👤 Profile</button>
@@ -454,54 +452,29 @@
             </footer>
         `;
         container.innerHTML = headerHtml;
-        
-        // attach global footer buttons
         document.getElementById('gotoRewards')?.addEventListener('click', () => alert('Redirect to Givy Rewards (demo)'));
         document.getElementById('gotoShop')?.addEventListener('click', () => alert('Redirect to GivyRewardsShop (demo)'));
         
-        // handle user icon click -> show auth modal if not logged in, else open profile? For consistency, if logged in show quick profile? Actually we show profile via nav, but we can keep icon as profile shortcut.
         document.getElementById('userIconBtn')?.addEventListener('click', () => {
-            if (!currentUser) {
-                toggleAuthModal();
-            } else {
-                // if logged in, navigate to profile view
-                currentView = 'profile';
-                loadView(currentView);
-            }
+            if (!currentUser) toggleAuthModal();
+            else { currentView = 'profile'; loadView(currentView); }
         });
-        
         if (isLoggedIn) {
-            document.getElementById('logoutIconBtn')?.addEventListener('click', () => {
-                logout();
-            });
+            document.getElementById('logoutIconBtn')?.addEventListener('click', logout);
             attachNavEvents();
-        } else {
-            // make sure any nav buttons don't exist, but attach auth modal toggle for icon
         }
-        
-        // Load main content (marketplace always visible)
         loadView(currentView);
-        
-        // If auth popup flag is true, show it
-        if (showAuthPopup && !currentUser) {
-            renderAuthModal();
-        } else {
-            // remove any existing modal
-            const existingModal = document.querySelector('.auth-modal');
-            if (existingModal) existingModal.remove();
-        }
+        if (showAuthPopup && !currentUser) renderAuthModal();
+        else { const m = document.querySelector('.auth-modal'); if (m) m.remove(); }
     }
-    
+
     function toggleAuthModal() {
         if (currentUser) return;
         showAuthPopup = !showAuthPopup;
         if (showAuthPopup) renderAuthModal();
-        else {
-            const modal = document.querySelector('.auth-modal');
-            if (modal) modal.remove();
-        }
+        else { const m = document.querySelector('.auth-modal'); if (m) m.remove(); }
     }
-    
+
     function renderAuthModal() {
         const existing = document.querySelector('.auth-modal');
         if (existing) existing.remove();
@@ -521,21 +494,14 @@
             <button id="closeAuthBtn" style="background:#aaa; margin-top:12px;">Close</button>
         `;
         document.body.appendChild(modalDiv);
-        
         document.getElementById('authLoginBtn')?.addEventListener('click', () => {
             const email = document.getElementById('authLoginEmail').value;
             const pass = document.getElementById('authLoginPass').value;
             const users = getStorage(STORAGE.users);
             const user = users.find(u => u.email === email && u.password === pass);
-            if (user) {
-                currentUser = user;
-                showAuthPopup = false;
-                render();
-            } else {
-                alert('Invalid credentials');
-            }
+            if (user) { currentUser = user; showAuthPopup = false; render(); }
+            else alert('Invalid credentials');
         });
-        
         document.getElementById('authRegBtn')?.addEventListener('click', () => {
             const name = document.getElementById('authRegName').value;
             const email = document.getElementById('authRegEmail').value;
@@ -550,23 +516,18 @@
             showAuthPopup = false;
             render();
         });
-        
-        document.getElementById('closeAuthBtn')?.addEventListener('click', () => {
-            showAuthPopup = false;
-            render();
-        });
+        document.getElementById('closeAuthBtn')?.addEventListener('click', () => { showAuthPopup = false; render(); });
     }
-    
+
     function attachNavEvents() {
         document.querySelectorAll('[data-nav]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const nav = btn.getAttribute('data-nav');
-                currentView = nav;
+                currentView = btn.getAttribute('data-nav');
                 loadView(currentView);
             });
         });
     }
-    
+
     function loadView(view) {
         const container = document.getElementById('viewContainer');
         if (!container) return;
@@ -576,13 +537,12 @@
         else if (view === 'admin' && currentUser?.role === 'admin') renderAdminPanel(container);
         else renderMarketplace(container);
     }
-    
+
     function renderMarketplace(container) {
         let products = getStorage(STORAGE.products).filter(p => p.status === 'active');
-        // sort by views descending (most viewed first)
         products.sort((a,b) => (b.views || 0) - (a.views || 0));
         let html = `<h2>📢 Most viewed products first</h2><div class="products-grid">`;
-        if (products.length === 0) html += `<p>No products yet. Be the first seller! <br> <small>Login to add items.</small></p>`;
+        if (products.length === 0) html += `<p>No products yet. Be the first seller! <br><small>Login to add items.</small></p>`;
         products.forEach(product => {
             const seller = getUserById(product.sellerId);
             if (!seller) return;
@@ -601,9 +561,7 @@
                         <div class="price-badge ${freeClass}">${priceDisplay}</div>
                         <div class="seller-rating">⭐ Seller rating: ${avgRating ? avgRating + '/10' : 'no ratings'}</div>
                         <div class="location">📍 ${product.locationZip || 'not specified'}</div>
-                        <div class="contact-icons">
-                            ${renderContactMethods(seller?.contactMethods || [])}
-                        </div>
+                        <div class="contact-icons">${renderContactMethods(seller?.contactMethods || [])}</div>
                         <button class="detail-btn" data-id="${product.id}">Details & reviews</button>
                         <button class="share-fb" data-title="${product.title}">🔗 Share on FB</button>
                     </div>
@@ -612,14 +570,11 @@
         });
         html += `</div>`;
         container.innerHTML = html;
-        
         document.querySelectorAll('.detail-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const pid = btn.getAttribute('data-id');
-                // increment view count when opening details
                 incrementProductViews(pid);
-                // re-render marketplace to update view count instantly (optional)
                 renderMarketplace(container);
                 showProductDetail(pid);
             });
@@ -631,12 +586,7 @@
             });
         });
     }
-    
-    function renderContactMethods(methods) {
-        if (!methods.length) return '<span class="contact-badge">📞 Contact: not provided</span>';
-        return methods.map(m => `<span class="contact-badge">${m.type.toUpperCase()}: ${escapeHtml(m.value)}</span>`).join('');
-    }
-    
+
     function showProductDetail(productId) {
         const products = getStorage(STORAGE.products);
         const product = products.find(p => p.id === productId);
@@ -680,12 +630,11 @@
                     addRating(seller.id, currentUser.id, score, comment);
                     alert('Thank you for rating!');
                     modalDiv.remove();
-                } else alert('Please enter a number 1-10');
+                } else alert('Please enter a number from 1 to 10');
             });
         }
     }
-    
-    // Rest of functions (add product, profile, admin) same as before but with currentUser checks
+
     function renderAddProduct(container) {
         let imagePreviews = [];
         const html = `
@@ -716,8 +665,8 @@
                         const zip = data.postcode || '101000';
                         document.getElementById('zipCode').value = zip;
                         alert(`Location detected: ZIP ${zip}`);
-                    } catch(e) { document.getElementById('zipCode').value = '101000'; alert('Demo: ZIP 101000'); }
-                }, () => alert('Could not get location'));
+                    } catch(e) { document.getElementById('zipCode').value = '101000'; alert('Demo: ZIP set to 101000'); }
+                }, () => alert('Could not get location, please enter manually'));
             } else alert('Geolocation not supported');
         });
         const fileInput = document.getElementById('prodImages');
@@ -745,20 +694,20 @@
             const isFree = document.getElementById('isFree').checked;
             const priceVal = isFree ? 'free' : parseFloat(document.getElementById('prodPrice').value);
             const zip = document.getElementById('zipCode').value;
-            if (!title || !desc) { alert('Fill title & description'); return; }
-            if (!isFree && (!priceVal || priceVal <= 0)) { alert('Set valid price'); return; }
+            if (!title || !desc) { alert('Please fill title and description'); return; }
+            if (!isFree && (!priceVal || priceVal <= 0)) { alert('Please set a valid price'); return; }
             const product = {
                 id: 'prod_' + Date.now() + '_' + Math.random().toString(36),
                 sellerId: currentUser.id, title, description: desc, price: isFree ? 'free' : priceVal, priceType: isFree ? 'free' : 'paid',
                 category, locationZip: zip || 'Not specified', images: imagePreviews.slice(0,10), status: 'active', createdAt: Date.now(), views: 0
             };
             addProduct(product);
-            alert('Product published!');
+            alert('Product published successfully!');
             currentView = 'marketplace';
             render();
         });
     }
-    
+
     function renderProfile(container) {
         const user = currentUser;
         let ownProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
@@ -770,13 +719,17 @@
                 <h2>👤 My Profile</h2>
                 <p><strong>Username:</strong> ${escapeHtml(user.username)}</p>
                 <p><strong>Email:</strong> ${escapeHtml(user.email)}</p>
-                <h3>📱 Contact methods</h3>
+                <h3>📱 My contact methods (text, email, WhatsApp, Telegram, custom)</h3>
                 <div id="contactsList">${renderContacts()}</div>
                 <select id="contactTypeSelect"><option>email</option><option>whatsapp</option><option>telegram</option><option>text</option><option>custom</option></select>
-                <input id="contactValue" placeholder="Contact value">
-                <button id="addContactBtn">Add contact</button>
-                <hr><h3>📦 My products</h3><div id="myProductsList"></div>
-                <hr><h3>✉️ Admin messages</h3><div>${messages.map(m => `<div class="contact-badge">📩 from ${getUserById(m.fromId)?.username || 'admin'}: ${escapeHtml(m.text)}</div>`).join('') || 'No messages'}</div>
+                <input id="contactValue" placeholder="Contact value (phone / username)">
+                <button id="addContactBtn">Add contact method</button>
+                <hr>
+                <h3>📦 My products</h3>
+                <div id="myProductsList"></div>
+                <hr>
+                <h3>✉️ Messages from administration</h3>
+                <div>${messages.map(m => `<div class="contact-badge">📩 from ${getUserById(m.fromId)?.username || 'admin'}: ${escapeHtml(m.text)}</div>`).join('') || 'No messages'}</div>
             </div>
         `;
         container.innerHTML = html;
@@ -790,11 +743,11 @@
                     renderProfile(container);
                 });
             });
-        } else prodContainer.innerHTML = '<i>You haven\'t listed products</i>';
+        } else prodContainer.innerHTML = '<i>You have not listed any products yet</i>';
         document.getElementById('addContactBtn')?.addEventListener('click', () => {
             const type = document.getElementById('contactTypeSelect').value;
             const val = document.getElementById('contactValue').value;
-            if (!val) return alert('Enter value');
+            if (!val) return alert('Please enter a value');
             user.contactMethods.push({ type, value: val });
             let users = getStorage(STORAGE.users).map(u => u.id === user.id ? user : u);
             setStorage(STORAGE.users, users);
@@ -802,11 +755,11 @@
             renderProfile(container);
         });
     }
-    
+
     function renderAdminPanel(container) {
-        let allProducts = getStorage(STORAGE.products);
-        let freeProducts = allProducts.filter(p => p.priceType === 'free');
-        const html = `<h2>🛡️ Admin | Free items</h2><div class="admin-table"><table><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead><tbody id="freeTableBody"></tbody></table></div>`;
+        const allProducts = getStorage(STORAGE.products);
+        const freeProducts = allProducts.filter(p => p.priceType === 'free');
+        const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><table><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead><tbody id="freeTableBody"></tbody></table></div>`;
         container.innerHTML = html;
         const tbody = document.getElementById('freeTableBody');
         function renderFreeTable() {
@@ -815,7 +768,7 @@
                 const seller = getUserById(p.sellerId);
                 return `<tr><td>${escapeHtml(p.title)}</td><td>${seller?.username || 'unknown'}</td><td>${p.status === 'active' ? '✅ Visible' : '❌ Hidden'}</td>
                 <td><button class="toggleHideBtn" data-id="${p.id}" data-hidden="${p.status === 'hidden'}">${p.status === 'active' ? 'Hide' : 'Show'}</button>
-                <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message</button></td></tr>`;
+                <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message seller</button></td></tr>`;
             }).join('');
             document.querySelectorAll('.toggleHideBtn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -829,17 +782,17 @@
                 btn.addEventListener('click', () => {
                     const sellerId = btn.getAttribute('data-id');
                     const sellerName = btn.getAttribute('data-name');
-                    const msg = prompt(`Message to ${sellerName}:`);
-                    if (msg) { sendMessage(currentUser.id, sellerId, msg); alert('Sent'); }
+                    const msg = prompt(`Send message to seller ${sellerName}:`);
+                    if (msg) { sendMessage(currentUser.id, sellerId, msg); alert('Message sent to seller (will appear in their profile)'); }
                 });
             });
         }
         renderFreeTable();
     }
-    
+
     function logout() { currentUser = null; showAuthPopup = false; currentView = 'marketplace'; render(); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-    
+
     render();
 </script>
 </body>
