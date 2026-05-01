@@ -1,6 +1,3 @@
-Here is the final Givy Rewards Marketplace – fully in English, retaining all features: compact login/register icon, most‑viewed product grid, admin panel, ratings, contact methods, file uploads, and location detection.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -299,7 +296,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
 <div id="app"></div>
 
 <script>
-    // STORAGE KEYS
+    // ======================== STORAGE KEYS ========================
     const STORAGE = {
         users: 'givy_users',
         products: 'givy_products',
@@ -324,7 +321,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         }
     }
 
-    // INIT DEMO DATA (all in English)
+    // ======================== INIT DEMO DATA (FULL ENGLISH) ========================
     function initData() {
         let users = getStorage(STORAGE.users, []);
         if (users.length === 0) {
@@ -425,7 +422,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         return methods.map(m => `<span class="contact-badge">${m.type.toUpperCase()}: ${escapeHtml(m.value)}</span>`).join('');
     }
 
-    // RENDER ENGINE
+    // ======================== RENDER ENGINE ========================
     function render() {
         const container = document.getElementById('app');
         const isLoggedIn = !!currentUser;
@@ -541,6 +538,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         else renderMarketplace(container);
     }
 
+    // ======================== MARKETPLACE (MOST VIEWED FIRST) ========================
     function renderMarketplace(container) {
         let products = getStorage(STORAGE.products).filter(p => p.status === 'active');
         products.sort((a,b) => (b.views || 0) - (a.views || 0));
@@ -638,6 +636,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         }
     }
 
+    // ======================== ADD PRODUCT ========================
     function renderAddProduct(container) {
         let imagePreviews = [];
         const html = `
@@ -645,7 +644,9 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
                 <h2>📦 List a product</h2>
                 <input type="text" id="prodTitle" placeholder="Product title" required>
                 <textarea id="prodDesc" rows="3" placeholder="Description (medium length)"></textarea>
-                <select id="prodCategory"><option>Electronics</option><option>Clothing</option><option>Furniture</option><option>Books</option><option>Other</option></select>
+                <select id="prodCategory">
+                    <option>Electronics</option><option>Clothing</option><option>Furniture</option><option>Books</option><option>Other</option>
+                </select>
                 <div><label><input type="checkbox" id="isFree"> Free</label></div>
                 <div id="priceDiv"><input type="number" id="prodPrice" placeholder="Price in ₽"></div>
                 <input type="text" id="zipCode" placeholder="ZIP code">
@@ -711,6 +712,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         });
     }
 
+    // ======================== PROFILE ========================
     function renderProfile(container) {
         const user = currentUser;
         let ownProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
@@ -759,19 +761,24 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         });
     }
 
+    // ======================== ADMIN PANEL ========================
     function renderAdminPanel(container) {
-        const allProducts = getStorage(STORAGE.products);
-        const freeProducts = allProducts.filter(p => p.priceType === 'free');
-        const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><table><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead><tbody id="freeTableBody"></tbody></table></div>`;
+        const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><tr><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></td></thead><tbody id="freeTableBody"></tbody></table></div>`;
         container.innerHTML = html;
         const tbody = document.getElementById('freeTableBody');
         function renderFreeTable() {
             const freshFree = getStorage(STORAGE.products).filter(p => p.priceType === 'free');
             tbody.innerHTML = freshFree.map(p => {
                 const seller = getUserById(p.sellerId);
-                return `<tr><td>${escapeHtml(p.title)}</td><td>${seller?.username || 'unknown'}</td><td>${p.status === 'active' ? '✅ Visible' : '❌ Hidden'}</td>
-                <td><button class="toggleHideBtn" data-id="${p.id}" data-hidden="${p.status === 'hidden'}">${p.status === 'active' ? 'Hide' : 'Show'}</button>
-                <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message seller</button></td></tr>`;
+                return `<tr>
+                    <td>${escapeHtml(p.title)}</td>
+                    <td>${seller?.username || 'unknown'}</td>
+                    <td>${p.status === 'active' ? '✅ Visible' : '❌ Hidden'}</td>
+                    <td>
+                        <button class="toggleHideBtn" data-id="${p.id}" data-hidden="${p.status === 'hidden'}">${p.status === 'active' ? 'Hide' : 'Show'}</button>
+                        <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message seller</button>
+                    </td>
+                </tr>`;
             }).join('');
             document.querySelectorAll('.toggleHideBtn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -793,6 +800,7 @@ Here is the final Givy Rewards Marketplace – fully in English, retaining all f
         renderFreeTable();
     }
 
+    // ======================== LOGOUT & UTILITIES ========================
     function logout() { currentUser = null; showAuthPopup = false; currentView = 'marketplace'; render(); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
