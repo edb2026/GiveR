@@ -321,48 +321,65 @@
         }
     }
 
-    // ======================== INIT DEMO DATA (FULL ENGLISH) ========================
-    function initData() {
-        let users = getStorage(STORAGE.users, []);
-        if (users.length === 0) {
-            users = [
-                { id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] },
-                { id: 'u2', email: 'alice@example.com', username: 'AliceWonder', password: '123456', role: 'user', contactMethods: [{ type: 'whatsapp', value: '+19991234567' }, { type: 'telegram', value: '@alice_tg' }] },
-                { id: 'u3', email: 'bob@example.com', username: 'BobBuilder', password: '123456', role: 'user', contactMethods: [{ type: 'email', value: 'bob@example.com' }] }
-            ];
+    // ======================== FORCE RESET TO ENGLISH DATA ========================
+    function resetToEnglishData() {
+        // Users (admin + two sample users) - all English
+        const users = [
+            { id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] },
+            { id: 'u2', email: 'alice@example.com', username: 'AliceWonder', password: '123456', role: 'user', contactMethods: [{ type: 'whatsapp', value: '+19991234567' }, { type: 'telegram', value: '@alice_tg' }] },
+            { id: 'u3', email: 'bob@example.com', username: 'BobBuilder', password: '123456', role: 'user', contactMethods: [{ type: 'email', value: 'bob@example.com' }] }
+        ];
+        setStorage(STORAGE.users, users);
+
+        // Products - English only
+        const products = [
+            { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 2500, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 128 },
+            { id: 'p2', sellerId: 'u3', title: 'Programming Books', description: '3 books: JS, Python', price: 'free', priceType: 'free', category: 'Books', locationZip: '105120', images: [], status: 'active', createdAt: Date.now(), views: 95 },
+            { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 3200, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 210 }
+        ];
+        setStorage(STORAGE.products, products);
+
+        // Ratings - English comments
+        const ratings = [
+            { id: 'r1', sellerId: 'u2', userId: 'u3', rating: 9, comment: 'Excellent seller, fast response', createdAt: Date.now() },
+            { id: 'r2', sellerId: 'u3', userId: 'u2', rating: 10, comment: 'Honest deal, recommend', createdAt: Date.now() }
+        ];
+        setStorage(STORAGE.ratings, ratings);
+
+        // Messages - empty
+        setStorage(STORAGE.messages, []);
+    }
+
+    // Check if old Russian data exists (simple heuristic: look for cyrillic in product titles)
+    function needsReset() {
+        const products = getStorage(STORAGE.products, []);
+        if (products.length === 0) return true;
+        for (let p of products) {
+            if (/[а-яА-ЯёЁ]/.test(p.title)) return true;
+        }
+        return false;
+    }
+
+    if (needsReset()) {
+        console.log('Resetting to English data...');
+        resetToEnglishData();
+    } else {
+        // ensure all required fields exist
+        let products = getStorage(STORAGE.products);
+        let updated = false;
+        products = products.map(p => {
+            if (p.views === undefined) { p.views = 10 + Math.floor(Math.random() * 200); updated = true; }
+            if (p.status === undefined) { p.status = 'active'; updated = true; }
+            return p;
+        });
+        if (updated) setStorage(STORAGE.products, products);
+        
+        let users = getStorage(STORAGE.users);
+        if (!users.find(u => u.role === 'admin')) {
+            users.push({ id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] });
             setStorage(STORAGE.users, users);
         }
-
-        let products = getStorage(STORAGE.products, []);
-        if (products.length === 0) {
-            products = [
-                { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 2500, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 128 },
-                { id: 'p2', sellerId: 'u3', title: 'Programming Books', description: '3 books: JS, Python', price: 'free', priceType: 'free', category: 'Books', locationZip: '105120', images: [], status: 'active', createdAt: Date.now(), views: 95 },
-                { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 3200, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 210 }
-            ];
-            setStorage(STORAGE.products, products);
-        } else {
-            let updated = false;
-            products = products.map(p => {
-                if (p.views === undefined) { p.views = Math.floor(Math.random() * 150) + 10; updated = true; }
-                return p;
-            });
-            if (updated) setStorage(STORAGE.products, products);
-        }
-
-        let ratings = getStorage(STORAGE.ratings, []);
-        if (ratings.length === 0) {
-            ratings = [
-                { id: 'r1', sellerId: 'u2', userId: 'u3', rating: 9, comment: 'Excellent seller, fast response', createdAt: Date.now() },
-                { id: 'r2', sellerId: 'u3', userId: 'u2', rating: 10, comment: 'Honest deal, recommend', createdAt: Date.now() }
-            ];
-            setStorage(STORAGE.ratings, ratings);
-        }
-
-        let messages = getStorage(STORAGE.messages, []);
-        setStorage(STORAGE.messages, messages);
     }
-    initData();
 
     let currentUser = null;
     let showAuthPopup = false;
@@ -763,7 +780,7 @@
 
     // ======================== ADMIN PANEL ========================
     function renderAdminPanel(container) {
-        const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><tr><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></td></thead><tbody id="freeTableBody"></tbody></table></div>`;
+        const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><table><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead><tbody id="freeTableBody"></tbody></table></div>`;
         container.innerHTML = html;
         const tbody = document.getElementById('freeTableBody');
         function renderFreeTable() {
@@ -808,4 +825,3 @@
 </script>
 </body>
 </html>
-```
