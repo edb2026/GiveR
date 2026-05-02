@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Givy Rewards Marketplace | Private Account & Public Market</title>
+    <title>Givy Rewards Marketplace | Edit & Sold Features</title>
     <style>
         * {
             margin: 0;
@@ -136,10 +136,24 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
+            position: relative;
         }
         .product-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 16px 28px rgba(0,0,0,0.1);
+        }
+        .sold-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #c7362b;
+            color: white;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .product-img {
             height: 180px;
@@ -315,6 +329,26 @@
         .auth-modal h3 {
             margin-bottom: 12px;
         }
+        .product-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .product-actions button {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+        }
+        .sold-badge-small {
+            background: #c7362b;
+            color: white;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 8px;
+        }
         @media (max-width: 700px) {
             .header-top { flex-direction: row; flex-wrap: wrap; }
             .auth-modal { width: 90%; right: 5%; left: 5%; top: 80px; }
@@ -360,9 +394,9 @@
         setStorage(STORAGE.users, users);
 
         const products = [
-            { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 35, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 128 },
-            { id: 'p2', sellerId: 'u3', title: 'Programming Books', description: '3 books: JS, Python', price: 'free', priceType: 'free', category: 'Books', locationZip: '105120', images: [], status: 'active', createdAt: Date.now(), views: 95 },
-            { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 45, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 210 }
+            { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 35, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', sold: false, createdAt: Date.now(), views: 128 },
+            { id: 'p2', sellerId: 'u3', title: 'Programming Books', description: '3 books: JS, Python', price: 'free', priceType: 'free', category: 'Books', locationZip: '105120', images: [], status: 'active', sold: false, createdAt: Date.now(), views: 95 },
+            { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 45, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', sold: false, createdAt: Date.now(), views: 210 }
         ];
         setStorage(STORAGE.products, products);
 
@@ -379,6 +413,7 @@
         if (products.length === 0) return true;
         for (let p of products) {
             if (/[а-яА-ЯёЁ]/.test(p.title)) return true;
+            if (p.sold === undefined) return true; // add sold field
         }
         return false;
     }
@@ -390,6 +425,7 @@
         products = products.map(p => {
             if (p.views === undefined) { p.views = 10 + Math.floor(Math.random() * 200); updated = true; }
             if (p.status === undefined) { p.status = 'active'; updated = true; }
+            if (p.sold === undefined) { p.sold = false; updated = true; }
             return p;
         });
         if (updated) setStorage(STORAGE.products, products);
@@ -402,7 +438,7 @@
 
     let currentUser = null;
     let showAuthPopup = false;
-    let currentView = 'marketplace'; // 'marketplace' = public view, 'profile', 'addProduct', 'admin'
+    let currentView = 'marketplace';
     let currentSearchTerm = '';
 
     // Helper functions
@@ -434,13 +470,21 @@
         setStorage(STORAGE.products, products);
     }
 
-    function updateProductVisibility(productId, hidden) {
+    function updateProduct(productId, updatedData) {
         let products = getStorage(STORAGE.products);
         const idx = products.findIndex(p => p.id === productId);
         if (idx !== -1) {
-            products[idx].status = hidden ? 'hidden' : 'active';
+            products[idx] = { ...products[idx], ...updatedData };
             setStorage(STORAGE.products, products);
         }
+    }
+
+    function toggleSold(productId, soldStatus) {
+        updateProduct(productId, { sold: soldStatus });
+    }
+
+    function updateProductVisibility(productId, hidden) {
+        updateProduct(productId, { status: hidden ? 'hidden' : 'active' });
     }
 
     function sendMessage(fromId, toId, text) {
@@ -500,18 +544,14 @@
         if (isLoggedIn) {
             document.getElementById('logoutIconBtn')?.addEventListener('click', logout);
             document.getElementById('backToPublicBtn')?.addEventListener('click', () => {
-                // Switch to public marketplace but stay logged in
                 currentView = 'marketplace';
                 render();
             });
             attachNavEvents();
         }
-        // Determine what to show in the viewContainer
         if (!currentUser) {
-            // Not logged in: always show public marketplace
             renderPublicMarketplace();
         } else {
-            // Logged in: show based on currentView
             if (currentView === 'marketplace') {
                 renderPublicMarketplace();
             } else if (currentView === 'profile') {
@@ -590,7 +630,7 @@
         document.getElementById('closeAuthBtn')?.addEventListener('click', () => { showAuthPopup = false; render(); });
     }
 
-    // ======================== PUBLIC MARKETPLACE (for both logged-in and non-logged-in users) ========================
+    // ======================== PUBLIC MARKETPLACE ========================
     function renderPublicMarketplace() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
@@ -623,8 +663,10 @@
             const priceDisplay = product.priceType === 'free' ? 'FREE' : `$${product.price}`;
             const freeClass = product.priceType === 'free' ? 'free-tag' : '';
             const viewsCount = product.views || 0;
+            const soldBadge = product.sold ? '<div class="sold-overlay">SOLD</div>' : '';
             html += `
                 <div class="product-card" data-product-id="${product.id}">
+                    ${soldBadge}
                     <div class="product-img">
                         ${product.images && product.images[0] ? `<img src="${product.images[0]}" alt="product">` : '<span>📷 no photo</span>'}
                         <div class="view-counter">👁️ ${viewsCount}</div>
@@ -679,7 +721,7 @@
         modalDiv.className = 'modal';
         modalDiv.innerHTML = `
             <div class="modal-content">
-                <h3>${escapeHtml(product.title)}</h3>
+                <h3>${escapeHtml(product.title)} ${product.sold ? '<span style="color:#c7362b;">(SOLD)</span>' : ''}</h3>
                 <p><strong>Description:</strong> ${escapeHtml(product.description)}</p>
                 <p><strong>Price:</strong> ${product.priceType === 'free' ? 'Free' : `$${product.price}`}</p>
                 <p><strong>Category:</strong> ${product.category}</p>
@@ -716,7 +758,7 @@
         }
     }
 
-    // ======================== ADD PRODUCT (FIXED) ========================
+    // ======================== ADD PRODUCT ========================
     function renderAddProduct() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
@@ -778,7 +820,6 @@
         });
         
         const submitBtn = document.getElementById('submitProductBtn');
-        // Remove all previous listeners by cloning and replacing
         const newSubmitBtn = submitBtn.cloneNode(true);
         submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
         newSubmitBtn.addEventListener('click', () => {
@@ -801,6 +842,7 @@
                 locationZip: zip || 'Not specified',
                 images: imagePreviews.slice(0,10),
                 status: 'active',
+                sold: false,
                 createdAt: Date.now(),
                 views: 0
             };
@@ -811,12 +853,98 @@
         });
     }
 
-    // ======================== PROFILE (only user's own products) ========================
+    // ======================== EDIT PRODUCT MODAL ========================
+    function openEditModal(product) {
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'modal';
+        let tempImagePreviews = [...product.images];
+        modalDiv.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <h3>✏️ Edit Product</h3>
+                <input type="text" id="editTitle" value="${escapeHtml(product.title)}" placeholder="Product title">
+                <textarea id="editDesc" rows="3" placeholder="Description">${escapeHtml(product.description)}</textarea>
+                <select id="editCategory">
+                    <option ${product.category === 'Electronics' ? 'selected' : ''}>Electronics</option>
+                    <option ${product.category === 'Clothing' ? 'selected' : ''}>Clothing</option>
+                    <option ${product.category === 'Furniture' ? 'selected' : ''}>Furniture</option>
+                    <option ${product.category === 'Books' ? 'selected' : ''}>Books</option>
+                    <option ${product.category === 'Other' ? 'selected' : ''}>Other</option>
+                </select>
+                <div><label><input type="checkbox" id="editIsFree" ${product.priceType === 'free' ? 'checked' : ''}> Free</label></div>
+                <div id="editPriceDiv" style="${product.priceType === 'free' ? 'display:none' : 'block'}"><input type="number" id="editPrice" value="${product.priceType === 'free' ? '' : product.price}" placeholder="Price in USD ($)"></div>
+                <input type="text" id="editZip" value="${escapeHtml(product.locationZip)}" placeholder="ZIP code">
+                <div><label>Photos (up to 10) - leave empty to keep existing</label><input type="file" id="editImages" accept="image/*" multiple></div>
+                <div id="editImagePreviewContainer" class="image-preview"></div>
+                <button id="saveEditBtn">💾 Save changes</button>
+                <button id="cancelEditBtn">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modalDiv);
+        
+        const freeCheck = document.getElementById('editIsFree');
+        const priceDiv = document.getElementById('editPriceDiv');
+        freeCheck.addEventListener('change', () => { priceDiv.style.display = freeCheck.checked ? 'none' : 'block'; });
+        
+        // Preview existing images
+        const previewContainer = document.getElementById('editImagePreviewContainer');
+        product.images.forEach(imgSrc => {
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.classList.add('preview-img');
+            previewContainer.appendChild(img);
+        });
+        
+        const fileInput = document.getElementById('editImages');
+        fileInput.addEventListener('change', (e) => {
+            // clear preview container but keep existing? we will replace
+            previewContainer.innerHTML = '';
+            tempImagePreviews = [];
+            const files = Array.from(e.target.files).slice(0,10);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.classList.add('preview-img');
+                    previewContainer.appendChild(img);
+                    tempImagePreviews.push(ev.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        document.getElementById('saveEditBtn').addEventListener('click', () => {
+            const newTitle = document.getElementById('editTitle').value.trim();
+            const newDesc = document.getElementById('editDesc').value.trim();
+            const newCategory = document.getElementById('editCategory').value;
+            const isFree = document.getElementById('editIsFree').checked;
+            let newPrice = isFree ? 'free' : parseFloat(document.getElementById('editPrice').value);
+            const newZip = document.getElementById('editZip').value.trim();
+            if (!newTitle || !newDesc) { alert('Title and description are required'); return; }
+            if (!isFree && (!newPrice || newPrice <= 0)) { alert('Please set a valid price in USD'); return; }
+            const updatedImages = tempImagePreviews.length ? tempImagePreviews : product.images;
+            updateProduct(product.id, {
+                title: newTitle,
+                description: newDesc,
+                category: newCategory,
+                priceType: isFree ? 'free' : 'paid',
+                price: isFree ? 'free' : newPrice,
+                locationZip: newZip || 'Not specified',
+                images: updatedImages
+            });
+            alert('Product updated successfully!');
+            modalDiv.remove();
+            render(); // refresh profile
+        });
+        document.getElementById('cancelEditBtn').addEventListener('click', () => modalDiv.remove());
+    }
+
+    // ======================== PROFILE (shows all user's products, with edit/sold/delete) ========================
     function renderProfile() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
         const user = currentUser;
-        let ownProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
+        let allUserProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
         const messages = getUserMessages(user.id);
         user.contactMethods = user.contactMethods || [];
         const renderContacts = () => user.contactMethods.map(m => `<div>${m.type}: ${escapeHtml(m.value)} <button class="removeContact" data-type="${m.type}">❌ Remove</button></div>`).join('');
@@ -831,7 +959,7 @@
                 <input id="contactValue" placeholder="Contact value (phone / username)">
                 <button id="addContactBtn">Add contact method</button>
                 <hr>
-                <h3>📦 My products (only visible to me)</h3>
+                <h3>📦 My products (all my listings) <span style="font-size:0.8rem;">(${allUserProducts.length} total)</span></h3>
                 <div id="myProductsList"></div>
                 <hr>
                 <h3>✉️ Messages from administration</h3>
@@ -841,8 +969,37 @@
         `;
         container.innerHTML = html;
         const prodContainer = document.getElementById('myProductsList');
-        if (ownProducts.length) {
-            prodContainer.innerHTML = ownProducts.map(p => `<div><strong>${escapeHtml(p.title)}</strong> - ${p.priceType === 'free' ? 'Free' : `$${p.price}`} 👁️ ${p.views || 0} <button class="deleteOwnProduct" data-id="${p.id}">Delete</button></div>`).join('');
+        if (allUserProducts.length) {
+            prodContainer.innerHTML = allUserProducts.map(p => {
+                const soldBadge = p.sold ? '<span class="sold-badge-small">SOLD</span>' : '';
+                return `
+                    <div style="border-bottom:1px solid #eef2f5; padding:12px 0;">
+                        <strong>${escapeHtml(p.title)}</strong> ${soldBadge}<br>
+                        Price: ${p.priceType === 'free' ? 'FREE' : `$${p.price}`} | 👁️ ${p.views || 0} | Status: ${p.sold ? 'Sold' : 'Active'}
+                        <div class="product-actions">
+                            <button class="editProductBtn" data-id="${p.id}">✏️ Edit</button>
+                            <button class="soldToggleBtn" data-id="${p.id}" data-sold="${p.sold}">${p.sold ? 'Mark as Unsold' : 'Mark as Sold'}</button>
+                            <button class="deleteOwnProduct" data-id="${p.id}">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.querySelectorAll('.editProductBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const pid = btn.getAttribute('data-id');
+                    const product = allUserProducts.find(p => p.id === pid);
+                    if (product) openEditModal(product);
+                });
+            });
+            document.querySelectorAll('.soldToggleBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const pid = btn.getAttribute('data-id');
+                    const currentSold = btn.getAttribute('data-sold') === 'true';
+                    toggleSold(pid, !currentSold);
+                    renderProfile();
+                });
+            });
             document.querySelectorAll('.deleteOwnProduct').forEach(btn => {
                 btn.addEventListener('click', () => {
                     let prods = getStorage(STORAGE.products).filter(p => p.id !== btn.getAttribute('data-id'));
@@ -851,6 +1008,7 @@
                 });
             });
         } else prodContainer.innerHTML = '<i>You have not listed any products yet. Click "Add Product" to start.</i>';
+        
         document.getElementById('addContactBtn')?.addEventListener('click', () => {
             const type = document.getElementById('contactTypeSelect').value;
             const val = document.getElementById('contactValue').value;
@@ -861,7 +1019,6 @@
             currentUser = user;
             renderProfile();
         });
-        // Remove contact buttons
         document.querySelectorAll('.removeContact').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const type = btn.getAttribute('data-type');
@@ -886,14 +1043,14 @@
             tbody.innerHTML = freshFree.map(p => {
                 const seller = getUserById(p.sellerId);
                 return `<tr>
-                    <td>${escapeHtml(p.title)}</td>
+                    <td>${escapeHtml(p.title)} ${p.sold ? '<span class="sold-badge-small">SOLD</span>' : ''}</td>
                     <td>${seller?.username || 'unknown'}</td>
                     <td>${p.status === 'active' ? '✅ Visible' : '❌ Hidden'}</td>
                     <td>
                         <button class="toggleHideBtn" data-id="${p.id}" data-hidden="${p.status === 'hidden'}">${p.status === 'active' ? 'Hide' : 'Show'}</button>
                         <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message seller</button>
                     </td>
-                </tr>`;
+                <tr>`;
             }).join('');
             document.querySelectorAll('.toggleHideBtn').forEach(btn => {
                 btn.addEventListener('click', () => {
