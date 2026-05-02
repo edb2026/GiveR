@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Givy Rewards Marketplace | Most Viewed First</title>
+    <title>Givy Rewards Marketplace | Private Account & Public Market</title>
     <style>
         * {
             margin: 0;
@@ -93,6 +93,21 @@
             max-width: 1400px;
             margin: 24px auto;
             padding: 0 20px;
+        }
+        .search-bar {
+            margin: 20px 0 30px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 60px;
+            border: 1px solid #ccdbe5;
+            font-size: 1rem;
+            background: white;
         }
         .products-grid {
             display: grid;
@@ -321,9 +336,8 @@
         }
     }
 
-    // ======================== FORCE RESET TO ENGLISH DATA ========================
+    // ======================== RESET TO ENGLISH DATA (USD) ========================
     function resetToEnglishData() {
-        // Users (admin + two sample users) - all English
         const users = [
             { id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] },
             { id: 'u2', email: 'alice@example.com', username: 'AliceWonder', password: '123456', role: 'user', contactMethods: [{ type: 'whatsapp', value: '+19991234567' }, { type: 'telegram', value: '@alice_tg' }] },
@@ -331,26 +345,21 @@
         ];
         setStorage(STORAGE.users, users);
 
-        // Products - English only
         const products = [
-            { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 2500, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 128 },
+            { id: 'p1', sellerId: 'u2', title: 'Office Chair', description: 'Comfortable chair, almost new', price: 35, priceType: 'paid', category: 'Furniture', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 128 },
             { id: 'p2', sellerId: 'u3', title: 'Programming Books', description: '3 books: JS, Python', price: 'free', priceType: 'free', category: 'Books', locationZip: '105120', images: [], status: 'active', createdAt: Date.now(), views: 95 },
-            { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 3200, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 210 }
+            { id: 'p3', sellerId: 'u2', title: 'Sony Headphones', description: 'Great condition, noise cancelling', price: 45, priceType: 'paid', category: 'Electronics', locationZip: '101000', images: [], status: 'active', createdAt: Date.now(), views: 210 }
         ];
         setStorage(STORAGE.products, products);
 
-        // Ratings - English comments
         const ratings = [
             { id: 'r1', sellerId: 'u2', userId: 'u3', rating: 9, comment: 'Excellent seller, fast response', createdAt: Date.now() },
             { id: 'r2', sellerId: 'u3', userId: 'u2', rating: 10, comment: 'Honest deal, recommend', createdAt: Date.now() }
         ];
         setStorage(STORAGE.ratings, ratings);
-
-        // Messages - empty
         setStorage(STORAGE.messages, []);
     }
 
-    // Check if old Russian data exists (simple heuristic: look for cyrillic in product titles)
     function needsReset() {
         const products = getStorage(STORAGE.products, []);
         if (products.length === 0) return true;
@@ -360,11 +369,8 @@
         return false;
     }
 
-    if (needsReset()) {
-        console.log('Resetting to English data...');
-        resetToEnglishData();
-    } else {
-        // ensure all required fields exist
+    if (needsReset()) resetToEnglishData();
+    else {
         let products = getStorage(STORAGE.products);
         let updated = false;
         products = products.map(p => {
@@ -373,7 +379,6 @@
             return p;
         });
         if (updated) setStorage(STORAGE.products, products);
-        
         let users = getStorage(STORAGE.users);
         if (!users.find(u => u.role === 'admin')) {
             users.push({ id: 'u1', email: 'admin@givy.com', username: 'AdminGivy', password: 'admin123', role: 'admin', contactMethods: [] });
@@ -383,7 +388,8 @@
 
     let currentUser = null;
     let showAuthPopup = false;
-    let currentView = 'marketplace';
+    let currentView = 'marketplace'; // only used when logged out
+    let currentSearchTerm = '';
 
     // Helper functions
     function getUserById(uid) {
@@ -404,8 +410,7 @@
 
     function addRating(sellerId, userId, rating, comment) {
         const ratings = getStorage(STORAGE.ratings);
-        const newRating = { id: Date.now() + '' + Math.random(), sellerId, userId, rating: Number(rating), comment, createdAt: Date.now() };
-        ratings.push(newRating);
+        ratings.push({ id: Date.now() + '' + Math.random(), sellerId, userId, rating: Number(rating), comment, createdAt: Date.now() });
         setStorage(STORAGE.ratings, ratings);
     }
 
@@ -417,9 +422,9 @@
 
     function updateProductVisibility(productId, hidden) {
         let products = getStorage(STORAGE.products);
-        const index = products.findIndex(p => p.id === productId);
-        if (index !== -1) {
-            products[index].status = hidden ? 'hidden' : 'active';
+        const idx = products.findIndex(p => p.id === productId);
+        if (idx !== -1) {
+            products[idx].status = hidden ? 'hidden' : 'active';
             setStorage(STORAGE.products, products);
         }
     }
@@ -435,18 +440,18 @@
     }
 
     function renderContactMethods(methods) {
-        if (!methods.length) return '<span class="contact-badge">📞 Contact: not provided</span>';
+        if (!methods || !methods.length) return '<span class="contact-badge">📞 Contact: not provided</span>';
         return methods.map(m => `<span class="contact-badge">${m.type.toUpperCase()}: ${escapeHtml(m.value)}</span>`).join('');
     }
 
-    // ======================== RENDER ENGINE ========================
+    // ======================== RENDER ========================
     function render() {
         const container = document.getElementById('app');
         const isLoggedIn = !!currentUser;
         let headerHtml = `
             <div class="app-header">
                 <div class="header-top">
-                    <div class="logo"><h1>🎁 Givy Rewards Marketplace</h1><span>most viewed first</span></div>
+                    <div class="logo"><h1>🎁 Givy Rewards Marketplace</h1><span>${isLoggedIn ? 'your private account' : 'public marketplace'}</span></div>
                     <div class="user-area">
                         ${isLoggedIn ? `<div class="user-greeting">👋 ${escapeHtml(currentUser.username)}</div>` : ''}
                         <button class="icon-btn" id="userIconBtn">${isLoggedIn ? '👤' : '🔐'}</button>
@@ -455,9 +460,9 @@
                 </div>
                 ${isLoggedIn ? `
                 <div class="nav-links">
-                    <button data-nav="marketplace">🏠 Products</button>
+                    <!-- Products (Marketplace) button is REMOVED for logged-in users -->
                     <button data-nav="addProduct">➕ Add Product</button>
-                    <button data-nav="profile">👤 Profile</button>
+                    <button data-nav="profile">👤 My Profile</button>
                     ${currentUser.role === 'admin' ? '<button data-nav="admin">🛡️ Admin Panel</button>' : ''}
                 </div>
                 ` : ''}
@@ -479,8 +484,14 @@
         if (isLoggedIn) {
             document.getElementById('logoutIconBtn')?.addEventListener('click', logout);
             attachNavEvents();
+            // When logged in, default view is profile (shows only user's products)
+            if (!currentView || currentView === 'marketplace') currentView = 'profile';
+            loadView(currentView);
+        } else {
+            // When logged out, always show marketplace
+            currentView = 'marketplace';
+            loadView('marketplace');
         }
-        loadView(currentView);
         if (showAuthPopup && !currentUser) renderAuthModal();
         else { const m = document.querySelector('.auth-modal'); if (m) m.remove(); }
     }
@@ -539,8 +550,9 @@
     function attachNavEvents() {
         document.querySelectorAll('[data-nav]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                currentView = btn.getAttribute('data-nav');
-                loadView(currentView);
+                const nav = btn.getAttribute('data-nav');
+                currentView = nav;
+                loadView(nav);
             });
         });
     }
@@ -548,24 +560,43 @@
     function loadView(view) {
         const container = document.getElementById('viewContainer');
         if (!container) return;
-        if (view === 'marketplace') renderMarketplace(container);
+        if (view === 'marketplace' && !currentUser) renderPublicMarketplace(container);
         else if (view === 'addProduct' && currentUser) renderAddProduct(container);
         else if (view === 'profile' && currentUser) renderProfile(container);
         else if (view === 'admin' && currentUser?.role === 'admin') renderAdminPanel(container);
-        else renderMarketplace(container);
+        else if (!currentUser) renderPublicMarketplace(container);
+        else renderProfile(container);
     }
 
-    // ======================== MARKETPLACE (MOST VIEWED FIRST) ========================
-    function renderMarketplace(container) {
-        let products = getStorage(STORAGE.products).filter(p => p.status === 'active');
-        products.sort((a,b) => (b.views || 0) - (a.views || 0));
-        let html = `<h2>📢 Most viewed products first</h2><div class="products-grid">`;
-        if (products.length === 0) html += `<p>No products yet. Be the first seller! <br><small>Login to add items.</small></p>`;
-        products.forEach(product => {
+    // ======================== PUBLIC MARKETPLACE (for non-logged-in users) ========================
+    function renderPublicMarketplace(container) {
+        let allProducts = getStorage(STORAGE.products).filter(p => p.status === 'active');
+        let filtered = allProducts;
+        if (currentSearchTerm.trim() !== '') {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = allProducts.filter(p => 
+                p.title.toLowerCase().includes(term) ||
+                p.description.toLowerCase().includes(term) ||
+                p.category.toLowerCase().includes(term)
+            );
+        }
+        filtered.sort((a,b) => (b.views || 0) - (a.views || 0));
+        
+        let html = `
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by title, category or description..." value="${escapeHtml(currentSearchTerm)}">
+                <button id="searchBtn">🔍 Search</button>
+                <button id="resetSearchBtn">✖ Reset</button>
+            </div>
+            <h2>📢 ${filtered.length} product(s) in public marketplace</h2>
+            <div class="products-grid">
+        `;
+        if (filtered.length === 0) html += `<p>No products match your search. Try different keywords or reset search.</p>`;
+        filtered.forEach(product => {
             const seller = getUserById(product.sellerId);
             if (!seller) return;
             const avgRating = getSellerAverageRating(product.sellerId);
-            const priceDisplay = product.priceType === 'free' ? 'FREE' : `${product.price} ₽`;
+            const priceDisplay = product.priceType === 'free' ? 'FREE' : `$${product.price}`;
             const freeClass = product.priceType === 'free' ? 'free-tag' : '';
             const viewsCount = product.views || 0;
             html += `
@@ -588,12 +619,20 @@
         });
         html += `</div>`;
         container.innerHTML = html;
+        
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const resetBtn = document.getElementById('resetSearchBtn');
+        if (searchBtn) searchBtn.addEventListener('click', () => { currentSearchTerm = searchInput.value; renderPublicMarketplace(container); });
+        if (resetBtn) resetBtn.addEventListener('click', () => { currentSearchTerm = ''; renderPublicMarketplace(container); });
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchTerm = searchInput.value; renderPublicMarketplace(container); } });
+        
         document.querySelectorAll('.detail-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const pid = btn.getAttribute('data-id');
                 incrementProductViews(pid);
-                renderMarketplace(container);
+                renderPublicMarketplace(container);
                 showProductDetail(pid);
             });
         });
@@ -618,7 +657,7 @@
             <div class="modal-content">
                 <h3>${escapeHtml(product.title)}</h3>
                 <p><strong>Description:</strong> ${escapeHtml(product.description)}</p>
-                <p><strong>Price:</strong> ${product.priceType === 'free' ? 'Free' : product.price + ' ₽'}</p>
+                <p><strong>Price:</strong> ${product.priceType === 'free' ? 'Free' : `$${product.price}`}</p>
                 <p><strong>Category:</strong> ${product.category}</p>
                 <p><strong>Location ZIP:</strong> ${product.locationZip}</p>
                 <p><strong>👁️ Views:</strong> ${product.views || 0}</p>
@@ -634,7 +673,7 @@
                 <input type="number" id="ratingScore" min="1" max="10" step="1" placeholder="Rating">
                 <textarea id="ratingComment" placeholder="Your comment"></textarea>
                 <button id="submitRatingBtn">Submit rating</button>
-                ` : ''}
+                ` : '<p><em>Login to rate this seller</em></p>'}
                 <button id="closeModal">Close</button>
             </div>
         `;
@@ -653,7 +692,7 @@
         }
     }
 
-    // ======================== ADD PRODUCT ========================
+    // ======================== ADD PRODUCT (USD) ========================
     function renderAddProduct(container) {
         let imagePreviews = [];
         const html = `
@@ -665,18 +704,20 @@
                     <option>Electronics</option><option>Clothing</option><option>Furniture</option><option>Books</option><option>Other</option>
                 </select>
                 <div><label><input type="checkbox" id="isFree"> Free</label></div>
-                <div id="priceDiv"><input type="number" id="prodPrice" placeholder="Price in ₽"></div>
+                <div id="priceDiv"><input type="number" id="prodPrice" placeholder="Price in USD ($)"></div>
                 <input type="text" id="zipCode" placeholder="ZIP code">
-                <button id="getLocationBtn">📍 Use my current location</button>
+                <button id="getLocationBtn" type="button">📍 Use my current location</button>
                 <div><label>Photos (up to 10)</label><input type="file" id="prodImages" accept="image/*" multiple></div>
                 <div id="imagePreviewContainer" class="image-preview"></div>
-                <button id="submitProductBtn">Publish product</button>
+                <button id="submitProductBtn" type="button">Publish product</button>
             </div>
         `;
         container.innerHTML = html;
+        
         const freeCheck = document.getElementById('isFree');
         const priceDiv = document.getElementById('priceDiv');
         freeCheck.addEventListener('change', () => { priceDiv.style.display = freeCheck.checked ? 'none' : 'block'; });
+        
         document.getElementById('getLocationBtn').addEventListener('click', () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -690,6 +731,7 @@
                 }, () => alert('Could not get location, please enter manually'));
             } else alert('Geolocation not supported');
         });
+        
         const fileInput = document.getElementById('prodImages');
         fileInput.addEventListener('change', (e) => {
             imagePreviews = [];
@@ -708,28 +750,41 @@
                 reader.readAsDataURL(file);
             });
         });
-        document.getElementById('submitProductBtn').addEventListener('click', () => {
-            const title = document.getElementById('prodTitle').value;
-            const desc = document.getElementById('prodDesc').value;
+        
+        const submitBtn = document.getElementById('submitProductBtn');
+        const newSubmitBtn = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+        newSubmitBtn.addEventListener('click', () => {
+            const title = document.getElementById('prodTitle').value.trim();
+            const desc = document.getElementById('prodDesc').value.trim();
             const category = document.getElementById('prodCategory').value;
             const isFree = document.getElementById('isFree').checked;
             const priceVal = isFree ? 'free' : parseFloat(document.getElementById('prodPrice').value);
-            const zip = document.getElementById('zipCode').value;
+            const zip = document.getElementById('zipCode').value.trim();
             if (!title || !desc) { alert('Please fill title and description'); return; }
-            if (!isFree && (!priceVal || priceVal <= 0)) { alert('Please set a valid price'); return; }
+            if (!isFree && (!priceVal || priceVal <= 0)) { alert('Please set a valid price in USD'); return; }
             const product = {
                 id: 'prod_' + Date.now() + '_' + Math.random().toString(36),
-                sellerId: currentUser.id, title, description: desc, price: isFree ? 'free' : priceVal, priceType: isFree ? 'free' : 'paid',
-                category, locationZip: zip || 'Not specified', images: imagePreviews.slice(0,10), status: 'active', createdAt: Date.now(), views: 0
+                sellerId: currentUser.id,
+                title,
+                description: desc,
+                price: isFree ? 'free' : priceVal,
+                priceType: isFree ? 'free' : 'paid',
+                category,
+                locationZip: zip || 'Not specified',
+                images: imagePreviews.slice(0,10),
+                status: 'active',
+                createdAt: Date.now(),
+                views: 0
             };
             addProduct(product);
             alert('Product published successfully!');
-            currentView = 'marketplace';
+            currentView = 'profile'; // go back to profile after adding
             render();
         });
     }
 
-    // ======================== PROFILE ========================
+    // ======================== PROFILE (only user's own products) ========================
     function renderProfile(container) {
         const user = currentUser;
         let ownProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
@@ -747,17 +802,18 @@
                 <input id="contactValue" placeholder="Contact value (phone / username)">
                 <button id="addContactBtn">Add contact method</button>
                 <hr>
-                <h3>📦 My products</h3>
+                <h3>📦 My products (only visible to me)</h3>
                 <div id="myProductsList"></div>
                 <hr>
                 <h3>✉️ Messages from administration</h3>
                 <div>${messages.map(m => `<div class="contact-badge">📩 from ${getUserById(m.fromId)?.username || 'admin'}: ${escapeHtml(m.text)}</div>`).join('') || 'No messages'}</div>
+                <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">🔒 To see all products from all sellers, please logout.</p>
             </div>
         `;
         container.innerHTML = html;
         const prodContainer = document.getElementById('myProductsList');
         if (ownProducts.length) {
-            prodContainer.innerHTML = ownProducts.map(p => `<div><strong>${escapeHtml(p.title)}</strong> - ${p.priceType === 'free' ? 'Free' : p.price + ' ₽'} 👁️ ${p.views || 0} <button class="deleteOwnProduct" data-id="${p.id}">Delete</button></div>`).join('');
+            prodContainer.innerHTML = ownProducts.map(p => `<div><strong>${escapeHtml(p.title)}</strong> - ${p.priceType === 'free' ? 'Free' : `$${p.price}`} 👁️ ${p.views || 0} <button class="deleteOwnProduct" data-id="${p.id}">Delete</button></div>`).join('');
             document.querySelectorAll('.deleteOwnProduct').forEach(btn => {
                 btn.addEventListener('click', () => {
                     let prods = getStorage(STORAGE.products).filter(p => p.id !== btn.getAttribute('data-id'));
@@ -765,7 +821,7 @@
                     renderProfile(container);
                 });
             });
-        } else prodContainer.innerHTML = '<i>You have not listed any products yet</i>';
+        } else prodContainer.innerHTML = '<i>You have not listed any products yet. Click "Add Product" to start.</i>';
         document.getElementById('addContactBtn')?.addEventListener('click', () => {
             const type = document.getElementById('contactTypeSelect').value;
             const val = document.getElementById('contactValue').value;
@@ -817,11 +873,11 @@
         renderFreeTable();
     }
 
-    // ======================== LOGOUT & UTILITIES ========================
-    function logout() { currentUser = null; showAuthPopup = false; currentView = 'marketplace'; render(); }
+    function logout() { currentUser = null; showAuthPopup = false; currentSearchTerm = ''; render(); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
     render();
 </script>
 </body>
 </html>
+```
