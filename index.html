@@ -89,6 +89,20 @@
             background: #ffb347;
             color: #1e2f3a;
         }
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 40px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: #ffb347;
+            color: #1e2f3a;
+        }
         .container {
             max-width: 1400px;
             margin: 24px auto;
@@ -388,7 +402,7 @@
 
     let currentUser = null;
     let showAuthPopup = false;
-    let currentView = 'marketplace'; // only used when logged out
+    let currentView = 'marketplace'; // 'marketplace' = public view, 'profile', 'addProduct', 'admin'
     let currentSearchTerm = '';
 
     // Helper functions
@@ -459,11 +473,13 @@
                     </div>
                 </div>
                 ${isLoggedIn ? `
-                <div class="nav-links">
-                    <!-- Products (Marketplace) button is REMOVED for logged-in users -->
-                    <button data-nav="addProduct">➕ Add Product</button>
-                    <button data-nav="profile">👤 My Profile</button>
-                    ${currentUser.role === 'admin' ? '<button data-nav="admin">🛡️ Admin Panel</button>' : ''}
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div class="nav-links">
+                        <button data-nav="profile">👤 My Profile</button>
+                        <button data-nav="addProduct">➕ Add Product</button>
+                        ${currentUser.role === 'admin' ? '<button data-nav="admin">🛡️ Admin Panel</button>' : ''}
+                    </div>
+                    <div class="back-link" id="backToPublicBtn">← Back to Public Marketplace</div>
                 </div>
                 ` : ''}
             </div>
@@ -479,21 +495,47 @@
         
         document.getElementById('userIconBtn')?.addEventListener('click', () => {
             if (!currentUser) toggleAuthModal();
-            else { currentView = 'profile'; loadView(currentView); }
+            else { currentView = 'profile'; render(); }
         });
         if (isLoggedIn) {
             document.getElementById('logoutIconBtn')?.addEventListener('click', logout);
+            document.getElementById('backToPublicBtn')?.addEventListener('click', () => {
+                // Switch to public marketplace but stay logged in
+                currentView = 'marketplace';
+                render();
+            });
             attachNavEvents();
-            // When logged in, default view is profile (shows only user's products)
-            if (!currentView || currentView === 'marketplace') currentView = 'profile';
-            loadView(currentView);
+        }
+        // Determine what to show in the viewContainer
+        if (!currentUser) {
+            // Not logged in: always show public marketplace
+            renderPublicMarketplace();
         } else {
-            // When logged out, always show marketplace
-            currentView = 'marketplace';
-            loadView('marketplace');
+            // Logged in: show based on currentView
+            if (currentView === 'marketplace') {
+                renderPublicMarketplace();
+            } else if (currentView === 'profile') {
+                renderProfile();
+            } else if (currentView === 'addProduct') {
+                renderAddProduct();
+            } else if (currentView === 'admin' && currentUser.role === 'admin') {
+                renderAdminPanel();
+            } else {
+                renderProfile();
+            }
         }
         if (showAuthPopup && !currentUser) renderAuthModal();
         else { const m = document.querySelector('.auth-modal'); if (m) m.remove(); }
+    }
+
+    function attachNavEvents() {
+        document.querySelectorAll('[data-nav]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const nav = btn.getAttribute('data-nav');
+                currentView = nav;
+                render();
+            });
+        });
     }
 
     function toggleAuthModal() {
@@ -527,7 +569,7 @@
             const pass = document.getElementById('authLoginPass').value;
             const users = getStorage(STORAGE.users);
             const user = users.find(u => u.email === email && u.password === pass);
-            if (user) { currentUser = user; showAuthPopup = false; render(); }
+            if (user) { currentUser = user; showAuthPopup = false; currentView = 'profile'; render(); }
             else alert('Invalid credentials');
         });
         document.getElementById('authRegBtn')?.addEventListener('click', () => {
@@ -542,34 +584,16 @@
             setStorage(STORAGE.users, users);
             currentUser = newUser;
             showAuthPopup = false;
+            currentView = 'profile';
             render();
         });
         document.getElementById('closeAuthBtn')?.addEventListener('click', () => { showAuthPopup = false; render(); });
     }
 
-    function attachNavEvents() {
-        document.querySelectorAll('[data-nav]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const nav = btn.getAttribute('data-nav');
-                currentView = nav;
-                loadView(nav);
-            });
-        });
-    }
-
-    function loadView(view) {
+    // ======================== PUBLIC MARKETPLACE (for both logged-in and non-logged-in users) ========================
+    function renderPublicMarketplace() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
-        if (view === 'marketplace' && !currentUser) renderPublicMarketplace(container);
-        else if (view === 'addProduct' && currentUser) renderAddProduct(container);
-        else if (view === 'profile' && currentUser) renderProfile(container);
-        else if (view === 'admin' && currentUser?.role === 'admin') renderAdminPanel(container);
-        else if (!currentUser) renderPublicMarketplace(container);
-        else renderProfile(container);
-    }
-
-    // ======================== PUBLIC MARKETPLACE (for non-logged-in users) ========================
-    function renderPublicMarketplace(container) {
         let allProducts = getStorage(STORAGE.products).filter(p => p.status === 'active');
         let filtered = allProducts;
         if (currentSearchTerm.trim() !== '') {
@@ -623,16 +647,16 @@
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         const resetBtn = document.getElementById('resetSearchBtn');
-        if (searchBtn) searchBtn.addEventListener('click', () => { currentSearchTerm = searchInput.value; renderPublicMarketplace(container); });
-        if (resetBtn) resetBtn.addEventListener('click', () => { currentSearchTerm = ''; renderPublicMarketplace(container); });
-        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchTerm = searchInput.value; renderPublicMarketplace(container); } });
+        if (searchBtn) searchBtn.addEventListener('click', () => { currentSearchTerm = searchInput.value; renderPublicMarketplace(); });
+        if (resetBtn) resetBtn.addEventListener('click', () => { currentSearchTerm = ''; renderPublicMarketplace(); });
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchTerm = searchInput.value; renderPublicMarketplace(); } });
         
         document.querySelectorAll('.detail-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const pid = btn.getAttribute('data-id');
                 incrementProductViews(pid);
-                renderPublicMarketplace(container);
+                renderPublicMarketplace();
                 showProductDetail(pid);
             });
         });
@@ -692,8 +716,10 @@
         }
     }
 
-    // ======================== ADD PRODUCT (USD) ========================
-    function renderAddProduct(container) {
+    // ======================== ADD PRODUCT (FIXED) ========================
+    function renderAddProduct() {
+        const container = document.getElementById('viewContainer');
+        if (!container) return;
         let imagePreviews = [];
         const html = `
             <div class="form-card">
@@ -752,6 +778,7 @@
         });
         
         const submitBtn = document.getElementById('submitProductBtn');
+        // Remove all previous listeners by cloning and replacing
         const newSubmitBtn = submitBtn.cloneNode(true);
         submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
         newSubmitBtn.addEventListener('click', () => {
@@ -779,13 +806,15 @@
             };
             addProduct(product);
             alert('Product published successfully!');
-            currentView = 'profile'; // go back to profile after adding
+            currentView = 'profile';
             render();
         });
     }
 
     // ======================== PROFILE (only user's own products) ========================
-    function renderProfile(container) {
+    function renderProfile() {
+        const container = document.getElementById('viewContainer');
+        if (!container) return;
         const user = currentUser;
         let ownProducts = getStorage(STORAGE.products).filter(p => p.sellerId === user.id);
         const messages = getUserMessages(user.id);
@@ -807,7 +836,7 @@
                 <hr>
                 <h3>✉️ Messages from administration</h3>
                 <div>${messages.map(m => `<div class="contact-badge">📩 from ${getUserById(m.fromId)?.username || 'admin'}: ${escapeHtml(m.text)}</div>`).join('') || 'No messages'}</div>
-                <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">🔒 To see all products from all sellers, please logout.</p>
+                <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">🔒 To see all products from all sellers, click "Back to Public Marketplace" above.</p>
             </div>
         `;
         container.innerHTML = html;
@@ -818,7 +847,7 @@
                 btn.addEventListener('click', () => {
                     let prods = getStorage(STORAGE.products).filter(p => p.id !== btn.getAttribute('data-id'));
                     setStorage(STORAGE.products, prods);
-                    renderProfile(container);
+                    renderProfile();
                 });
             });
         } else prodContainer.innerHTML = '<i>You have not listed any products yet. Click "Add Product" to start.</i>';
@@ -830,12 +859,25 @@
             let users = getStorage(STORAGE.users).map(u => u.id === user.id ? user : u);
             setStorage(STORAGE.users, users);
             currentUser = user;
-            renderProfile(container);
+            renderProfile();
+        });
+        // Remove contact buttons
+        document.querySelectorAll('.removeContact').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = btn.getAttribute('data-type');
+                user.contactMethods = user.contactMethods.filter(m => m.type !== type);
+                let users = getStorage(STORAGE.users).map(u => u.id === user.id ? user : u);
+                setStorage(STORAGE.users, users);
+                currentUser = user;
+                renderProfile();
+            });
         });
     }
 
     // ======================== ADMIN PANEL ========================
-    function renderAdminPanel(container) {
+    function renderAdminPanel() {
+        const container = document.getElementById('viewContainer');
+        if (!container) return;
         const html = `<h2>🛡️ Admin Panel | Free items</h2><div class="admin-table"><table><thead><tr><th>Title</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead><tbody id="freeTableBody"></tbody></table></div>`;
         container.innerHTML = html;
         const tbody = document.getElementById('freeTableBody');
@@ -873,7 +915,7 @@
         renderFreeTable();
     }
 
-    function logout() { currentUser = null; showAuthPopup = false; currentSearchTerm = ''; render(); }
+    function logout() { currentUser = null; showAuthPopup = false; currentSearchTerm = ''; currentView = 'marketplace'; render(); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
     render();
