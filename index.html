@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Givy Rewards Marketplace | Edit & Sold Features</title>
+    <title>Givy Rewards Marketplace | Search by Name & ZIP</title>
     <style>
         * {
             margin: 0;
@@ -108,20 +108,38 @@
             margin: 24px auto;
             padding: 0 20px;
         }
-        .search-bar {
-            margin: 20px 0 30px;
+        /* Full-width search bar */
+        .search-bar-full {
+            width: 100%;
+            margin: 20px 0 20px;
+        }
+        .search-input-full {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border: 1px solid #ccdbe5;
+            border-radius: 60px;
+            background: white;
+            margin-bottom: 12px;
+        }
+        .search-filters {
             display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
-        .search-bar input {
-            flex: 1;
-            padding: 12px 20px;
-            border-radius: 60px;
+        .zip-group {
+            display: flex;
+            gap: 8px;
+            flex: 2;
+            min-width: 200px;
+        }
+        .zip-group input {
+            flex: 2;
+            padding: 10px 16px;
+            border-radius: 40px;
             border: 1px solid #ccdbe5;
-            font-size: 1rem;
-            background: white;
         }
         .products-grid {
             display: grid;
@@ -352,6 +370,8 @@
         @media (max-width: 700px) {
             .header-top { flex-direction: row; flex-wrap: wrap; }
             .auth-modal { width: 90%; right: 5%; left: 5%; top: 80px; }
+            .search-filters { flex-direction: column; align-items: stretch; }
+            .zip-group { width: 100%; }
         }
     </style>
 </head>
@@ -413,7 +433,7 @@
         if (products.length === 0) return true;
         for (let p of products) {
             if (/[а-яА-ЯёЁ]/.test(p.title)) return true;
-            if (p.sold === undefined) return true; // add sold field
+            if (p.sold === undefined) return true;
         }
         return false;
     }
@@ -439,7 +459,8 @@
     let currentUser = null;
     let showAuthPopup = false;
     let currentView = 'marketplace';
-    let currentSearchTerm = '';
+    let currentProductSearch = '';
+    let currentZipFilter = '';
 
     // Helper functions
     function getUserById(uid) {
@@ -630,32 +651,44 @@
         document.getElementById('closeAuthBtn')?.addEventListener('click', () => { showAuthPopup = false; render(); });
     }
 
-    // ======================== PUBLIC MARKETPLACE ========================
+    // ======================== PUBLIC MARKETPLACE WITH FULL-WIDTH SEARCH & ZIP FILTER ========================
     function renderPublicMarketplace() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
         let allProducts = getStorage(STORAGE.products).filter(p => p.status === 'active');
+        
+        // Apply search filters
         let filtered = allProducts;
-        if (currentSearchTerm.trim() !== '') {
-            const term = currentSearchTerm.toLowerCase();
-            filtered = allProducts.filter(p => 
+        if (currentProductSearch.trim() !== '') {
+            const term = currentProductSearch.toLowerCase();
+            filtered = filtered.filter(p => 
                 p.title.toLowerCase().includes(term) ||
                 p.description.toLowerCase().includes(term) ||
                 p.category.toLowerCase().includes(term)
             );
         }
+        if (currentZipFilter.trim() !== '') {
+            filtered = filtered.filter(p => p.locationZip === currentZipFilter.trim());
+        }
+        
         filtered.sort((a,b) => (b.views || 0) - (a.views || 0));
         
         let html = `
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search by title, category or description..." value="${escapeHtml(currentSearchTerm)}">
-                <button id="searchBtn">🔍 Search</button>
-                <button id="resetSearchBtn">✖ Reset</button>
+            <div class="search-bar-full">
+                <input type="text" id="productSearchInput" class="search-input-full" placeholder="Search by product name, category or description..." value="${escapeHtml(currentProductSearch)}">
+                <div class="search-filters">
+                    <div class="zip-group">
+                        <input type="text" id="zipFilterInput" placeholder="Filter by ZIP code" value="${escapeHtml(currentZipFilter)}">
+                        <button id="useMyLocationBtn">📍 Use my location</button>
+                    </div>
+                    <button id="applySearchBtn">🔍 Search</button>
+                    <button id="resetFiltersBtn">✖ Reset</button>
+                </div>
             </div>
-            <h2>📢 ${filtered.length} product(s) in public marketplace</h2>
+            <h2>📢 ${filtered.length} product(s) found</h2>
             <div class="products-grid">
         `;
-        if (filtered.length === 0) html += `<p>No products match your search. Try different keywords or reset search.</p>`;
+        if (filtered.length === 0) html += `<p>No products match your filters. Try different keywords or reset search.</p>`;
         filtered.forEach(product => {
             const seller = getUserById(product.sellerId);
             if (!seller) return;
@@ -686,12 +719,70 @@
         html += `</div>`;
         container.innerHTML = html;
         
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const resetBtn = document.getElementById('resetSearchBtn');
-        if (searchBtn) searchBtn.addEventListener('click', () => { currentSearchTerm = searchInput.value; renderPublicMarketplace(); });
-        if (resetBtn) resetBtn.addEventListener('click', () => { currentSearchTerm = ''; renderPublicMarketplace(); });
-        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { currentSearchTerm = searchInput.value; renderPublicMarketplace(); } });
+        const productSearchInput = document.getElementById('productSearchInput');
+        const zipFilterInput = document.getElementById('zipFilterInput');
+        const applyBtn = document.getElementById('applySearchBtn');
+        const resetBtn = document.getElementById('resetFiltersBtn');
+        const locationBtn = document.getElementById('useMyLocationBtn');
+        
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                currentProductSearch = productSearchInput.value;
+                currentZipFilter = zipFilterInput.value;
+                renderPublicMarketplace();
+            });
+        }
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                currentProductSearch = '';
+                currentZipFilter = '';
+                renderPublicMarketplace();
+            });
+        }
+        if (locationBtn) {
+            locationBtn.addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(async (pos) => {
+                        try {
+                            const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
+                            const data = await res.json();
+                            const zip = data.postcode || '';
+                            if (zip) {
+                                zipFilterInput.value = zip;
+                                currentZipFilter = zip;
+                                renderPublicMarketplace();
+                            } else {
+                                alert('Could not detect ZIP code. Please enter manually.');
+                            }
+                        } catch(e) {
+                            alert('Location detection failed. Please enter ZIP manually.');
+                        }
+                    }, () => alert('Unable to get your location. Please allow location access.'));
+                } else {
+                    alert('Geolocation not supported by your browser.');
+                }
+            });
+        }
+        
+        // Allow Enter key on search inputs
+        if (productSearchInput) {
+            productSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    currentProductSearch = productSearchInput.value;
+                    currentZipFilter = zipFilterInput.value;
+                    renderPublicMarketplace();
+                }
+            });
+        }
+        if (zipFilterInput) {
+            zipFilterInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    currentProductSearch = productSearchInput.value;
+                    currentZipFilter = zipFilterInput.value;
+                    renderPublicMarketplace();
+                }
+            });
+        }
         
         document.querySelectorAll('.detail-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -885,7 +976,6 @@
         const priceDiv = document.getElementById('editPriceDiv');
         freeCheck.addEventListener('change', () => { priceDiv.style.display = freeCheck.checked ? 'none' : 'block'; });
         
-        // Preview existing images
         const previewContainer = document.getElementById('editImagePreviewContainer');
         product.images.forEach(imgSrc => {
             const img = document.createElement('img');
@@ -896,7 +986,6 @@
         
         const fileInput = document.getElementById('editImages');
         fileInput.addEventListener('change', (e) => {
-            // clear preview container but keep existing? we will replace
             previewContainer.innerHTML = '';
             tempImagePreviews = [];
             const files = Array.from(e.target.files).slice(0,10);
@@ -934,12 +1023,12 @@
             });
             alert('Product updated successfully!');
             modalDiv.remove();
-            render(); // refresh profile
+            render();
         });
         document.getElementById('cancelEditBtn').addEventListener('click', () => modalDiv.remove());
     }
 
-    // ======================== PROFILE (shows all user's products, with edit/sold/delete) ========================
+    // ======================== PROFILE ========================
     function renderProfile() {
         const container = document.getElementById('viewContainer');
         if (!container) return;
@@ -1050,7 +1139,7 @@
                         <button class="toggleHideBtn" data-id="${p.id}" data-hidden="${p.status === 'hidden'}">${p.status === 'active' ? 'Hide' : 'Show'}</button>
                         <button class="msgSellerBtn" data-id="${p.sellerId}" data-name="${seller?.username}">✉️ Message seller</button>
                     </td>
-                <tr>`;
+                </tr>`;
             }).join('');
             document.querySelectorAll('.toggleHideBtn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1072,7 +1161,7 @@
         renderFreeTable();
     }
 
-    function logout() { currentUser = null; showAuthPopup = false; currentSearchTerm = ''; currentView = 'marketplace'; render(); }
+    function logout() { currentUser = null; showAuthPopup = false; currentProductSearch = ''; currentZipFilter = ''; currentView = 'marketplace'; render(); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
     render();
